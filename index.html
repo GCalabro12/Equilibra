@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Equilibra · La flor de tu semana</title>
-<meta name="description" content="Equilibra: puntúa cada semana las 8 áreas de tu vida, mira tu flor y elige una pequeña acción para equilibrarla.">
+<title>Equilibra · Tus próximas acciones</title>
+<meta name="description" content="Equilibra: ten claras tus próximas acciones para vivir en equilibrio. La flor de 8 áreas te dice dónde poner energía.">
 <meta name="theme-color" content="#140f26">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Equilibra">
@@ -311,6 +311,56 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 @keyframes desdeIzq{from{opacity:.3;transform:translateX(-40px)}}
 #app{touch-action:pan-y}
 
+/* v2.00 · Equilibra = tus próximas acciones */
+.tit-acc{font-size:30px;font-weight:800;margin-top:22px;line-height:1.1}
+.prox-lista{display:flex;flex-direction:column;gap:10px;margin:16px -16px 0}
+.prox{display:flex;align-items:center;gap:14px;padding:20px 16px;border:0;width:100%;text-align:left;color:var(--tinta);
+  background:linear-gradient(100deg,color-mix(in srgb,var(--c) 32%,transparent),color-mix(in srgb,var(--c) 6%,transparent) 85%);animation:entra .4s ease-out both}
+.prox .num{font-size:30px;font-weight:800;color:color-mix(in srgb,var(--c) 55%,#fff);width:28px;flex:none;text-align:center}
+.prox .cuerpo-p{flex:1;min-width:0}
+.prox .area-p{font-size:12px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:color-mix(in srgb,var(--c) 40%,#fff);display:flex;align-items:center;gap:6px}
+.prox .texto-p{font-size:22px;font-weight:800;line-height:1.25;margin-top:4px;overflow-wrap:anywhere}
+.prox.falta{background:linear-gradient(100deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 85%)}
+.prox.falta .texto-p{font-size:17px;color:var(--suave);font-weight:700}
+.prox.saliendo{animation:sale .32s ease-in forwards}
+@keyframes sale{to{opacity:0;transform:translateX(70px)}}
+.check{width:50px;height:50px;flex:none;border-radius:50%;border:3px solid color-mix(in srgb,var(--c) 65%,#fff);background:transparent;display:grid;place-items:center;color:transparent;font-size:22px;font-weight:800;padding:0}
+.check:active{background:var(--c);color:#fff}
+.otras{margin-top:10px}
+.otras summary{list-style:none;text-align:center;cursor:pointer}
+.otra{display:flex;align-items:center;gap:12px;padding:8px 0;font-weight:700}
+.otra .check{width:34px;height:34px;font-size:15px;border-width:2px}
+.flor-sec{margin-top:18px}
+.flor-sec .flor:not(.mini){width:100%;max-width:340px;margin:10px auto 4px}
+.flor .centro-num{font-size:24px;font-weight:800;fill:#3a2208}
+.flor .centro-txt{font-size:8.5px;font-weight:800;fill:#5a3810;text-transform:uppercase;letter-spacing:.3px}
+.flor .eti-marca{font-size:17px;font-weight:800}
+.leyenda-niv{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;font-size:12px;color:var(--suave);margin-top:4px}
+.leyenda-niv span{display:inline-flex;align-items:center;gap:4px}
+.leyenda-niv .pt2{display:inline-block;width:8px;height:8px;border-radius:50%;background:#cbbcf5}
+.leyenda-niv b{color:#cbbcf5}
+.opciones{display:flex;flex-direction:column;gap:10px;margin-top:12px;text-align:left}
+.opcion{display:flex;align-items:center;gap:12px;text-align:left;border:0;border-radius:16px;padding:14px 16px;background:rgba(255,255,255,.07);color:var(--tinta);width:100%}
+.opcion b{display:block;font-size:17px}
+.opcion small{display:block;color:var(--suave);font-size:13px;font-weight:600}
+.opcion .marca{width:36px;height:36px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:800;background:rgba(255,255,255,.1);font-size:14px}
+.opcion.sel{background:color-mix(in srgb,var(--c) 38%,transparent);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--c) 70%,#fff)}
+.opcion.sel .marca{background:var(--c);color:#fff}
+.opciones.compacta{gap:8px}
+.opciones.compacta .opcion{padding:10px 12px}
+.opciones.compacta .opcion b{font-size:15px}
+.plan-area{margin:0 -16px;padding:16px;background:linear-gradient(100deg,color-mix(in srgb,var(--c) 16%,transparent),transparent 75%)}
+.plan-area + .plan-area{margin-top:8px}
+.plan-area h3{display:flex;align-items:center;gap:8px;font-size:18px}
+.plan-area .nivel-t{font-size:13px;color:var(--suave);font-weight:700;margin:2px 0 4px}
+.ya{font-size:14px;color:var(--suave);margin:4px 0}
+.fila-acc{display:flex;align-items:center;gap:6px}
+.fila-acc .tarea{flex:1}
+.del{border:0;background:none;color:var(--suave);font-size:18px;padding:6px 8px}
+.fila-niv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;font-weight:700;font-size:15px}
+.fila-niv b{font-size:14px}
+.semana-acc li{cursor:pointer}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -321,7 +371,7 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
   <span class="tocar" id="tocar">🔊 Toca para entrar</span>
   <svg class="logo-s" id="logo-splash"></svg>
   <h1>Equilibra</h1>
-  <p>La flor de tu semana</p>
+  <p>Tus próximas acciones, en equilibrio</p>
   <div class="sellos" id="sellos-splash"></div>
 </div>
 
@@ -337,8 +387,8 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 
 <nav class="abajo" id="nav">
   <div class="in">
-    <button data-v="inicio" onclick="ir('inicio')"><span>🌸</span>Mi flor</button>
-    <button data-v="historial" onclick="ir('historial')"><span>🌷</span>Jardín</button>
+    <button data-v="inicio" onclick="ir('inicio')"><span>🏠</span>Inicio</button>
+    <button data-v="historial" onclick="ir('historial')"><span>📅</span>Historial</button>
     <button data-v="ajustes" onclick="ir('ajustes')"><span>⚙️</span>Ajustes</button>
   </div>
 </nav>
@@ -347,7 +397,7 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 
 <script>
 'use strict';
-const VERSION = 'v1.11';
+const VERSION = 'v2.00';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -375,47 +425,72 @@ const AREAS = [
 
 const $ = s => document.querySelector(s);
 const app = $('#app');
-let D = cargar();
-let vista = 'inicio';
-let E = null;          // flor en curso
-let R = null;          // contexto de la pantalla de resultado / acción
-let detalleId = null;
 
-/* ---------- Datos ---------- */
+/* ---------- Datos (v2: acciones + niveles por área) ----------
+   D = {v:2, niveles:{area:'bien'|'una'|'mas'}, detalle:{trabajo:{gusta,dinero}}, comentarios:{}, nivelesMod,
+        revisiones:[{id, fecha, niveles, detalle, comentarios}], acciones:[{id, area, texto, hecha, creada, hechaEn, mod}], borradas:[] } */
+const NIVELES = {
+  bien: {marca:'✓',  titulo:'Estoy bien',             sub:'No necesita acciones',        n:0, peso:0},
+  una:  {marca:'1',  titulo:'Una acción a la semana', sub:'Necesita un pequeño paso',    n:1, peso:1},
+  mas:  {marca:'2+', titulo:'Necesita más acción',    sub:'2 o 3 acciones esta semana',  n:2, peso:2},
+};
+const vacio = () => ({v:2, niveles:{}, detalle:{}, comentarios:{}, nivelesMod:null, revisiones:[], acciones:[], borradas:[]});
+const nivelDeNota = n => n <= 4 ? 'mas' : n <= 7 ? 'una' : 'bien';
+/* Pasa los datos de v1 (notas del 1 al 10 y acciones por semana) al formato nuevo */
+function migrar(d){
+  const v = vacio(); v.borradas = d.borradas || [];
+  (d.evaluaciones || []).forEach(e => {
+    const niveles = {}; Object.keys(e.notas || {}).forEach(k => niveles[k] = nivelDeNota(e.notas[k]));
+    v.revisiones.push({id: e.id, fecha: e.fecha, niveles, detalle: {}, comentarios: e.comentarios || {}});
+    const ts = e.accion ? (Array.isArray(e.accion.tareas) ? e.accion.tareas : e.accion.texto ? [{texto: e.accion.texto, hecha: !!e.accion.hecha}] : []) : [];
+    ts.forEach((t,k) => v.acciones.push({id: e.id + '-' + k, area: e.accion.area, texto: t.texto, hecha: !!t.hecha,
+      creada: e.accion.fecha || e.fecha, hechaEn: t.hecha ? (e.mod || e.accion.fecha || e.fecha) : null, mod: e.mod || e.fecha}));
+  });
+  const ult = v.revisiones[v.revisiones.length-1];
+  if(ult){ v.niveles = {...ult.niveles}; v.comentarios = {...ult.comentarios}; v.nivelesMod = ult.fecha; }
+  return v;
+}
+function normalizar(d){
+  if(!d) return vacio();
+  if(d.v !== 2) return migrar(d);
+  return Object.assign(vacio(), d);
+}
 function cargar(){
-  try{ const d = JSON.parse(localStorage.getItem(CLAVE)); if(d && Array.isArray(d.evaluaciones)) return d; }catch(e){}
-  return {evaluaciones:[]};
+  try{ const d = JSON.parse(localStorage.getItem(CLAVE)); if(d) return normalizar(d); }catch(e){}
+  return vacio();
 }
 function guardar(){
   try{ localStorage.setItem(CLAVE, JSON.stringify(D)); }catch(e){ aviso('No se pudo guardar en este navegador'); }
   enviarResumen();
   programarSubida();
 }
-const marcar = ev => { ev.mod = new Date().toISOString(); };
-const ultima = () => D.evaluaciones[D.evaluaciones.length-1] || null;
-const porId = id => D.evaluaciones.find(e => e.id === id);
+const ahoraISO = () => new Date().toISOString();
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const areaDe = id => AREAS.find(a => a.id === id);
-function anterior(ev){ const i = D.evaluaciones.findIndex(e => e.id === ev.id); return i > 0 ? D.evaluaciones[i-1] : null; }
-function media(notas){ return Math.round(AREAS.reduce((s,a) => s + (notas[a.id]||0), 0) / AREAS.length * 10) / 10; }
-function ordenadas(notas){ return AREAS.slice().sort((x,y) => notas[x.id] - notas[y.id]); }
-function fmt(n){ return Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ','); }
-function diasDesde(f){ const a = new Date(f); a.setHours(0,0,0,0); const b = new Date(); b.setHours(0,0,0,0); return Math.round((b-a)/864e5); }
+const nivel = id => D.niveles[id] || null;
+const tieneDatos = () => D.revisiones.length > 0 || D.acciones.length > 0;
+const ultimaRevision = () => D.revisiones[D.revisiones.length-1] || null;
+const pesoArea = id => nivel(id) ? NIVELES[nivel(id)].peso : 0;
+/* Pendientes ordenadas: primero las de las áreas que más lo necesitan, luego por antigüedad */
+function pendientes(){
+  return D.acciones.filter(a => !a.hecha).sort((x,y) => (pesoArea(y.area) - pesoArea(x.area)) || (x.creada < y.creada ? -1 : 1));
+}
+const proximas = () => pendientes().slice(0, 3);
+/* Áreas que piden acción y aún no tienen suficientes acciones pendientes */
+function faltan(){
+  return AREAS.filter(a => nivel(a.id) && NIVELES[nivel(a.id)].n > 0)
+    .map(a => ({area: a, faltan: NIVELES[nivel(a.id)].n - D.acciones.filter(x => x.area === a.id && !x.hecha).length}))
+    .filter(x => x.faltan > 0).sort((x,y) => pesoArea(y.area.id) - pesoArea(x.area.id));
+}
+function nuevaAccion(area, texto){ D.acciones.push({id: uid(), area, texto, hecha:false, creada: ahoraISO(), hechaEn:null, mod: ahoraISO()}); }
 function fecha(f, larga){
   return new Date(f).toLocaleDateString('es-ES', larga ? {weekday:'long', day:'numeric', month:'long', year:'numeric'} : {day:'numeric', month:'short', year:'numeric'});
 }
+function diasDesde(f){ const a = new Date(f); a.setHours(0,0,0,0); const b = new Date(); b.setHours(0,0,0,0); return Math.round((b-a)/864e5); }
 function esc(t){ return String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function deltaHTML(v, prev){
-  if(prev == null) return '<span class="delta"></span>';
-  const d = Math.round((v - prev)*10)/10;
-  if(d > 0) return `<span class="delta up">▲${fmt(d)}</span>`;
-  if(d < 0) return `<span class="delta down">▼${fmt(-d)}</span>`;
-  return '<span class="delta igual">=</span>';
-}
-
 /* Semanas (lunes a domingo) */
 function lunes(f){ const d = new Date(f); d.setHours(0,0,0,0); d.setDate(d.getDate() - (d.getDay()+6)%7); return d; }
 function claveSemana(f){ const l = lunes(f); return `${l.getFullYear()}-${String(l.getMonth()+1).padStart(2,'0')}-${String(l.getDate()).padStart(2,'0')}`; }
-function semanaDe(ev){ return ev.semana || claveSemana(ev.fecha); }
 function rangoSemana(clave){
   const [y,m,d] = clave.split('-').map(Number), l = new Date(y, m-1, d), dom = new Date(y, m-1, d+6);
   const o = {day:'numeric', month:'short'};
@@ -425,7 +500,9 @@ function textoSemana(clave){
   const hoy = claveSemana(new Date()), pasada = claveSemana(new Date(Date.now() - 7*864e5));
   return clave === hoy ? 'Esta semana' : clave === pasada ? 'La semana pasada' : `Semana del ${rangoSemana(clave)}`;
 }
-const semanasDesde = ev => Math.round((lunes(new Date()) - lunes(ev.fecha)) / (7*864e5));
+const hechasEstaSemana = () => D.acciones.filter(a => a.hecha && a.hechaEn && claveSemana(a.hechaEn) === claveSemana(new Date())).length;
+
+let D = cargar();
 
 /* ---------- Sonidos (Web Audio, sin archivos) ---------- */
 let ctxAudio = null;
@@ -469,7 +546,7 @@ function alternarSonido(){
   if(vista === 'ajustes') render();
 }
 
-/* ---------- Dibujos: la flor ---------- */
+/* ---------- Dibujos: la flor (v2: pétalos iguales; la intensidad dice el nivel) ---------- */
 function pt(r, ang){ const a = ang*Math.PI/180; return [r*Math.cos(a), r*Math.sin(a)]; }
 /* Pétalo apuntando hacia arriba (eje -y), de largo L */
 function petalo(L, W){
@@ -477,56 +554,39 @@ function petalo(L, W){
   return `M0 0C${w} ${-L*.28} ${w*.92} ${-L*.78} 0 ${-L}C${-w*.92} ${-L*.78} ${-w} ${-L*.28} 0 0Z`;
 }
 let idFlor = 0;
-function flor(notas, previas, opc = {}){
-  const mini = !!opc.mini, paso = 360/AREAS.length, LMAX = 132, n = ++idFlor, T = opc.tareas || null;
-  const vb = 150, vx = vb;
-  let s = `<svg viewBox="${-vx} ${-vb} ${vx*2} ${vb*2}" class="flor${mini?' mini':''}" role="img" aria-label="Flor de la semana${notas?': media '+fmt(media(notas)):''}">
+function flor(niveles, opc = {}){
+  const mini = !!opc.mini, paso = 360/AREAS.length, L = 118, n = ++idFlor, vb = 150;
+  let s = `<svg viewBox="${-vb} ${-vb} ${vb*2} ${vb*2}" class="flor${mini?' mini':''}" role="img" aria-label="Tu flor">
   <defs><filter id="brillo${n}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <radialGradient id="centro${n}"><stop offset="0" stop-color="#ffe59a"/><stop offset=".6" stop-color="#f7b733"/><stop offset="1" stop-color="#d9831f"/></radialGradient></defs>`;
-  // guía: el contorno del pétalo «pleno» (10)
-  if(!mini) AREAS.forEach((a,i) => { s += `<path d="${petalo(LMAX, 30)}" transform="rotate(${i*paso})" fill="none" stroke="${a.color}" stroke-opacity=".22" stroke-width="1.2"/>`; });
   AREAS.forEach((a,i) => {
-    const v = notas && notas[a.id]; if(!(v > 0)) return;
-    const L = 18 + (LMAX-18) * v/10;
-    const conT = T && T.area === a.id;   // pétalo con acciones asignadas: contorno blanco
-    s += `<g transform="rotate(${i*paso})"><path class="${mini?'':'petalo'}" style="animation-delay:${i*70}ms" d="${petalo(L)}" fill="${a.color}" ${mini?'':`filter="url(#brillo${n})"`} ${conT ? `stroke="#fff" stroke-width="${mini?5:2.6}" stroke-opacity=".95"` : ''}/>
-      <path d="M0 -10L0 ${-L*.82}" stroke="#fff" stroke-opacity=".28" stroke-width="1.4" stroke-linecap="round" ${mini?'':`class="petalo" style="animation-delay:${i*70}ms"`}/></g>`;
+    const nv = niveles && niveles[a.id];
+    const op = !nv ? .12 : nv === 'bien' ? .38 : nv === 'una' ? .78 : 1;
+    const extra = !nv ? `stroke="${a.color}" stroke-width="1.5" stroke-dasharray="4 4"` : (nv === 'mas' && !mini ? `filter="url(#brillo${n})" stroke="#fff" stroke-width="2.4"` : '');
+    s += `<g transform="rotate(${i*paso})"><path class="${mini?'':'petalo'}" style="animation-delay:${i*70}ms" d="${petalo(L, 32)}" fill="${a.color}" fill-opacity="${op}" ${extra}/>
+      <path d="M0 -14L0 ${-L*.82}" stroke="#fff" stroke-opacity=".22" stroke-width="1.4" stroke-linecap="round"/></g>`;
   });
-  if(previas){
-    AREAS.forEach((a,i) => {
-      const v = previas[a.id]; if(!(v > 0)) return;
-      s += `<path d="${petalo(18 + (LMAX-18)*v/10)}" transform="rotate(${i*paso})" fill="none" stroke="#e9e1ff" stroke-opacity=".75" stroke-width="1.8" stroke-dasharray="5 4"/>`;
-    });
-  }
-  s += `<g class="${mini?'':'centro'}"><circle r="${mini?20:22}" fill="url(#centro${n})"/>`;
-  if(!mini) for(let k = 0; k < 14; k++){ const [x,y] = pt(k%2 ? 9 : 15, k*360/14); s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.2" fill="#fff3c4" opacity=".8"/>`; }
+  s += `<g class="${mini?'':'centro'}"><circle r="${mini?22:28}" fill="url(#centro${n})"/>`;
+  if(!mini && opc.centro != null) s += `<text class="centro-num" y="-3" text-anchor="middle" dominant-baseline="central">${opc.centro}</text><text class="centro-txt" y="14" text-anchor="middle" dominant-baseline="central">${opc.centroTxt || ''}</text>`;
   s += '</g>';
-  if(!mini && notas){
+  if(!mini){
     AREAS.forEach((a,i) => {
-      const v = notas[a.id], L = 18 + (LMAX-18) * v/10, ang = i*paso - 90;
-      // nombre a lo largo del pétalo, siempre legible (nunca boca abajo)
-      const [xm,ym] = pt(Math.max(L*.56, 44), ang), giro = (ang > 90 || ang < -90) ? ang + 180 : ang;
+      const nv = niveles && niveles[a.id], ang = i*paso - 90;
+      const [xm,ym] = pt(70, ang), giro = (ang > 90 || ang < -90) ? ang + 180 : ang;
       s += `<text class="eti-nom" x="${xm.toFixed(1)}" y="${ym.toFixed(1)}" transform="rotate(${giro} ${xm.toFixed(1)} ${ym.toFixed(1)})" text-anchor="middle" dominant-baseline="central">${a.corto}</text>`;
-      // la nota, fuera, justo en la punta del pétalo
-      let [xn,yn] = pt(L + 15, ang);
-      // Familia (derecha) y Propósito (izquierda): la nota va encima de la punta del pétalo, no a su lado
-      if(i % 4 === 2){ [xn,yn] = pt(L - 12, ang); yn -= 24; }
-      s += `<text class="eti-num" x="${xn.toFixed(1)}" y="${yn.toFixed(1)}" fill="${a.color}" text-anchor="middle" dominant-baseline="central">${fmt(v)}</text>`;
-      // Acciones de la semana en este pétalo: un puntito por acción (relleno = hecha)
-      if(T && T.area === a.id){
-        let [xd,yd] = pt(L + 34, ang);
-        if(i % 4 === 2){ xd = xn; yd = yn - 19; }
-        T.lista.forEach((t,k) => {
-          const x = xd + (k - (T.lista.length-1)/2) * 11;
-          s += `<circle cx="${x.toFixed(1)}" cy="${yd.toFixed(1)}" r="4" fill="${t.hecha ? '#fff' : 'none'}" stroke="#fff" stroke-width="1.6"/>`;
-        });
+      const [xn,yn] = pt(L + 16, ang);
+      if(nv === 'mas' || nv === 'una'){
+        const k = nv === 'mas' ? 2 : 1;
+        for(let j = 0; j < k; j++) s += `<circle cx="${(xn + (j - (k-1)/2) * 11).toFixed(1)}" cy="${yn.toFixed(1)}" r="4.5" fill="${a.color}" stroke="#fff" stroke-width="1.6"/>`;
+      }else{
+        s += `<text class="eti-marca" x="${xn.toFixed(1)}" y="${yn.toFixed(1)}" fill="${nv ? a.color : '#8f84b8'}" text-anchor="middle" dominant-baseline="central">${nv ? '✓' : '?'}</text>`;
       }
     });
   }
-  // zonas para tocar cada pétalo (encima de todo, transparentes)
-  if(opc.clic) AREAS.forEach((a,i) => { s += `<path d="${petalo(LMAX + 14, 44)}" transform="rotate(${i*paso})" fill="transparent" style="cursor:pointer" onclick="abrirPetalo('${a.id}')"/>`; });
+  if(opc.clic) AREAS.forEach((a,i) => { s += `<path d="${petalo(L + 26, 44)}" transform="rotate(${i*paso})" fill="transparent" style="cursor:pointer" onclick="abrirPetalo('${a.id}')"/>`; });
   return s + '</svg>';
 }
+const LEYENDA = `<div class="leyenda-niv"><span><i class="pt2"></i><i class="pt2"></i> Necesita más acción</span><span><i class="pt2"></i> Una acción a la semana</span><span><b>✓</b> Estoy bien</span></div>`;
 /* Logo: flor plena, ligeramente irregular, como la ilustración */
 const LARGOS_LOGO = [10, 9.4, 9.8, 9.2, 10, 9.4, 9.8, 9.2];
 function logoInterior(){
@@ -535,33 +595,15 @@ function logoInterior(){
   return s + '<g class="centro"><circle r="19" fill="url(#lc)"/></g>';
 }
 function logoSVG(){ return `<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">${logoInterior()}</svg>`; }
-
-/* Icono de cada área: un pétalo de su color (sustituye a los emojis) */
+/* Icono de cada área: un pétalo de su color */
 function ico(a, cls = ''){ return `<svg class="ico ${cls}" viewBox="-12 -12 24 24" aria-hidden="true"><path d="${petalo(21, 9)}" transform="translate(0 10.5)" fill="${a.color}"/></svg>`; }
-
 function sellosHTML(){
   return `<a class="pi-seal" href="https://practicaintegral.club" target="_blank" rel="noopener">by Práctica Integral</a>
   <a class="gp-seal" href="https://practicaintegral.club/grow-panel/" target="_blank" rel="noopener"><svg viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="107.5" r="69.1" fill="#f59e0b"/><circle cx="397.2" cy="210.1" r="69.1" fill="#0f766e"/><circle cx="343.3" cy="376.1" r="69.1" fill="#8b5cf6"/><circle cx="168.7" cy="376.1" r="69.1" fill="#3b82f6"/><circle cx="114.8" cy="210.1" r="69.1" fill="#ef4444"/><circle cx="256" cy="256" r="79.4" fill="#6b7280"/></svg>with Grow Panel</a>`;
 }
 
-function filasAreas(ev, prev){
-  return '<div class="areas">' + AREAS.map(a => {
-    const v = ev.notas[a.id];
-    let sub = '';
-    if(a.dobles && ev.detalle && ev.detalle[a.id]) sub = `<small>${a.dobles.map(d => `${d.corto} ${ev.detalle[a.id][d.id]}`).join(' · ')}</small>`;
-    return `<div class="fila"><span class="em">${ico(a)}</span><span class="nom">${a.nombre}${sub}</span>
-      <span class="barra"><i style="width:${v*10}%;background:${a.color}"></i></span><b>${fmt(v)}</b>${deltaHTML(v, prev ? prev.notas[a.id] : null)}</div>`;
-  }).join('') + '</div>';
-}
-function pistaTrabajo(det){
-  const a = areaDe('trabajo');
-  if(!det) return '';
-  const [d1, d2] = a.dobles, v1 = det[d1.id], v2 = det[d2.id];
-  if(Math.abs(v1 - v2) < 3) return 'Las dos van parejas.';
-  return v1 < v2 ? 'Lo que más tira hacia abajo: que te guste tu trabajo.' : 'Lo que más tira hacia abajo: el dinero.';
-}
-
 /* ---------- Navegación ---------- */
+let vista = 'inicio', E = null, P = null, detalleId = null, histModo = 'acciones', hojaAbierta = null;
 function ir(v){
   vista = v;
   if(v !== 'evaluar') E = null;
@@ -569,90 +611,160 @@ function ir(v){
   window.scrollTo(0, 0);
 }
 function render(){
-  const vistas = {inicio:vInicio, evaluar:vEvaluar, resultado:vResultado, historial:vHistorial, detalle:vDetalle, ajustes:vAjustes, cuenta:vCuenta};
+  const vistas = {inicio:vInicio, evaluar:vEvaluar, plan:vPlan, historial:vHistorial, detalle:vDetalle, ajustes:vAjustes, cuenta:vCuenta};
   app.innerHTML = (vistas[vista] || vInicio)();
   const conNav = ['inicio','historial','detalle','ajustes'].includes(vista);
   $('#nav').style.display = conNav ? '' : 'none';
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('act', b.dataset.v === vista || (vista === 'detalle' && b.dataset.v === 'historial')));
-  if(vista === 'evaluar') document.querySelectorAll('input[type=range]').forEach(pintarRango);
+  if(hojaAbierta && $('#hoja')) hojaAbierta();
 }
 
-/* ---------- Inicio: mi flor ---------- */
+/* ---------- Inicio: tus próximas acciones (lo principal) ---------- */
+function tarjetaAccion(x, i){
+  const a = areaDe(x.area);
+  return `<div class="prox" id="acc-${x.id}" style="--c:${a.color};animation-delay:${i*70}ms">
+    <span class="num">${i+1}</span>
+    <div class="cuerpo-p"><div class="area-p">${ico(a)} ${a.nombre}</div><div class="texto-p">${esc(x.texto)}</div></div>
+    <button class="check" aria-label="Marcar como hecha" onclick="hacerAccion('${x.id}')">✓</button></div>`;
+}
 function vInicio(){
-  const u = ultima();
-  if(!u){
+  if(!tieneDatos()){
     return `<section class="tarjeta bienvenida"><div class="hero"></div><div class="txt">
       <h1>Bienvenido a Equilibra</h1>
-      <p>Cada semana tu vida dibuja una flor. Cada pétalo es un área: cuanto mejor estás en ella, más largo crece.</p>
-      <p class="suave">Puntúas las 8 áreas del 1 al 10, ves tu flor y eliges una pequeña acción para la semana.</p>
+      <p>Equilibra te ayuda a tener <b>muy claras tus próximas acciones</b> para vivir en equilibrio.</p>
+      <p class="suave">Primero miras tu flor: en cada una de las 8 áreas de tu vida eliges si estás bien o si necesita acción. Después, Equilibra te muestra en grande lo siguiente que vas a hacer.</p>
       <div class="chips">${AREAS.map(a => `<span class="chip" style="--c:${a.color}">${ico(a)} ${a.nombre}</span>`).join('')}</div>
-      <button class="btn prim ancho" onclick="empezar()">Hacer mi primera flor</button>
+      <button class="btn prim ancho" onclick="empezar()">Empezar: revisar mi flor</button>
       ${nube.usuario ? '' : `<button class="link" style="margin-top:6px" onclick="ir('cuenta')">¿Ya tienes cuenta? Entra</button>`}
-      <p class="peq suave">Tarda unos 3 minutos.</p>
+      <p class="peq suave">Tarda unos 2 minutos.</p>
     </div></section><div class="sellos">${sellosHTML()}</div>`;
   }
-  const prev = anterior(u), m = media(u.notas), ord = ordenadas(u.notas), baja = ord[0], alta = ord[ord.length-1];
-  const semU = semanaDe(u), estaSemana = semU === claveSemana(new Date());
-  let h = '';
-  if(!estaSemana) h += `<section class="tarjeta aviso-semana"><b>🌸 Es hora de tu flor de esta semana.</b><br><span class="suave">La última es de ${textoSemana(semU).toLowerCase()}. Hazla en 3 minutos y mira cómo ha cambiado.</span>
-    <button class="btn prim ancho" style="margin-top:12px" onclick="empezar()">Hacer la flor de esta semana</button></section>`;
-  h += `<section class="tarjeta">
-    <h2>${estaSemana ? 'Tu flor de esta semana' : 'Tu última flor'}</h2>
-    <p class="peq suave" style="margin:2px 0 0">${rangoSemana(semU)} · media <b style="color:var(--tinta)">${fmt(m)}</b> ${prev ? deltaHTML(m, media(prev.notas)) : ''}</p>
-    ${flor(u.notas, prev && prev.notas, {tareas: infoTareas(u), clic: true})}
-    <p class="peq suave" style="text-align:center;margin:0">Toca un pétalo para ver sus acciones</p>
-    ${prev ? `<div class="leyenda-prev"><i></i> flor anterior (${rangoSemana(semanaDe(prev))})</div>` : ''}
-  </section>`;
-  const ts = tareasDe(u);
-  if(ts.length){
-    const a = areaDe(u.accion.area), hechas = ts.filter(t => t.hecha).length;
-    h += `<section class="tarjeta accion" style="--c:${a.color}">
-      <p class="eti">Tus acciones de la semana · ${ico(a)} ${a.nombre}</p>
-      <div class="tareas">${ts.map((t,i) => `<button class="tarea ${t.hecha?'ok':''}" onclick="alternarTarea(${i})"><span class="caja">✓</span><span>${esc(t.texto)}</span></button>`).join('')}</div>
-      <div class="acc-bots"><span class="suave peq"><b>${hechas} de ${ts.length}</b> ${ts.length === 1 ? 'hecha' : 'hechas'}</span>
-        <button class="link" onclick="editarAccion()">Cambiar</button></div></section>`;
-  }else{
-    const n = cuantas(u.notas[baja.id]);
-    h += `<section class="tarjeta accion" style="--c:${baja.color}">
-      <p class="eti">Tus acciones de la semana</p>
-      <p class="txt">¿Qué ${n === 1 ? 'pequeño paso darías' : n + ' pequeños pasos darías'} por ${ico(baja)} ${baja.nombre}?</p>
-      <button class="btn prim" onclick="editarAccion()">Elegir ${n === 1 ? 'una acción' : n + ' acciones'}</button></section>`;
+  const pend = pendientes(), prox = pend.slice(0, 3), resto = pend.slice(3), falta = faltan(), hs = hechasEstaSemana();
+  let h = `<h1 class="tit-acc">Tus próximas acciones</h1>
+    <p class="suave peq" style="margin:4px 0 0">${pend.length ? `${pend.length} ${pend.length === 1 ? 'pendiente' : 'pendientes'}` : 'Nada pendiente'}${hs ? ` · ${hs} ${hs === 1 ? 'hecha' : 'hechas'} esta semana` : ''}</p>
+    <div class="prox-lista">${prox.map(tarjetaAccion).join('')}`;
+  // huecos: áreas que piden acción y aún no la tienen
+  falta.slice(0, Math.max(0, 3 - prox.length) || (prox.length < 3 ? 1 : 0)).forEach(f => {
+    h += `<button class="prox falta" style="--c:${f.area.color}" onclick="abrirNueva('${f.area.id}')">
+      <span class="num">＋</span><div class="cuerpo-p"><div class="area-p">${ico(f.area)} ${f.area.nombre}</div>
+      <div class="texto-p">Añade ${f.faltan === 1 ? 'una acción' : f.faltan + ' acciones'} para este pétalo</div></div></button>`;
+  });
+  if(!prox.length && !falta.length) h += `<div class="prox" style="--c:#4ade80"><span class="num">✓</span><div class="cuerpo-p"><div class="texto-p">Todo en equilibrio. ¡Disfruta!</div></div></div>`;
+  h += `</div>
+    <button class="btn sec ancho" style="margin-top:14px" onclick="abrirNueva()">＋ Nueva acción</button>`;
+  if(resto.length){
+    h += `<details class="otras"><summary class="link">Ver las otras ${resto.length}</summary>${resto.map(x => { const a = areaDe(x.area);
+      return `<div class="otra" style="--c:${a.color}"><button class="check" onclick="alternarAccion('${x.id}')">✓</button><span>${ico(a)} ${esc(x.texto)}</span></div>`; }).join('')}</details>`;
   }
-  if(estaSemana) h += `<button class="btn sec ancho" style="margin-top:14px" onclick="empezar()">🔄 Rehacer la flor de esta semana</button>`;
-  h += `<div class="sellos">${sellosHTML()}</div>`;
+  // la flor, en segundo plano
+  const ult = ultimaRevision(), dias = ult ? diasDesde(ult.fecha) : null;
+  h += `<section class="tarjeta flor-sec">
+    <h2>Tu flor</h2>
+    <p class="peq suave" style="margin:2px 0 0">Toca un pétalo para cambiar cómo está o ver sus acciones${dias != null ? ` · revisada ${dias === 0 ? 'hoy' : dias === 1 ? 'ayer' : 'hace ' + dias + ' días'}` : ''}</p>
+    ${flor(D.niveles, {clic: true, centro: pend.length, centroTxt: pend.length === 1 ? 'acción' : 'acciones'})}
+    ${LEYENDA}
+    ${dias != null && dias >= 30 ? `<p class="peq" style="text-align:center;margin:12px 0 0">Hace más de un mes que no la revisas.</p>` : ''}
+    <button class="btn sec ancho" style="margin-top:12px" onclick="empezar()">Revisar toda la flor</button>
+  </section>
+  <div class="sellos">${sellosHTML()}</div>`;
   return h;
 }
+function hacerAccion(id){
+  const el = $('#acc-' + id);
+  if(el){ el.classList.add('saliendo'); setTimeout(() => alternarAccion(id), 320); } else alternarAccion(id);
+}
+function alternarAccion(id){
+  const x = D.acciones.find(a => a.id === id); if(!x) return;
+  x.hecha = !x.hecha; x.hechaEn = x.hecha ? ahoraISO() : null; x.mod = ahoraISO();
+  guardar();
+  if(x.hecha){
+    if(!pendientes().length){ sonarFinal(); aviso('¡Todas hechas! Tu flor lo nota 🌸'); }
+    else { sonarHecho(); aviso('¡Hecha! 🌱'); }
+  }
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+}
+function borrarAccion(id){
+  D.acciones = D.acciones.filter(a => a.id !== id);
+  D.borradas = (D.borradas || []).concat(id);
+  guardar(); aviso('Acción borrada');
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+}
 
-/* ---------- Hacer la flor ---------- */
+/* ---------- Hojas (desde abajo): pétalo y nueva acción ---------- */
+function mostrarHoja(html, color){
+  let hoja = $('#hoja');
+  if(!hoja){ hoja = document.createElement('div'); hoja.id = 'hoja'; hoja.className = 'hoja'; hoja.onclick = e => { if(e.target === hoja) cerrarHoja(); }; document.body.appendChild(hoja); }
+  const nueva = !hoja.classList.contains('ver');
+  hoja.innerHTML = `<div class="hoja-in accion" style="--c:${color}"><div class="hoja-asa"></div>${html}</div>`;
+  if(nueva) requestAnimationFrame(() => hoja.classList.add('ver'));
+}
+function cerrarHoja(){ hojaAbierta = null; const h = $('#hoja'); if(h){ h.classList.remove('ver'); setTimeout(() => h.remove(), 300); } }
+const cerrarPetalo = cerrarHoja;
+function opcionesNivel(actual, onclick, compacta){
+  return `<div class="opciones${compacta ? ' compacta' : ''}">${Object.keys(NIVELES).map(k => { const N = NIVELES[k];
+    return `<button class="opcion ${actual === k ? 'sel' : ''}" onclick="${onclick(k)}"><span class="marca">${N.marca}</span><span><b>${N.titulo}</b><small>${N.sub}</small></span></button>`; }).join('')}</div>`;
+}
+function campoNueva(id, ph){
+  return `<div class="campo-voz"><input type="text" id="${id}" maxlength="120" placeholder="${esc(ph)}" onkeydown="if(event.key==='Enter')this.closest('.hoja-in').querySelector('.btn.prim').click()">${botonMic()}</div>`;
+}
+function abrirPetalo(id){
+  hojaAbierta = () => abrirPetalo(id);
+  const a = areaDe(id), mias = D.acciones.filter(x => x.area === id && (!x.hecha || claveSemana(x.hechaEn) === claveSemana(new Date())));
+  const com = D.comentarios && D.comentarios[id] ? `<p class="peq" style="margin:8px 0 0"><span class="suave">Tu nota:</span> ${esc(D.comentarios[id])}</p>` : '';
+  mostrarHoja(`<div class="hoja-cab"><div>${ico(a,'g')}<h2>${a.nombre}</h2></div></div>${com}
+    <p class="eti" style="margin-top:14px">¿Cómo está?</p>
+    ${opcionesNivel(nivel(id), k => `cambiarNivel('${id}','${k}')`, true)}
+    <p class="eti" style="margin-top:16px">Acciones</p>
+    ${mias.length ? `<div class="tareas">${mias.map(x => `<div class="fila-acc"><button class="tarea ${x.hecha?'ok':''}" onclick="alternarAccion('${x.id}')"><span class="caja">✓</span><span>${esc(x.texto)}</span></button><button class="del" aria-label="Borrar" onclick="borrarAccion('${x.id}')">✕</button></div>`).join('')}</div>` : `<p class="suave peq" style="margin:6px 0 0">Sin acciones por ahora.</p>`}
+    ${campoNueva('h-nueva', 'Nueva acción, p. ej. ' + a.ejemplos[0])}
+    <button class="btn prim ancho" style="margin-top:10px" onclick="anadirDesdeHoja('${id}')">Añadir acción</button>`, a.color);
+}
+function cambiarNivel(id, k){
+  D.niveles[id] = k; D.nivelesMod = ahoraISO();
+  guardar(); sonarHecho();
+  render();
+}
+function anadirDesdeHoja(id){
+  const t = valor('h-nueva'); if(!t){ aviso('Escribe la acción'); return; }
+  nuevaAccion(id, t); guardar(); sonarHecho(); aviso('Acción añadida 🌱');
+  render();
+}
+let areaNueva = null;
+function abrirNueva(pre){
+  const f = faltan();
+  areaNueva = pre || areaNueva || (f[0] && f[0].area.id) || AREAS[0].id;
+  hojaAbierta = () => abrirNueva(areaNueva);
+  const a = areaDe(areaNueva), t = $('#h-nueva') ? $('#h-nueva').value : '';
+  mostrarHoja(`<div class="hoja-cab"><div><h2>Nueva acción</h2></div></div>
+    <p class="eti" style="margin-top:12px">¿Para qué área?</p>
+    <div class="chips" style="justify-content:flex-start;margin:8px 0">${AREAS.map(x => `<button class="chip ${x.id === areaNueva ? 'sel' : ''}" style="--c:${x.color}" onclick="areaNueva='${x.id}'; abrirNueva('${x.id}')">${ico(x)} ${x.corto}</button>`).join('')}</div>
+    ${campoNueva('h-nueva', 'Por ejemplo: ' + a.ejemplos[0])}
+    <button class="btn prim ancho" style="margin-top:10px" onclick="anadirNueva()">Añadir acción</button>`, a.color);
+  if(t) $('#h-nueva').value = t;
+}
+function anadirNueva(){
+  const t = valor('h-nueva'); if(!t){ aviso('Escribe la acción'); return; }
+  nuevaAccion(areaNueva, t); guardar(); sonarHecho(); aviso('Acción añadida 🌱');
+  cerrarHoja(); render();
+}
+
+/* ---------- Revisar la flor: 3 botones por área ---------- */
 function empezar(){
-  const u = ultima(), notas = {}, det = {};
-  AREAS.forEach(a => {
-    notas[a.id] = u ? Math.round(u.notas[a.id]) : 5;
-    if(a.dobles){ det[a.id] = {}; a.dobles.forEach(d => det[a.id][d.id] = u && u.detalle && u.detalle[a.id] ? u.detalle[a.id][d.id] : 5); notas[a.id] = promedioDoble(a, det[a.id]); }
-  });
-  const estaSemana = u && semanaDe(u) === claveSemana(new Date());
-  E = {i:0, notas, detalle:det, comentarios: estaSemana ? {...(u.comentarios||{})} : {}};
-  vista = 'evaluar'; render(); window.scrollTo(0,0);
+  E = {i:0, niveles:{...D.niveles}, detalle: JSON.parse(JSON.stringify(D.detalle || {})), comentarios:{...(D.comentarios || {})}};
+  if(!E.detalle.trabajo) E.detalle.trabajo = {};
+  cerrarHoja(); vista = 'evaluar'; render(); window.scrollTo(0,0);
   precargar(1);
 }
-function promedioDoble(a, det){ return Math.round(a.dobles.reduce((s,d) => s + det[d.id], 0) / a.dobles.length * 10) / 10; }
 function precargar(i){ if(AREAS[i]) (new Image()).src = `img/${AREAS[i].id}.jpg`; }
-
-function deslizador(id, texto, valor){
-  return `<label class="pregunta" for="${id}">${texto}</label>
-    <div class="valor" id="${id}-v">${valor}</div>
-    <input type="range" min="1" max="10" step="1" id="${id}" value="${valor}" oninput="mover(this)">
-    <div class="extremos"><span>1 · Muy lejos de lo que quiero</span><span>10 · Pleno</span></div>`;
-}
+const maxNivel = (a, b) => NIVELES[a].peso >= NIVELES[b].peso ? a : b;
 function vEvaluar(){
   if(!E) return vInicio();
   const a = AREAS[E.i];
-  let cuerpo = '';
+  let cuerpo;
   if(a.dobles){
-    cuerpo = a.dobles.map(d => deslizador('s-'+d.id, d.texto, E.detalle[a.id][d.id])).join('');
-    cuerpo += `<div class="nota-doble">Nota del área: <b id="nota-doble">${fmt(E.notas[a.id])}</b><span class="pista" id="pista-doble">${pistaTrabajo(E.detalle[a.id])}</span></div>`;
+    cuerpo = a.dobles.map(d => `<p class="pregunta">${d.texto}</p>${opcionesNivel(E.detalle.trabajo[d.id], k => `elegirSub('${d.id}','${k}')`, true)}`).join('');
   }else{
-    cuerpo = deslizador('s-nota', a.pregunta, E.notas[a.id]);
+    cuerpo = `<p class="pregunta">${a.pregunta}</p>${opcionesNivel(E.niveles[a.id], k => `elegirNivel('${k}')`)}`;
   }
   const com = E.comentarios[a.id] || '';
   return `<div style="--c:${a.color}">
@@ -669,133 +781,75 @@ function vEvaluar(){
     </section>
     <div class="bots-eval">
       <button class="btn sec" onclick="atras()">${E.i === 0 ? 'Cancelar' : '← Atrás'}</button>
-      <button class="btn prim" onclick="siguiente()">${E.i === AREAS.length-1 ? 'Ver mi flor 🌸' : 'Siguiente →'}</button>
+      <button class="btn prim" onclick="siguiente()">${E.i === AREAS.length-1 ? 'Terminar ✓' : 'Siguiente →'}</button>
     </div></div>`;
 }
-function pintarRango(el){ el.style.setProperty('--p', (el.value-1)/9*100); }
-function mover(el){
-  const v = +el.value, a = AREAS[E.i];
-  pintarRango(el);
-  const num = $('#'+el.id+'-v');
-  num.textContent = v; num.classList.add('pulso'); setTimeout(() => num.classList.remove('pulso'), 120);
-  sonarMover(v);
-  if(el.id === 's-nota'){ E.notas[a.id] = v; return; }
-  E.detalle[a.id][el.id.slice(2)] = v;
-  E.notas[a.id] = promedioDoble(a, E.detalle[a.id]);
-  $('#nota-doble').textContent = fmt(E.notas[a.id]);
-  $('#pista-doble').textContent = pistaTrabajo(E.detalle[a.id]);
+let tAvance;
+function elegirNivel(k){
+  const a = AREAS[E.i]; E.niveles[a.id] = k;
+  nota(ESCALA[E.i] * 2, 0, .08, .25, false);
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+  clearTimeout(tAvance); tAvance = setTimeout(() => { if(vista === 'evaluar' && E && AREAS[E.i].id === a.id) siguiente(); }, 420);
 }
-function atras(){ if(E.i === 0){ ir('inicio'); } else { E.i--; render(); window.scrollTo(0,0); } }
+function elegirSub(sub, k){
+  const a = AREAS[E.i], d = E.detalle[a.id] = E.detalle[a.id] || {};
+  d[sub] = k;
+  nota(ESCALA[E.i] * 2, 0, .08, .25, false);
+  if(a.dobles.every(x => d[x.id])) E.niveles[a.id] = a.dobles.map(x => d[x.id]).reduce(maxNivel);
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+  if(E.niveles[a.id] && a.dobles.every(x => d[x.id])){ clearTimeout(tAvance); tAvance = setTimeout(() => { if(vista === 'evaluar' && E && AREAS[E.i].id === a.id) siguiente(); }, 520); }
+}
+function atras(){ clearTimeout(tAvance); if(E.i === 0){ ir('inicio'); } else { E.i--; render(); window.scrollTo(0,0); } }
 function siguiente(){
+  clearTimeout(tAvance);
+  const a = AREAS[E.i];
+  if(!E.niveles[a.id]){ aviso('Elige cómo está esta área'); return; }
   if(E.i < AREAS.length-1){ sonarPaso(E.i); E.i++; render(); window.scrollTo(0,0); precargar(E.i+1); return; }
   sonarFinal();
   const comentarios = {};
   Object.keys(E.comentarios).forEach(k => { const t = (E.comentarios[k]||'').trim(); if(t) comentarios[k] = t; });
-  const ahora = new Date(), sem = claveSemana(ahora), u = ultima();
-  let ev;
-  if(u && semanaDe(u) === sem){
-    // Una flor por semana: si ya existe la de esta semana, se actualiza (se conserva la acción)
-    Object.assign(u, {fecha: ahora.toISOString(), semana: sem, notas: {...E.notas}, detalle: JSON.parse(JSON.stringify(E.detalle)), comentarios}); marcar(u);
-    ev = u;
-  }else{
-    ev = {id: Date.now().toString(36), fecha: ahora.toISOString(), semana: sem, notas: {...E.notas}, detalle: JSON.parse(JSON.stringify(E.detalle)), comentarios};
-    marcar(ev); D.evaluaciones.push(ev);
-  }
+  D.revisiones.push({id: uid(), fecha: ahoraISO(), niveles: {...E.niveles}, detalle: JSON.parse(JSON.stringify(E.detalle)), comentarios});
+  D.niveles = {...E.niveles}; D.detalle = JSON.parse(JSON.stringify(E.detalle)); D.comentarios = comentarios; D.nivelesMod = ahoraISO();
   guardar();
-  E = null;
-  R = {id: ev.id, area: ev.accion ? ev.accion.area : ordenadas(ev.notas)[0].id, nueva: true, textos: tareasDe(ev).map(t => t.texto)};
-  vista = 'resultado'; render(); window.scrollTo(0,0);
+  E = null; P = {textos:{}};
+  vista = 'plan'; render(); window.scrollTo(0,0);
 }
 
-/* ---------- Resultado y acción ---------- */
-function editarAccion(area){
-  const u = ultima(), actual = u.accion ? u.accion.area : null, elegida = area || actual || ordenadas(u.notas)[0].id;
-  R = {id: u.id, area: elegida, nueva: false, textos: elegida === actual ? tareasDe(u).map(t => t.texto) : []};
-  ir('resultado');
-}
-function vResultado(){
-  const ev = R && porId(R.id);
-  if(!ev) return vInicio();
-  const prev = anterior(ev), ord = ordenadas(ev.notas), baja = ord[0], alta = ord[ord.length-1], m = media(ev.notas);
-  const sel = areaDe(R.area);
-  let h = '';
-  if(R.nueva){
-    h += `<div class="res-tit"><h1>¡Tu flor de la semana! 🌸</h1><p class="suave">${rangoSemana(semanaDe(ev))}</p></div>
-    <section class="tarjeta">
-      ${flor(ev.notas, prev && prev.notas, {tareas: infoTareas(ev)})}
-      ${prev ? `<div class="leyenda-prev"><i></i> flor anterior (${rangoSemana(semanaDe(prev))})</div>` : ''}
-      <p class="resumen-txt">Tu media es <b>${fmt(m)}</b> de 10${prev ? ' ' + deltaHTML(m, media(prev.notas)) : ''}.<br>
-      El pétalo más largo: <b>${ico(alta)} ${alta.nombre}</b> (${fmt(ev.notas[alta.id])}).<br>
-      El que más pide cuidado: <b>${ico(baja)} ${baja.nombre}</b> (${fmt(ev.notas[baja.id])}).</p>
-    </section>`;
+/* ---------- Plan: acciones para las áreas que lo necesitan ---------- */
+function vPlan(){
+  if(!P) P = {textos:{}};
+  const areas = AREAS.filter(a => nivel(a.id) && NIVELES[nivel(a.id)].n > 0).sort((x,y) => pesoArea(y.id) - pesoArea(x.id));
+  let h = `<div class="res-tit"><h1>Tu flor está lista 🌸</h1></div>
+    <section class="tarjeta flor-sec">${flor(D.niveles, {centro: areas.length, centroTxt: areas.length === 1 ? 'área' : 'áreas'})}${LEYENDA}</section>`;
+  if(!areas.length){
+    return h + `<p style="text-align:center"><b>Todo en equilibrio.</b> No necesitas acciones nuevas.</p>
+      <button class="btn prim ancho" onclick="ir('inicio')">Ir a inicio</button>`;
   }
-  const nota = ev.notas[sel.id], n = cuantas(nota), filas = Math.min(3, Math.max(n, R.textos.length));
-  h += `<section class="tarjeta accion" style="--c:${sel.color}">
-    <h3>Tus acciones para esta semana</h3>
-    <p class="peq suave" style="margin:6px 0 0">Elige un pétalo. Te proponemos el que tiene menos puntuación, pero puedes cambiarlo.</p>
-    <div class="chips" style="justify-content:flex-start;margin-bottom:6px">
-      ${ord.map(a => `<button class="chip ${a.id===R.area?'sel':''}" style="--c:${a.color}" onclick="elegirArea('${a.id}')">${ico(a)} ${a.nombre} · ${fmt(ev.notas[a.id])}</button>`).join('')}
-    </div>
-    <p class="regla">${sel.nombre} tiene un ${fmt(nota)}: elige ${n === 1 ? 'al menos 1 acción pequeña' : n + ' acciones pequeñas'}.
-      <small>Cuanta menos puntuación, más acciones: de 1 a 4 → 3 acciones · de 5 a 7 → 2 · de 8 a 10 → 1.</small></p>
-    <div class="campo-accion">
-      ${Array.from({length: filas}, (_, i) => `<div class="campo-voz"><input type="text" maxlength="120" value="${esc(R.textos[i] || '')}" placeholder="${i+1}. Por ejemplo: ${esc(sel.ejemplos[i])}" oninput="R.textos[${i}]=this.value" onkeydown="if(event.key==='Enter')guardarAccion()">${botonMic()}</div>`).join('')}
-    </div>
-    ${filas < 3 ? `<button class="link" onclick="otraTarea()">＋ Añadir otra acción</button>` : ''}
-    <div class="bots-eval">
-      <button class="btn sec" onclick="ir('inicio')">Ahora no</button>
-      <button class="btn prim" onclick="guardarAccion()">Guardar ${n === 1 ? 'acción' : 'acciones'}</button>
-    </div></section>`;
+  h += `<h2 style="margin-top:6px">Ahora, tus acciones</h2>
+    <p class="suave peq" style="margin:4px 0 8px">Escribe pequeños pasos concretos para las áreas que lo necesitan.</p>`;
+  areas.forEach(a => {
+    const nv = nivel(a.id), ya = D.acciones.filter(x => x.area === a.id && !x.hecha);
+    const max = nv === 'mas' ? 3 : 1, pide = Math.max(0, NIVELES[nv].n - ya.length);
+    const t = P.textos[a.id] = P.textos[a.id] || [];
+    const filas = Math.min(max - ya.length, Math.max(pide, t.length));
+    h += `<div class="plan-area" style="--c:${a.color}"><h3>${ico(a)} ${a.nombre}</h3><p class="nivel-t">${NIVELES[nv].titulo}</p>
+      ${ya.map(x => `<p class="ya">✓ Ya tienes: ${esc(x.texto)}</p>`).join('')}
+      ${Array.from({length: Math.max(0, filas)}, (_, k) => `<div class="campo-voz"><input type="text" maxlength="120" value="${esc(t[k] || '')}" placeholder="Por ejemplo: ${esc(a.ejemplos[k] || a.ejemplos[0])}" oninput="P.textos['${a.id}'][${k}]=this.value">${botonMic()}</div>`).join('')}
+      ${ya.length + filas < max ? `<button class="link" onclick="P.textos['${a.id}'].push(''); const y=scrollY; render(); scrollTo(0,y)">＋ Otra acción</button>` : ''}
+    </div>`;
+  });
+  h += `<div class="bots-eval"><button class="btn sec" onclick="ir('inicio')">Luego</button><button class="btn prim" onclick="guardarPlan()">Guardar acciones</button></div>`;
   return h;
 }
-/* Nº de acciones según la nota del pétalo elegido */
-/* Datos de las acciones de una flor, para marcarlas en su pétalo */
-function infoTareas(ev){
-  const ts = tareasDe(ev); if(!ts.length) return null;
-  return {area: ev.accion.area, lista: ts, hechas: ts.filter(t => t.hecha).length};
+function guardarPlan(){
+  let n = 0;
+  Object.keys(P.textos).forEach(id => P.textos[id].forEach(t => { t = (t || '').trim(); if(t){ nuevaAccion(id, t); n++; } }));
+  P = null; guardar();
+  if(n){ sonarHecho(); aviso(n === 1 ? 'Acción guardada 🌱' : n + ' acciones guardadas 🌱'); }
+  ir('inicio');
 }
-function leyendaTareas(ev){
-  const T = infoTareas(ev); if(!T) return '';
-  const a = areaDe(T.area);
-  return `<div class="leyenda-prev"><span class="marca-t" style="background:${a.color}"></span> ${a.nombre}: ${T.lista.length === 1 ? 'tu acción' : 'tus ' + T.lista.length + ' acciones'} de la semana · ${T.hechas} de ${T.lista.length} ${T.lista.length === 1 ? 'hecha' : 'hechas'}</div>`;
-}
-/* Al tocar un pétalo: su nota y sus acciones de la semana */
-function abrirPetalo(id){
-  const u = ultima(); if(!u) return;
-  const a = areaDe(id), v = u.notas[id], prev = anterior(u), ts = tareasDe(u), suyas = u.accion && u.accion.area === id;
-  let det = '';
-  if(a.dobles && u.detalle && u.detalle[id]) det = `<p class="suave peq" style="margin:4px 0 0">${a.dobles.map(d => `${d.corto} ${u.detalle[id][d.id]}`).join(' · ')}</p>`;
-  let cuerpo;
-  if(suyas){
-    const n = ts.filter(t => t.hecha).length;
-    cuerpo = `<p class="eti" style="margin-top:16px">Tus acciones de la semana · ${n} de ${ts.length} ${ts.length === 1 ? 'hecha' : 'hechas'}</p>
-      <div class="tareas">${ts.map((t,i) => `<button class="tarea ${t.hecha?'ok':''}" onclick="alternarTarea(${i}); abrirPetalo('${id}')"><span class="caja">✓</span><span>${esc(t.texto)}</span></button>`).join('')}</div>
-      <button class="link" onclick="cerrarPetalo(); editarAccion('${id}')">Cambiar acciones</button>`;
-  }else if(ts.length){
-    cuerpo = `<p class="suave" style="margin-top:16px">Esta semana tus acciones son de <b style="color:var(--tinta)">${areaDe(u.accion.area).nombre}</b>.</p>
-      <button class="btn sec ancho" onclick="cerrarPetalo(); editarAccion('${id}')">Pasar mis acciones a ${a.nombre}</button>`;
-  }else{
-    const n = cuantas(v);
-    cuerpo = `<p class="suave" style="margin-top:16px">Aún no tienes acciones para este pétalo.</p>
-      <button class="btn prim ancho" onclick="cerrarPetalo(); editarAccion('${id}')">Elegir ${n === 1 ? 'una acción' : n + ' acciones'}</button>`;
-  }
-  const com = u.comentarios && u.comentarios[id] ? `<p class="peq" style="margin:12px 0 0"><span class="suave">Tu nota:</span> ${esc(u.comentarios[id])}</p>` : '';
-  let hoja = $('#hoja');
-  if(!hoja){ hoja = document.createElement('div'); hoja.id = 'hoja'; hoja.className = 'hoja'; hoja.onclick = e => { if(e.target === hoja) cerrarPetalo(); }; document.body.appendChild(hoja); }
-  hoja.innerHTML = `<div class="hoja-in accion" style="--c:${a.color}">
-    <div class="hoja-asa"></div>
-    <div class="hoja-cab"><div>${ico(a,'g')}<h2>${a.nombre}</h2></div><b class="hoja-nota">${fmt(v)}${prev ? ' ' + deltaHTML(v, prev.notas[id]) : ''}</b></div>
-    ${det}${com}${cuerpo}</div>`;
-  requestAnimationFrame(() => hoja.classList.add('ver'));
-}
-function cerrarPetalo(){ const h = $('#hoja'); if(h){ h.classList.remove('ver'); setTimeout(() => h.remove(), 300); } }
-function cuantas(nota){ return nota <= 4 ? 3 : nota <= 7 ? 2 : 1; }
-function tareasDe(ev){
-  if(!ev || !ev.accion) return [];
-  if(Array.isArray(ev.accion.tareas)) return ev.accion.tareas;
-  return ev.accion.texto ? [{texto: ev.accion.texto, hecha: !!ev.accion.hecha}] : [];   // formato de v1.00–v1.03
-}
-/* Dictar con la voz (micrófono): rellena el campo que está justo antes del botón */
+
+/* ---------- Dictar con la voz (micrófono) ---------- */
 const Reconocer = window.SpeechRecognition || window.webkitSpeechRecognition;
 const MIC = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 function botonMic(){ return Reconocer ? `<button class="mic" type="button" aria-label="Dictar con la voz" onclick="dictar(this)">${MIC}</button>` : ''; }
@@ -817,113 +871,44 @@ function dictar(btn){
   btn.classList.add('escuchando'); reconocimiento = r;
   try{ r.start(); }catch(e){ btn.classList.remove('escuchando'); reconocimiento = null; }
 }
-function elegirArea(id){ R.area = id; const y = window.scrollY; render(); window.scrollTo(0, y); }
-function otraTarea(){
-  const filas = Math.min(3, Math.max(cuantas(porId(R.id).notas[R.area]), R.textos.length));
-  while(R.textos.length < filas + 1) R.textos.push('');
-  const y = window.scrollY; render(); window.scrollTo(0, y);
-}
-function guardarAccion(){
-  const ev = porId(R.id), n = cuantas(ev.notas[R.area]);
-  const textos = R.textos.map(t => (t || '').trim()).filter(Boolean).slice(0, 3);
-  if(textos.length < n){
-    const faltan = n - textos.length;
-    aviso(n === 1 ? 'Escribe una acción pequeña y concreta' : `Elige ${n} acciones: te ${faltan === 1 ? 'falta 1' : 'faltan ' + faltan}`);
-    const vacio = [...document.querySelectorAll('.campo-accion input')].find(i => !i.value.trim()); if(vacio) vacio.focus();
-    return;
-  }
-  const antes = tareasDe(ev);
-  marcar(ev);
-  ev.accion = {area: R.area, fecha: new Date().toISOString(),
-    tareas: textos.map(t => ({texto: t, hecha: !!(antes.find(x => x.texto === t) || {}).hecha}))};
-  guardar();
-  sonarHecho();
-  aviso(textos.length === 1 ? 'Acción guardada 🌱' : 'Acciones guardadas 🌱');
-  ir('inicio');
-}
-function alternarTarea(i){
-  const u = ultima(), ts = tareasDe(u); if(!ts[i]) return;
-  u.accion = {area: u.accion.area, fecha: u.accion.fecha, tareas: ts};
-  ts[i].hecha = !ts[i].hecha; marcar(u);
-  guardar();
-  if(ts[i].hecha){
-    if(ts.every(t => t.hecha)){ sonarFinal(); aviso('¡Semana completada! Tu flor lo nota 🌸'); }
-    else { sonarHecho(); aviso('¡Bien hecho! 🌱'); }
-  }
-  const y = window.scrollY; render(); window.scrollTo(0, y);
-}
 
-/* ---------- Jardín (historial) ---------- */
-function evolucionSVG(){
-  const ev = D.evaluaciones; if(ev.length < 2) return '';
-  const W = 320, H = 110, px = 16, py = 14;
-  const x = i => px + i*(W-2*px)/(ev.length-1), y = v => H - py - (v-1)/9*(H-2*py);
-  const pts = ev.map((e,i) => `${x(i).toFixed(1)},${y(media(e.notas)).toFixed(1)}`).join(' ');
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolución de tu media"><defs><linearGradient id="lev" x1="0" x2="1"><stop offset="0" stop-color="#f08a24"/><stop offset="1" stop-color="#e2456b"/></linearGradient></defs>`;
-  [2,4,6,8,10].forEach(v => s += `<line x1="${px}" x2="${W-px}" y1="${y(v)}" y2="${y(v)}" stroke="#fff" stroke-opacity=".07"/>`);
-  s += `<polyline points="${pts}" fill="none" stroke="url(#lev)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
-  ev.forEach((e,i) => s += `<circle cx="${x(i)}" cy="${y(media(e.notas))}" r="4.5" fill="#221a40" stroke="#f7c35b" stroke-width="2.5"/>`);
-  return s + '</svg>';
-}
+/* ---------- Historial: acciones hechas por semana y revisiones de la flor ---------- */
 function vHistorial(){
-  if(!D.evaluaciones.length) return `<section class="tarjeta" style="text-align:center"><h2>Tu jardín</h2><p class="suave">Aquí irá creciendo una flor por cada semana.</p>
-    <button class="btn prim" onclick="empezar()">Hacer mi primera flor</button></section>`;
-  let h = `<h2 style="margin-top:18px">Tu jardín</h2>
-    <div class="seg"><button class="${jardinModo==='flores'?'on':''}" onclick="jardinModo='flores';render()">Flores</button><button class="${jardinModo==='acciones'?'on':''}" onclick="jardinModo='acciones';render()">Acciones</button></div>`;
-  if(jardinModo === 'acciones') return h + vAccionesSemanas();
-  h += `<p class="peq suave" style="margin:10px 0 0">Una flor por semana. Toca una para verla.</p>`;
-  if(D.evaluaciones.length >= 2) h += `<section class="tarjeta evolucion"><h3 style="font-size:16px">Evolución de tu media</h3>${evolucionSVG()}
-    <div class="extremos"><span>${rangoSemana(semanaDe(D.evaluaciones[0]))}</span><span>${rangoSemana(semanaDe(ultima()))}</span></div></section>`;
-  h += '<div class="jardin">' + D.evaluaciones.slice().reverse().map(e => {
-    return `<button class="maceta" onclick="verDetalle('${e.id}')">${flor(e.notas, null, {mini:true, tareas: infoTareas(e)})}
-      <b>${textoSemana(semanaDe(e))}</b><span>${rangoSemana(semanaDe(e))}</span><span>Media ${fmt(media(e.notas))} / 10</span></button>`;
-  }).join('') + '</div>';
+  let h = `<h2 style="margin-top:18px">Historial</h2>
+    <div class="seg"><button class="${histModo==='acciones'?'on':''}" onclick="histModo='acciones';render()">Acciones</button><button class="${histModo==='flores'?'on':''}" onclick="histModo='flores';render()">Flores</button></div>`;
+  if(histModo === 'flores'){
+    if(!D.revisiones.length) return h + `<p class="suave">Aún no has revisado tu flor.</p><button class="btn prim" onclick="empezar()">Revisar mi flor</button>`;
+    return h + '<div class="jardin">' + D.revisiones.slice().reverse().map(r => `<button class="maceta" onclick="detalleId='${r.id}'; ir('detalle')">${flor(r.niveles, {mini:true})}
+      <b>${fecha(r.fecha)}</b><span>${AREAS.filter(a => r.niveles[a.id] && r.niveles[a.id] !== 'bien').length} áreas piden acción</span></button>`).join('') + '</div>';
+  }
+  const hechas = D.acciones.filter(a => a.hecha && a.hechaEn).sort((x,y) => x.hechaEn < y.hechaEn ? 1 : -1);
+  const semanas = {};
+  hechas.forEach(a => (semanas[claveSemana(a.hechaEn)] = semanas[claveSemana(a.hechaEn)] || []).push(a));
+  const claves = Object.keys(semanas).sort().reverse();
+  h += `<div class="resumen-acc">
+    <div class="cifra"><b>${hechas.length}</b><span>${hechas.length === 1 ? 'acción hecha' : 'acciones hechas'}</span></div>
+    <div class="cifra"><b>${hechasEstaSemana()}</b><span>esta semana</span></div>
+    <div class="cifra"><b>${pendientes().length}</b><span>pendientes</span></div></div>`;
+  if(!claves.length) return h + `<p class="suave">Cuando marques acciones como hechas, aparecerán aquí, semana a semana.</p>`;
+  h += claves.map(k => `<div class="semana-acc" style="--c:#8b5cf6"><div class="sa-cab"><b>${textoSemana(k)}</b><span>${rangoSemana(k)} · ${semanas[k].length} ${semanas[k].length === 1 ? 'hecha' : 'hechas'}</span></div>
+    <ul>${semanas[k].map(a => { const ar = areaDe(a.area); return `<li class="ok" style="--c:${ar.color}" onclick="alternarAccion('${a.id}')"><span class="caja">✓</span><span>${ico(ar)} ${esc(a.texto)}</span></li>`; }).join('')}</ul></div>`).join('');
   return h;
 }
-let jardinModo = 'flores';
-/* Historial semanal de las acciones: qué elegiste cada semana y cuántas hiciste */
-function vAccionesSemanas(){
-  const semanas = D.evaluaciones.slice().reverse();
-  let total = 0, hechas = 0, completas = 0;
-  semanas.forEach(e => { const ts = tareasDe(e); total += ts.length; const h = ts.filter(t => t.hecha).length; hechas += h; if(ts.length && h === ts.length) completas++; });
-  let h = `<div class="resumen-acc">
-    <div class="cifra"><b>${hechas}</b><span>${hechas === 1 ? 'acción hecha' : 'acciones hechas'}</span></div>
-    <div class="cifra"><b>${total ? Math.round(hechas/total*100) : 0}%</b><span>de las elegidas</span></div>
-    <div class="cifra"><b>${completas}</b><span>${completas === 1 ? 'semana completa' : 'semanas completas'}</span></div></div>`;
-  h += semanas.map(e => {
-    const ts = tareasDe(e), sem = semanaDe(e);
-    if(!ts.length) return `<div class="semana-acc" style="--c:#6b5fa3"><div class="sa-cab"><b>${textoSemana(sem)}</b><span>${rangoSemana(sem)}</span></div>
-      <p class="sa-area suave" style="margin-bottom:0">Sin acciones elegidas</p></div>`;
-    const a = areaDe(e.accion.area), n = ts.filter(t => t.hecha).length;
-    return `<div class="semana-acc" style="--c:${a.color}"><div class="sa-cab"><b>${textoSemana(sem)}</b><span>${rangoSemana(sem)}</span></div>
-      <p class="sa-area">${ico(a)} ${a.nombre} · ${n} de ${ts.length} ${n === ts.length ? '<span class="estrella">· semana completa ★</span>' : ''}</p>
-      <ul>${ts.map(t => `<li class="${t.hecha?'ok':''}"><span class="caja">✓</span><span>${esc(t.texto)}</span></li>`).join('')}</ul></div>`;
-  }).join('');
-  return h;
-}
-function verDetalle(id){ detalleId = id; ir('detalle'); }
 function vDetalle(){
-  const ev = porId(detalleId); if(!ev) return vHistorial();
-  const prev = anterior(ev);
-  let h = `<button class="link volver" onclick="ir('historial')">← Jardín</button>
-    <section class="tarjeta"><h2>${textoSemana(semanaDe(ev))}</h2>
-    <p class="peq suave" style="margin:2px 0 0">${rangoSemana(semanaDe(ev))} · media ${fmt(media(ev.notas))} / 10 ${prev ? deltaHTML(media(ev.notas), media(prev.notas)) : ''}</p>
-    ${flor(ev.notas, prev && prev.notas, {tareas: infoTareas(ev)})}
-    ${prev ? `<div class="leyenda-prev"><i></i> flor anterior (${rangoSemana(semanaDe(prev))})</div>` : ''}
-    ${filasAreas(ev, prev)}</section>`;
-  const coms = Object.keys(ev.comentarios || {});
-  if(coms.length) h += `<section class="tarjeta"><h3 style="font-size:16px">Tus notas</h3>${coms.map(k => { const a = areaDe(k); return `<div class="comentario"><b>${ico(a)} ${a.nombre}:</b> ${esc(ev.comentarios[k])}</div>`; }).join('')}</section>`;
-  const ts = tareasDe(ev);
-  if(ts.length){ const a = areaDe(ev.accion.area); h += `<section class="tarjeta accion" style="--c:${a.color}"><p class="eti">Acciones elegidas · ${ico(a)} ${a.nombre} · ${ts.filter(t => t.hecha).length} de ${ts.length} hechas</p>
-    <div class="tareas" style="margin-bottom:0">${ts.map(t => `<div class="tarea ${t.hecha?'ok':''}"><span class="caja">✓</span><span>${esc(t.texto)}</span></div>`).join('')}</div></section>`; }
-  h += `<button class="btn peligro ancho" style="margin-top:14px" onclick="borrarEval('${ev.id}')">Borrar esta flor</button>`;
-  return h;
+  const r = D.revisiones.find(x => x.id === detalleId); if(!r) return vHistorial();
+  const coms = Object.keys(r.comentarios || {});
+  return `<button class="link volver" onclick="ir('historial')">← Historial</button>
+    <section class="tarjeta"><h2 style="text-transform:capitalize">${fecha(r.fecha, true)}</h2>
+    ${flor(r.niveles, {centro: AREAS.filter(a => r.niveles[a.id] && r.niveles[a.id] !== 'bien').length, centroTxt: 'piden acción'})}${LEYENDA}
+    <div class="areas">${AREAS.map(a => `<div class="fila-niv"><span>${ico(a)} ${a.nombre}</span><b style="color:${a.color}">${r.niveles[a.id] ? NIVELES[r.niveles[a.id]].titulo : '—'}</b></div>`).join('')}</div></section>
+    ${coms.length ? `<section class="tarjeta"><h3 style="font-size:16px">Tus notas</h3>${coms.map(k => { const a = areaDe(k); return `<div class="comentario"><b>${ico(a)} ${a.nombre}:</b> ${esc(r.comentarios[k])}</div>`; }).join('')}</section>` : ''}
+    <button class="btn peligro ancho" style="margin-top:14px" onclick="borrarRevision('${r.id}')">Borrar esta revisión</button>`;
 }
-function borrarEval(id){
-  if(!confirm('¿Borrar esta flor del jardín? No se puede deshacer.')) return;
-  D.evaluaciones = D.evaluaciones.filter(e => e.id !== id);
+function borrarRevision(id){
+  if(!confirm('¿Borrar esta revisión de la flor? No se puede deshacer.')) return;
+  D.revisiones = D.revisiones.filter(r => r.id !== id);
   D.borradas = (D.borradas || []).concat(id);
-  guardar(); aviso('Flor borrada'); ir('historial');
+  guardar(); aviso('Revisión borrada'); ir('historial');
 }
 
 /* ---------- Nube (Firebase: proyecto «equilibra-6aff8», cuenta info@practicaintegral.club) ---------- */
@@ -953,25 +938,30 @@ async function iniciarNube(){
       if(authInicial){
         authInicial = false;
         let saltada = false; try{ saltada = sessionStorage.getItem('equilibra.sinCuenta') === '1'; }catch(e){}
-        if(!u && !saltada && vista === 'inicio'){ cuentaAlInicio = true; cuentaModo = D.evaluaciones.length ? 'entrar' : 'crear'; vista = 'cuenta'; }
+        if(!u && !saltada && vista === 'inicio'){ cuentaAlInicio = true; cuentaModo = tieneDatos() ? 'entrar' : 'crear'; vista = 'cuenta'; }
       }
       if(u && cuentaAlInicio){ cuentaAlInicio = false; if(vista === 'cuenta') vista = 'inicio'; }
       if(['inicio','historial','ajustes','cuenta'].includes(vista)) render();
     });
   }catch(e){ console.warn('Equilibra: nube no disponible', e); }
 }
-/* Une lo de este dispositivo con lo de la nube: una flor por semana, gana la versión cambiada más tarde */
+/* Une lo de este dispositivo con lo de la nube: por id, gana lo cambiado más tarde */
 function fusionar(local, remoto){
   if(!remoto) return local;
+  remoto = normalizar(remoto);
   const borradas = [...new Set([...(local.borradas || []), ...(remoto.borradas || [])])];
-  const porSemana = {};
-  [...(remoto.evaluaciones || []), ...(local.evaluaciones || [])].forEach(e => {
-    if(borradas.includes(e.id)) return;
-    const k = semanaDe(e), y = porSemana[k];
-    if(!y || (e.mod || e.fecha) > (y.mod || y.fecha)) porSemana[k] = e;
-  });
-  const evaluaciones = Object.values(porSemana).sort((a,b) => a.fecha < b.fecha ? -1 : 1);
-  return {evaluaciones, borradas};
+  const unir = (a, b, clave) => {
+    const m = {};
+    [...b, ...a].forEach(x => { if(borradas.includes(x.id)) return; const y = m[x.id]; if(!y || (x[clave] || '') > (y[clave] || '')) m[x.id] = x; });
+    return Object.values(m);
+  };
+  const r = vacio();
+  r.borradas = borradas;
+  r.acciones = unir(local.acciones, remoto.acciones, 'mod').sort((x,y) => x.creada < y.creada ? -1 : 1);
+  r.revisiones = unir(local.revisiones, remoto.revisiones, 'fecha').sort((x,y) => x.fecha < y.fecha ? -1 : 1);
+  const gana = (remoto.nivelesMod || '') > (local.nivelesMod || '') ? remoto : local;
+  r.niveles = {...gana.niveles}; r.detalle = gana.detalle || {}; r.comentarios = gana.comentarios || {}; r.nivelesMod = gana.nivelesMod;
+  return r;
 }
 async function traerNube(){
   if(!nube.ref) return;
@@ -990,27 +980,27 @@ function programarSubida(){ if(!nube.ref) return; clearTimeout(tSubida); tSubida
 async function subirNube(){
   if(!nube.ref) return;
   try{
-    await nube.ref.set(JSON.parse(JSON.stringify({evaluaciones: D.evaluaciones, borradas: D.borradas || [], actualizado: new Date().toISOString(), version: VERSION})));
+    await nube.ref.set(JSON.parse(JSON.stringify(Object.assign({}, D, {actualizado: new Date().toISOString(), version: VERSION}))));
   }catch(e){ console.warn(e); }
 }
 function entrar(){
   if(!nube.listo){ aviso('Conectando… prueba de nuevo en un momento'); return; }
   const prov = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(prov).then(() => aviso('¡Listo! Tus flores se guardan en la nube ☁️')).catch(e => {
+  firebase.auth().signInWithPopup(prov).then(() => aviso('¡Listo! Tus acciones se guardan en la nube ☁️')).catch(e => {
     if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(e.code)) firebase.auth().signInWithRedirect(prov);
     else if(!['auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(e.code)) aviso('No se pudo entrar (' + e.code + ')');
   });
 }
 function salir(){
   if(!nube.listo) return;
-  firebase.auth().signOut().then(() => { aviso('Sesión cerrada. Tus flores siguen en este dispositivo.'); render(); });
+  firebase.auth().signOut().then(() => { aviso('Sesión cerrada. Tus datos siguen en este dispositivo.'); render(); });
 }
 function cuentaHTML(){
   const u = nube.usuario;
   if(u) return `<div class="cuenta">${u.photoURL ? `<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">` : ''}<div><b>${esc(u.displayName || 'Tu cuenta')}</b><span>${esc(u.email || '')}</span></div></div>
-    <p class="nube-ok" style="margin:0 0 12px">☁️ Tus flores y acciones se guardan en la nube y se ven en todos tus dispositivos.</p>
+    <p class="nube-ok" style="margin:0 0 12px">☁️ Tus acciones y tu flor se guardan en la nube y se ven en todos tus dispositivos.</p>
     <button class="btn sec" onclick="salir()">Cerrar sesión</button>`;
-  return `<p class="suave" style="margin-top:0">Entra para no perder tus flores y verlas en el móvil y en el ordenador.</p>
+  return `<p class="suave" style="margin-top:0">Entra para no perder tus acciones y verlas en el móvil y en el ordenador.</p>
     <div class="bots"><button class="btn google ancho" onclick="entrar()">Entrar con Google</button>
     <button class="btn sec ancho" onclick="cuentaModo='entrar'; ir('cuenta')">Entrar con email y PIN</button>
     <button class="link" onclick="cuentaModo='crear'; ir('cuenta')">Crear una cuenta con email</button></div>`;
@@ -1040,7 +1030,7 @@ function vCuenta(){
   const campoPin = (id, ph, auto) => `<input type="password" id="${id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="${auto}" placeholder="${ph}" class="pin">`;
   let h = `${volverCuenta()}
     <h2 style="margin-top:6px">${cuentaAlInicio ? 'Bienvenido a Equilibra' : 'Tu cuenta'}</h2>
-    <p class="suave peq" style="margin:4px 0 0">Con una cuenta tus flores se guardan en la nube y las ves en todos tus dispositivos.</p>
+    <p class="suave peq" style="margin:4px 0 0">Con una cuenta tus acciones se guardan en la nube y las ves en todos tus dispositivos.</p>
     <button class="btn google ancho" style="margin-top:16px" onclick="entrar()">Entrar con Google</button>
     <p class="separador"><span>o con tu email</span></p>`;
   if(cuentaModo === 'crear'){
@@ -1122,16 +1112,16 @@ async function cambiarPin(){
 
 /* ---------- Ajustes ---------- */
 function vAjustes(){
-  const n = D.evaluaciones.length;
+  const n = D.acciones.filter(a => a.hecha).length;
   return `<h2 style="margin-top:18px">Ajustes</h2>
   <section class="tarjeta ajustes">
     <h3>Tu cuenta</h3>
     ${cuentaHTML()}
   </section>
   <section class="tarjeta ajustes">
-    <h3>¿Qué es la flor de Equilibra?</h3>
-    <p>Es la rueda de la vida convertida en flor: cada pétalo es un área de tu vida y crece según cómo estás en ella. Una flor con pétalos muy desiguales te muestra dónde poner energía.</p>
-    <p class="suave">Haz <b>una flor por semana</b> y elige <b>de 1 a 3 acciones pequeñas</b> según cómo esté el pétalo. Con el tiempo, tu jardín te enseña cómo vas cambiando.</p>
+    <h3>¿Cómo funciona Equilibra?</h3>
+    <p>Lo principal son <b>tus próximas acciones</b>: siempre las tienes en grande en la pantalla de inicio. Cuando haces una, la marcas y sube la siguiente.</p>
+    <p class="suave">La flor te dice dónde poner energía: en cada área eliges <b>Estoy bien</b>, <b>Una acción a la semana</b> o <b>Necesita más acción</b>. Revísala cuando sientas que algo ha cambiado (te lo recordamos cada mes).</p>
   </section>
   <section class="tarjeta ajustes">
     <label class="interruptor">🔊 Sonidos de la app<input type="checkbox" ${sonidoOn?'checked':''} onchange="alternarSonido()"></label>
@@ -1146,7 +1136,7 @@ function vAjustes(){
       <button class="btn peligro" onclick="borrarTodo()">Borrar todos mis datos</button>
     </div>
   </section>
-  <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION} · ${n} ${n===1?'flor en tu jardín':'flores en tu jardín'}</p>
+  <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
   <div class="sellos">${sellosHTML()}</div>`;
 }
 function exportar(){
@@ -1163,9 +1153,11 @@ function importar(inp){
   lector.onload = () => {
     try{
       const d = JSON.parse(lector.result);
-      if(!d || !Array.isArray(d.evaluaciones)) throw 0;
-      if(!confirm(`La copia tiene ${d.evaluaciones.length} flores. ¿Reemplazar tus datos actuales por la copia?`)) return;
-      D = {evaluaciones: d.evaluaciones, borradas: D.borradas || []};
+      if(!d || !(Array.isArray(d.evaluaciones) || d.v === 2)) throw 0;
+      const nd = normalizar(d);
+      if(!confirm(`La copia tiene ${nd.acciones.length} acciones y ${nd.revisiones.length} revisiones. ¿Reemplazar tus datos actuales por la copia?`)) return;
+      nd.borradas = [...new Set([...(D.borradas || []), ...(nd.borradas || [])])];
+      D = nd;
       guardar(); aviso('Copia recuperada ✓'); ir('inicio');
     }catch(e){ aviso('Ese archivo no es una copia de Equilibra'); }
   };
@@ -1173,9 +1165,10 @@ function importar(inp){
   inp.value = '';
 }
 function borrarTodo(){
-  if(!confirm('¿Borrar todas tus flores y acciones? No se puede deshacer.')) return;
-  if(!confirm('¿Seguro? Se borrará todo tu jardín de Equilibra' + (nube.usuario ? ', también en la nube.' : ' en este dispositivo.'))) return;
-  D = {evaluaciones: [], borradas: (D.borradas || []).concat(D.evaluaciones.map(e => e.id))}; guardar(); aviso('Datos borrados'); ir('inicio');
+  if(!confirm('¿Borrar todas tus acciones y tu flor? No se puede deshacer.')) return;
+  if(!confirm('¿Seguro? Se borrará todo Equilibra' + (nube.usuario ? ', también en la nube.' : ' en este dispositivo.'))) return;
+  const ids = [...D.acciones.map(a => a.id), ...D.revisiones.map(r => r.id)];
+  D = vacio(); D.borradas = ids; guardar(); aviso('Datos borrados'); ir('inicio');
 }
 
 /* ---------- Deslizar el dedo: pétalo siguiente/anterior, o pestaña siguiente/anterior ---------- */
@@ -1217,18 +1210,17 @@ function aviso(t){ const el = $('#toast'); el.textContent = t; el.classList.add(
 
 /* ---------- Grow Panel: resumen de la app (Grow Panel\BOTON.md) ---------- */
 function enviarResumen(){
-  const u = ultima();
   let r;
-  if(!u){
-    r = {estado:'aviso', mensaje:'Aún no has hecho tu primera flor', cifras:[], version:VERSION};
+  if(!tieneDatos()){
+    r = {estado:'aviso', mensaje:'Aún no has revisado tu flor', cifras:[], version:VERSION};
   }else{
-    const sem = semanasDesde(u), baja = ordenadas(u.notas)[0], tsU = tareasDe(u), pend = tsU.filter(t => !t.hecha);
-    let msg = sem > 0 ? 'Toca la flor de esta semana' : pend.length ? `Acciones: ${tsU.length - pend.length} de ${tsU.length} hechas · ${areaDe(u.accion.area).nombre}` : `Pétalo a cuidar: ${baja.nombre}`;
+    const prox = proximas()[0], f = faltan(), ult = ultimaRevision();
+    let msg = prox ? `Siguiente: ${prox.texto}` : f.length ? `Añade acciones para ${f[0].area.nombre}` : 'Todo en equilibrio ✓';
     if(msg.length > 90) msg = msg.slice(0, 89) + '…';
-    r = {estado: sem > 0 ? 'aviso' : 'ok', mensaje: msg, version: VERSION, cifras:[
-      {valor: fmt(media(u.notas)) + '/10', etiqueta:'media de tu flor'},
-      {valor: sem === 0 ? '✓' : sem + ' sem', etiqueta: sem === 0 ? 'flor de esta semana' : 'desde la última flor'},
-      {valor: D.evaluaciones.length, etiqueta: D.evaluaciones.length === 1 ? 'flor en el jardín' : 'flores en el jardín'}]};
+    r = {estado: (f.length || (ult && diasDesde(ult.fecha) > 35)) ? 'aviso' : 'ok', mensaje: msg, version: VERSION, cifras:[
+      {valor: pendientes().length, etiqueta:'acciones pendientes'},
+      {valor: hechasEstaSemana(), etiqueta:'hechas esta semana'},
+      {valor: AREAS.filter(a => nivel(a.id) && nivel(a.id) !== 'bien').length, etiqueta:'áreas que piden acción'}]};
   }
   window.growPanelResumen = r;
   try{ if(window.GrowPanel && GrowPanel.resumen) GrowPanel.resumen(r); }catch(e){}
