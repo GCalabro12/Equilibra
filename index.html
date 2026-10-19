@@ -294,6 +294,16 @@ img,svg{-webkit-user-drag:none}
 .hoja-nota{font-size:34px;font-weight:800;color:color-mix(in srgb,var(--c) 60%,#fff)}
 .hoja-nota .delta{font-size:13px;vertical-align:middle}
 
+/* v1.10 · Cuenta con email y PIN */
+.formulario{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+input[type=password]{width:100%;font:inherit;border:0;border-radius:12px;padding:11px 12px;background:rgba(255,255,255,.08);color:var(--tinta)}
+input[type=password]:focus{outline:2px solid var(--acento)}
+.formulario .link{align-self:center}
+input.pin{letter-spacing:.5em;font-size:20px;text-align:center}
+input.pin::placeholder{letter-spacing:normal;font-size:15px}
+.separador{display:flex;align-items:center;gap:10px;color:var(--suave);font-size:13px;margin:18px 0 12px}
+.separador::before,.separador::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.12)}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -330,7 +340,7 @@ img,svg{-webkit-user-drag:none}
 
 <script>
 'use strict';
-const VERSION = 'v1.09';
+const VERSION = 'v1.10';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -552,7 +562,7 @@ function ir(v){
   window.scrollTo(0, 0);
 }
 function render(){
-  const vistas = {inicio:vInicio, evaluar:vEvaluar, resultado:vResultado, historial:vHistorial, detalle:vDetalle, ajustes:vAjustes};
+  const vistas = {inicio:vInicio, evaluar:vEvaluar, resultado:vResultado, historial:vHistorial, detalle:vDetalle, ajustes:vAjustes, cuenta:vCuenta};
   app.innerHTML = (vistas[vista] || vInicio)();
   const conNav = ['inicio','historial','detalle','ajustes'].includes(vista);
   $('#nav').style.display = conNav ? '' : 'none';
@@ -570,7 +580,7 @@ function vInicio(){
       <p class="suave">Puntúas las 8 áreas del 1 al 10, ves tu flor y eliges una pequeña acción para la semana.</p>
       <div class="chips">${AREAS.map(a => `<span class="chip" style="--c:${a.color}">${ico(a)} ${a.nombre}</span>`).join('')}</div>
       <button class="btn prim ancho" onclick="empezar()">Hacer mi primera flor</button>
-      ${nube.usuario ? '' : `<button class="link" style="margin-top:6px" onclick="entrar()">¿Ya usas Equilibra? Entra con Google</button>`}
+      ${nube.usuario ? '' : `<button class="link" style="margin-top:6px" onclick="ir('cuenta')">¿Ya tienes cuenta? Entra</button>`}
       <p class="peq suave">Tarda unos 3 minutos.</p>
     </div></section><div class="sellos">${sellosHTML()}</div>`;
   }
@@ -987,8 +997,111 @@ function cuentaHTML(){
   if(u) return `<div class="cuenta">${u.photoURL ? `<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">` : ''}<div><b>${esc(u.displayName || 'Tu cuenta')}</b><span>${esc(u.email || '')}</span></div></div>
     <p class="nube-ok" style="margin:0 0 12px">☁️ Tus flores y acciones se guardan en la nube y se ven en todos tus dispositivos.</p>
     <button class="btn sec" onclick="salir()">Cerrar sesión</button>`;
-  return `<p class="suave" style="margin-top:0">Entra con tu cuenta de Google para no perder tus flores y verlas en el móvil y en el ordenador.</p>
-    <button class="btn google ancho" onclick="entrar()">Entrar con Google</button>`;
+  return `<p class="suave" style="margin-top:0">Entra para no perder tus flores y verlas en el móvil y en el ordenador.</p>
+    <div class="bots"><button class="btn google ancho" onclick="entrar()">Entrar con Google</button>
+    <button class="btn sec ancho" onclick="cuentaModo='entrar'; ir('cuenta')">Entrar con email y PIN</button>
+    <button class="link" onclick="cuentaModo='crear'; ir('cuenta')">Crear una cuenta con email</button></div>`;
+}
+
+/* ---------- Cuenta con email + nombre + PIN de 4 cifras ----------
+   Firebase pide contraseñas de 6 caracteres como mínimo: la contraseña real es «equilibra-» + PIN. */
+const SAL_PIN = 'equilibra-';
+let cuentaModo = 'entrar';
+function errorCuenta(e){
+  const m = {
+    'auth/invalid-credential':'Email o PIN incorrectos', 'auth/wrong-password':'Email o PIN incorrectos', 'auth/user-not-found':'Email o PIN incorrectos',
+    'auth/invalid-login-credentials':'Email o PIN incorrectos', 'auth/email-already-in-use':'Ese email ya tiene cuenta: entra con tu PIN',
+    'auth/invalid-email':'Ese email no es válido', 'auth/too-many-requests':'Demasiados intentos. Espera unos minutos y prueba otra vez',
+    'auth/network-request-failed':'Sin conexión a internet', 'auth/missing-email':'Escribe tu email', 'auth/weak-password':'La clave es demasiado corta'
+  };
+  return m[e && e.code] || 'No se pudo (' + (e && e.code || 'error') + ')';
+}
+const valor = id => (($('#' + id) || {}).value || '').trim();
+function pinValido(pin){ if(!/^\d{4}$/.test(pin)){ aviso('El PIN son 4 números'); return false; } return true; }
+function listoNube(){ if(!nube.listo){ aviso('Conectando… prueba de nuevo en un momento'); return false; } firebase.auth().languageCode = 'es'; return true; }
+function vCuenta(){
+  if(nube.usuario) return `<button class="link volver" onclick="ir('ajustes')">← Ajustes</button><section class="tarjeta ajustes"><h3>Tu cuenta</h3>${cuentaHTML()}</section>`;
+  const campoPin = (id, ph, auto) => `<input type="password" id="${id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="${auto}" placeholder="${ph}" class="pin">`;
+  let h = `<button class="link volver" onclick="ir('ajustes')">← Ajustes</button>
+    <h2 style="margin-top:6px">Tu cuenta</h2>
+    <p class="suave peq" style="margin:4px 0 0">Con una cuenta tus flores se guardan en la nube y las ves en todos tus dispositivos.</p>
+    <button class="btn google ancho" style="margin-top:16px" onclick="entrar()">Entrar con Google</button>
+    <p class="separador"><span>o con tu email</span></p>`;
+  if(cuentaModo === 'crear'){
+    h += `<div class="formulario">
+      <input type="text" id="c-nombre" autocomplete="name" placeholder="Tu nombre" maxlength="40">
+      <input type="text" id="c-email" inputmode="email" autocomplete="email" placeholder="Tu email" autocapitalize="off">
+      ${campoPin('c-pin', 'Elige un PIN de 4 números', 'new-password')}
+      <button class="btn prim ancho" onclick="crearCuenta()">Crear mi cuenta</button>
+      <button class="link" onclick="cuentaModo='entrar'; render()">Ya tengo cuenta: entrar</button></div>`;
+  }else if(cuentaModo === 'recuperar'){
+    h += `<div class="formulario">
+      <p class="peq" style="margin:0">Te enviamos un correo para poner una <b>clave temporal</b> (mínimo 6 caracteres). Después vuelves aquí y eliges tu PIN nuevo.</p>
+      <input type="text" id="r-email" inputmode="email" autocomplete="email" placeholder="Tu email" autocapitalize="off">
+      <button class="btn prim ancho" onclick="enviarRecuperar()">Enviarme el correo</button>
+      <button class="link" onclick="cuentaModo='nuevoPin'; render()">Ya tengo la clave temporal</button>
+      <button class="link" onclick="cuentaModo='entrar'; render()">Volver a entrar</button></div>`;
+  }else if(cuentaModo === 'nuevoPin'){
+    h += `<div class="formulario">
+      <p class="peq" style="margin:0">Escribe la clave temporal que pusiste desde el correo y elige tu PIN nuevo.</p>
+      <input type="text" id="n-email" inputmode="email" autocomplete="email" placeholder="Tu email" autocapitalize="off">
+      <input type="password" id="n-clave" autocomplete="current-password" placeholder="Clave temporal del correo">
+      ${campoPin('n-pin', 'Tu PIN nuevo de 4 números', 'new-password')}
+      <button class="btn prim ancho" onclick="cambiarPin()">Guardar PIN nuevo y entrar</button>
+      <button class="link" onclick="cuentaModo='entrar'; render()">Volver a entrar</button></div>`;
+  }else{
+    h += `<div class="formulario">
+      <input type="text" id="e-email" inputmode="email" autocomplete="email" placeholder="Tu email" autocapitalize="off">
+      ${campoPin('e-pin', 'Tu PIN de 4 números', 'current-password')}
+      <button class="btn prim ancho" onclick="entrarEmail()">Entrar</button>
+      <button class="link" onclick="cuentaModo='crear'; render()">No tengo cuenta: crearla</button>
+      <button class="link" onclick="cuentaModo='recuperar'; render()">He olvidado mi PIN</button></div>`;
+  }
+  return h;
+}
+async function crearCuenta(){
+  if(!listoNube()) return;
+  const nombre = valor('c-nombre'), email = valor('c-email'), pin = valor('c-pin');
+  if(!nombre){ aviso('Escribe tu nombre'); return; }
+  if(!pinValido(pin)) return;
+  try{
+    const c = await firebase.auth().createUserWithEmailAndPassword(email, SAL_PIN + pin);
+    await c.user.updateProfile({displayName: nombre});
+    nube.usuario = firebase.auth().currentUser;
+    aviso(`¡Bienvenido, ${nombre}! Tu cuenta está lista ☁️`);
+    ir('inicio');
+  }catch(e){ aviso(errorCuenta(e)); }
+}
+async function entrarEmail(){
+  if(!listoNube()) return;
+  const email = valor('e-email'), pin = valor('e-pin');
+  if(!pinValido(pin)) return;
+  try{
+    const c = await firebase.auth().signInWithEmailAndPassword(email, SAL_PIN + pin);
+    aviso(`¡Hola${c.user.displayName ? ', ' + c.user.displayName : ''}! ☁️`);
+    ir('inicio');
+  }catch(e){ aviso(errorCuenta(e)); }
+}
+async function enviarRecuperar(){
+  if(!listoNube()) return;
+  const email = valor('r-email');
+  try{
+    await firebase.auth().sendPasswordResetEmail(email);
+    aviso('Correo enviado. Revisa también la carpeta de spam');
+    cuentaModo = 'nuevoPin'; render();
+    const n = $('#n-email'); if(n) n.value = email;
+  }catch(e){ aviso(errorCuenta(e)); }
+}
+async function cambiarPin(){
+  if(!listoNube()) return;
+  const email = valor('n-email'), clave = $('#n-clave') ? $('#n-clave').value : '', pin = valor('n-pin');
+  if(!pinValido(pin)) return;
+  try{
+    const c = await firebase.auth().signInWithEmailAndPassword(email, clave);
+    await c.user.updatePassword(SAL_PIN + pin);
+    aviso('PIN nuevo guardado ✓');
+    cuentaModo = 'entrar'; ir('inicio');
+  }catch(e){ aviso(errorCuenta(e)); }
 }
 
 /* ---------- Ajustes ---------- */
