@@ -56,7 +56,6 @@ header.cab{position:sticky;top:0;z-index:5;background:rgba(20,15,38,.82);backdro
 .flor .centro{animation:late 1.1s ease-out .55s both;transform-origin:0px 0px}
 @keyframes late{0%{transform:scale(0)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
 .flor .eti-num{font-size:12px;font-weight:800;fill:var(--tinta)}
-.flor .eti-emo{font-size:17px}
 .mini{width:64px;height:64px;flex:none;margin:0}
 .leyenda-prev{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--suave);margin-top:4px}
 .leyenda-prev i{display:inline-block;width:22px;border-top:2px dashed #cbbcf5}
@@ -73,7 +72,10 @@ header.cab{position:sticky;top:0;z-index:5;background:rgba(20,15,38,.82);backdro
 .areas{margin-top:12px}
 .fila{display:grid;grid-template-columns:26px 1fr 70px 30px 34px;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--linea)}
 .fila:first-child{border-top:0}
-.fila .em{font-size:19px;text-align:center}
+.fila .em{display:flex;justify-content:center}
+.fila .em .ico{width:18px;height:18px}
+.ico{width:15px;height:15px;vertical-align:-2px;flex:none;display:inline-block}
+.ico.g{width:26px;height:26px}
 .fila .nom{font-weight:700;font-size:15px;line-height:1.2}
 .fila .nom small{display:block;font-weight:600;font-size:12px;color:var(--suave)}
 .fila .barra{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
@@ -112,7 +114,6 @@ button.chip.sel{border-color:var(--c);background:color-mix(in srgb,var(--c) 32%,
 .eval .ilus{position:relative;height:270px;background:var(--fondo2) center 30%/cover}
 .eval .ilus::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,var(--tarjeta) 98%)}
 .eval .cuerpo{padding:0 18px 20px;margin-top:-44px;position:relative}
-.eval .emo{font-size:30px;line-height:1}
 .eval h2{font-size:25px;font-weight:800;margin-top:4px;color:color-mix(in srgb,var(--c) 55%,#fff)}
 .pregunta{display:block;font-size:17px;font-weight:700;margin:16px 4px 0}
 .valor{font-size:46px;font-weight:800;color:color-mix(in srgb,var(--c) 70%,#fff);line-height:1.1;margin-top:4px;transition:transform .15s}
@@ -238,29 +239,29 @@ nav.abajo button.act span{filter:none;opacity:1}
 
 <script>
 'use strict';
-const VERSION = 'v1.01';
+const VERSION = 'v1.02';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
 /* Las 8 áreas = los 8 pétalos (decididas con Gustavo el 19/10/2026). Orden = sentido de las agujas del reloj desde arriba. */
 const AREAS = [
-  {id:'salud',       nombre:'Salud',                   emoji:'💪', color:'#22a35a',
+  {id:'salud',       nombre:'Salud',                   color:'#22a35a',
    pregunta:'¿Cómo te sientes con tu cuerpo, tu energía y tu descanso?', ejemplo:'caminar 20 minutos el martes y el jueves'},
-  {id:'pareja',      nombre:'Pareja',                  emoji:'❤️', color:'#e2456b',
+  {id:'pareja',      nombre:'Pareja',                  color:'#e2456b',
    pregunta:'¿Cómo estás en tu vida de pareja o con tu situación sentimental?', ejemplo:'una cena sin móviles el viernes'},
-  {id:'familia',     nombre:'Familia y amigos',        emoji:'🤝', color:'#f08a24',
+  {id:'familia',     nombre:'Familia y amigos',        color:'#f08a24',
    pregunta:'¿Qué tan cuidados y presentes están tus vínculos cercanos?', ejemplo:'llamar a un amigo que hace tiempo no veo'},
-  {id:'trabajo',     nombre:'Trabajo y dinero',        emoji:'💼', color:'#2b7fd4',
+  {id:'trabajo',     nombre:'Trabajo y dinero',        color:'#2b7fd4',
    dobles:[{id:'gusta', texto:'¿Te gusta lo que haces?', corto:'Te gusta'},
            {id:'dinero',texto:'¿Te da el dinero que necesitas?', corto:'Dinero'}],
    ejemplo:'revisar mis gastos del mes el domingo'},
-  {id:'crecimiento', nombre:'Crecimiento personal',    emoji:'🌱', color:'#8b5cf6',
+  {id:'crecimiento', nombre:'Crecimiento personal',    color:'#8b5cf6',
    pregunta:'¿Estás aprendiendo y creciendo como te gustaría?', ejemplo:'leer 10 páginas cada noche'},
-  {id:'ocio',        nombre:'Ocio y disfrute',         emoji:'🎨', color:'#e0a810',
+  {id:'ocio',        nombre:'Ocio y disfrute',         color:'#e0a810',
    pregunta:'¿Tienes tiempo para disfrutar, jugar y descansar?', ejemplo:'reservar el sábado por la tarde para algo que me guste'},
-  {id:'proposito',   nombre:'Propósito / Espiritualidad', emoji:'✨', color:'#14a3a3',
+  {id:'proposito',   nombre:'Propósito / Espiritualidad', color:'#14a3a3',
    pregunta:'¿Sientes que tu vida tiene sentido y dirección?', ejemplo:'10 minutos de silencio o meditación cada mañana'},
-  {id:'hogar',       nombre:'Hogar y entorno',         emoji:'🏡', color:'#b0703c',
+  {id:'hogar',       nombre:'Hogar y entorno',         color:'#b0703c',
    pregunta:'¿Te sientes a gusto donde y cómo vives?', ejemplo:'ordenar el escritorio y dejarlo despejado'},
 ];
 
@@ -391,8 +392,8 @@ function flor(notas, previas, opc = {}){
   if(!mini && notas){
     AREAS.forEach((a,i) => {
       const [x,y] = pt(165, i*paso - 90);
-      s += `<text class="eti-emo" x="${x.toFixed(1)}" y="${(y-7).toFixed(1)}" text-anchor="middle" dominant-baseline="central">${a.emoji}</text>`;
-      s += `<text class="eti-num" x="${x.toFixed(1)}" y="${(y+13).toFixed(1)}" text-anchor="middle" dominant-baseline="central">${fmt(notas[a.id])}</text>`;
+      s += `<circle cx="${x.toFixed(1)}" cy="${(y-9).toFixed(1)}" r="5" fill="${a.color}"/>`;
+      s += `<text class="eti-num" x="${x.toFixed(1)}" y="${(y+8).toFixed(1)}" text-anchor="middle" dominant-baseline="central">${fmt(notas[a.id])}</text>`;
     });
   }
   return s + '</svg>';
@@ -406,6 +407,9 @@ function logoInterior(){
 }
 function logoSVG(){ return `<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">${logoInterior()}</svg>`; }
 
+/* Icono de cada área: un pétalo de su color (sustituye a los emojis) */
+function ico(a, cls = ''){ return `<svg class="ico ${cls}" viewBox="-12 -12 24 24" aria-hidden="true"><path d="${petalo(21, 9)}" transform="translate(0 10.5)" fill="${a.color}"/></svg>`; }
+
 function sellosHTML(){
   return `<a class="pi-seal" href="https://practicaintegral.club" target="_blank" rel="noopener">by Práctica Integral</a>
   <a class="gp-seal" href="https://practicaintegral.club/grow-panel/" target="_blank" rel="noopener"><svg viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="107.5" r="69.1" fill="#f59e0b"/><circle cx="397.2" cy="210.1" r="69.1" fill="#0f766e"/><circle cx="343.3" cy="376.1" r="69.1" fill="#8b5cf6"/><circle cx="168.7" cy="376.1" r="69.1" fill="#3b82f6"/><circle cx="114.8" cy="210.1" r="69.1" fill="#ef4444"/><circle cx="256" cy="256" r="79.4" fill="#6b7280"/></svg>with Grow Panel</a>`;
@@ -416,7 +420,7 @@ function filasAreas(ev, prev){
     const v = ev.notas[a.id];
     let sub = '';
     if(a.dobles && ev.detalle && ev.detalle[a.id]) sub = `<small>${a.dobles.map(d => `${d.corto} ${ev.detalle[a.id][d.id]}`).join(' · ')}</small>`;
-    return `<div class="fila"><span class="em">${a.emoji}</span><span class="nom">${a.nombre}${sub}</span>
+    return `<div class="fila"><span class="em">${ico(a)}</span><span class="nom">${a.nombre}${sub}</span>
       <span class="barra"><i style="width:${v*10}%;background:${a.color}"></i></span><b>${fmt(v)}</b>${deltaHTML(v, prev ? prev.notas[a.id] : null)}</div>`;
   }).join('') + '</div>';
 }
@@ -452,7 +456,7 @@ function vInicio(){
       <h1>Bienvenido a Equilibra</h1>
       <p>Cada semana tu vida dibuja una flor. Cada pétalo es un área: cuanto mejor estás en ella, más largo crece.</p>
       <p class="suave">Puntúas las 8 áreas del 1 al 10, ves tu flor y eliges una pequeña acción para la semana.</p>
-      <div class="chips">${AREAS.map(a => `<span class="chip" style="--c:${a.color}">${a.emoji} ${a.nombre}</span>`).join('')}</div>
+      <div class="chips">${AREAS.map(a => `<span class="chip" style="--c:${a.color}">${ico(a)} ${a.nombre}</span>`).join('')}</div>
       <button class="btn prim ancho" onclick="empezar()">🌱 Hacer mi primera flor</button>
       <p class="peq suave">Tarda unos 3 minutos. Tus respuestas se guardan solo en este dispositivo.</p>
     </div></section><div class="sellos">${sellosHTML()}</div>`;
@@ -469,15 +473,15 @@ function vInicio(){
     ${prev ? `<div class="leyenda-prev"><i></i> flor anterior (${rangoSemana(semanaDe(prev))})</div>` : ''}
     <div class="cifras">
       <div class="cifra"><b>${fmt(m)}</b><span>media /10 ${prev ? deltaHTML(m, media(prev.notas)) : ''}</span></div>
-      <div class="cifra"><b>${alta.emoji}</b><span>más alta: ${alta.nombre}</span></div>
-      <div class="cifra"><b>${baja.emoji}</b><span>a cuidar: ${baja.nombre}</span></div>
+      <div class="cifra"><b>${ico(alta,'g')}</b><span>más alta: ${alta.nombre}</span></div>
+      <div class="cifra"><b>${ico(baja,'g')}</b><span>a cuidar: ${baja.nombre}</span></div>
     </div>
     ${filasAreas(u, prev)}
   </section>`;
   if(u.accion){
     const a = areaDe(u.accion.area);
     h += `<section class="tarjeta accion ${u.accion.hecha?'hecha':''}" style="--c:${a.color}">
-      <p class="eti">Tu acción de la semana · ${a.emoji} ${a.nombre}</p>
+      <p class="eti">Tu acción de la semana · ${ico(a)} ${a.nombre}</p>
       <p class="txt">${esc(u.accion.texto)}</p>
       <div class="acc-bots">
         <button class="btn ${u.accion.hecha?'sec':'prim'}" onclick="alternarHecha()">${u.accion.hecha?'✓ Hecha · deshacer':'Marcar como hecha'}</button>
@@ -486,7 +490,7 @@ function vInicio(){
   }else{
     h += `<section class="tarjeta accion" style="--c:${baja.color}">
       <p class="eti">Una acción para esta semana</p>
-      <p class="txt">¿Qué pequeño paso darías por ${baja.emoji} ${baja.nombre}?</p>
+      <p class="txt">¿Qué pequeño paso darías por ${ico(baja)} ${baja.nombre}?</p>
       <button class="btn prim" onclick="editarAccion()">Elegir una acción</button></section>`;
   }
   if(estaSemana) h += `<button class="btn sec ancho" style="margin-top:14px" onclick="empezar()">🔄 Rehacer la flor de esta semana</button>`;
@@ -532,7 +536,6 @@ function vEvaluar(){
     <section class="tarjeta eval">
       <div class="ilus" style="background-image:url(img/${a.id}.jpg)" role="img" aria-label="Ilustración de ${a.nombre}"></div>
       <div class="cuerpo">
-        <div class="emo">${a.emoji}</div>
         <h2>${a.nombre}</h2>
         ${cuerpo}
         <details class="nota" ${com?'open':''}><summary>＋ Añadir una nota (opcional)</summary>
@@ -597,15 +600,15 @@ function vResultado(){
       ${flor(ev.notas, prev && prev.notas)}
       ${prev ? `<div class="leyenda-prev"><i></i> flor anterior (${rangoSemana(semanaDe(prev))})</div>` : ''}
       <p class="resumen-txt">Tu media es <b>${fmt(m)}</b> de 10${prev ? ' ' + deltaHTML(m, media(prev.notas)) : ''}.<br>
-      El pétalo más largo: <b>${alta.emoji} ${alta.nombre}</b> (${fmt(ev.notas[alta.id])}).<br>
-      El que más pide cuidado: <b>${baja.emoji} ${baja.nombre}</b> (${fmt(ev.notas[baja.id])}).</p>
+      El pétalo más largo: <b>${ico(alta)} ${alta.nombre}</b> (${fmt(ev.notas[alta.id])}).<br>
+      El que más pide cuidado: <b>${ico(baja)} ${baja.nombre}</b> (${fmt(ev.notas[baja.id])}).</p>
     </section>`;
   }
   h += `<section class="tarjeta accion" style="--c:${sel.color}">
     <h3>Una acción pequeña para esta semana</h3>
     <p class="peq suave" style="margin:6px 0 0">Elige un pétalo. Te proponemos el más corto, pero puedes cambiarlo.</p>
     <div class="chips" style="justify-content:flex-start;margin-bottom:6px">
-      ${ord.map(a => `<button class="chip ${a.id===R.area?'sel':''}" style="--c:${a.color}" onclick="elegirArea('${a.id}')">${a.emoji} ${a.nombre} · ${fmt(ev.notas[a.id])}</button>`).join('')}
+      ${ord.map(a => `<button class="chip ${a.id===R.area?'sel':''}" style="--c:${a.color}" onclick="elegirArea('${a.id}')">${ico(a)} ${a.nombre} · ${fmt(ev.notas[a.id])}</button>`).join('')}
     </div>
     <div class="campo-accion">
       <input type="text" id="accion" maxlength="120" value="${esc(R.texto)}" placeholder="Por ejemplo: ${esc(sel.ejemplo)}" oninput="R.texto=this.value" onkeydown="if(event.key==='Enter')guardarAccion()">
@@ -671,8 +674,8 @@ function vDetalle(){
     ${prev ? `<div class="leyenda-prev"><i></i> flor anterior (${rangoSemana(semanaDe(prev))})</div>` : ''}
     ${filasAreas(ev, prev)}</section>`;
   const coms = Object.keys(ev.comentarios || {});
-  if(coms.length) h += `<section class="tarjeta"><h3 style="font-size:16px">Tus notas</h3>${coms.map(k => { const a = areaDe(k); return `<div class="comentario"><b>${a.emoji} ${a.nombre}:</b> ${esc(ev.comentarios[k])}</div>`; }).join('')}</section>`;
-  if(ev.accion){ const a = areaDe(ev.accion.area); h += `<section class="tarjeta accion ${ev.accion.hecha?'hecha':''}" style="--c:${a.color}"><p class="eti">Acción elegida · ${a.emoji} ${a.nombre}</p><p class="txt" style="margin-bottom:0">${esc(ev.accion.texto)} ${ev.accion.hecha?'✓':''}</p></section>`; }
+  if(coms.length) h += `<section class="tarjeta"><h3 style="font-size:16px">Tus notas</h3>${coms.map(k => { const a = areaDe(k); return `<div class="comentario"><b>${ico(a)} ${a.nombre}:</b> ${esc(ev.comentarios[k])}</div>`; }).join('')}</section>`;
+  if(ev.accion){ const a = areaDe(ev.accion.area); h += `<section class="tarjeta accion ${ev.accion.hecha?'hecha':''}" style="--c:${a.color}"><p class="eti">Acción elegida · ${ico(a)} ${a.nombre}</p><p class="txt" style="margin-bottom:0">${esc(ev.accion.texto)} ${ev.accion.hecha?'✓':''}</p></section>`; }
   h += `<button class="btn peligro ancho" style="margin-top:14px" onclick="borrarEval('${ev.id}')">Borrar esta flor</button>`;
   return h;
 }
@@ -748,7 +751,7 @@ function enviarResumen(){
     r = {estado:'aviso', mensaje:'Aún no has hecho tu primera flor', cifras:[], version:VERSION};
   }else{
     const sem = semanasDesde(u), baja = ordenadas(u.notas)[0];
-    let msg = sem > 0 ? 'Toca la flor de esta semana' : u.accion && !u.accion.hecha ? `Acción: ${u.accion.texto}` : `Pétalo a cuidar: ${baja.emoji} ${baja.nombre}`;
+    let msg = sem > 0 ? 'Toca la flor de esta semana' : u.accion && !u.accion.hecha ? `Acción: ${u.accion.texto}` : `Pétalo a cuidar: ${baja.nombre}`;
     if(msg.length > 90) msg = msg.slice(0, 89) + '…';
     r = {estado: sem > 0 ? 'aviso' : 'ok', mensaje: msg, version: VERSION, cifras:[
       {valor: fmt(media(u.notas)) + '/10', etiqueta:'media de tu flor'},
