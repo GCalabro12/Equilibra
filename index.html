@@ -304,6 +304,13 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .separador{display:flex;align-items:center;gap:10px;color:var(--suave);font-size:13px;margin:18px 0 12px}
 .separador::before,.separador::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.12)}
 
+/* v1.11 · Deslizar entre pantallas */
+#app.desde-der{animation:desdeDer .32s ease-out}
+#app.desde-izq{animation:desdeIzq .32s ease-out}
+@keyframes desdeDer{from{opacity:.3;transform:translateX(40px)}}
+@keyframes desdeIzq{from{opacity:.3;transform:translateX(-40px)}}
+#app{touch-action:pan-y}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -340,7 +347,7 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 
 <script>
 'use strict';
-const VERSION = 'v1.10';
+const VERSION = 'v1.11';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -943,7 +950,13 @@ async function iniciarNube(){
       // Cada persona tiene su propio documento: usuarios/{uid}/equilibra/datos (las reglas solo dejan entrar a su dueño)
       nube.ref = u ? firebase.firestore().collection('usuarios').doc(u.uid).collection('equilibra').doc('datos') : null;
       if(u) await traerNube();
-      if(['inicio','historial','ajustes'].includes(vista)) render();
+      if(authInicial){
+        authInicial = false;
+        let saltada = false; try{ saltada = sessionStorage.getItem('equilibra.sinCuenta') === '1'; }catch(e){}
+        if(!u && !saltada && vista === 'inicio'){ cuentaAlInicio = true; cuentaModo = D.evaluaciones.length ? 'entrar' : 'crear'; vista = 'cuenta'; }
+      }
+      if(u && cuentaAlInicio){ cuentaAlInicio = false; if(vista === 'cuenta') vista = 'inicio'; }
+      if(['inicio','historial','ajustes','cuenta'].includes(vista)) render();
     });
   }catch(e){ console.warn('Equilibra: nube no disponible', e); }
 }
@@ -1006,6 +1019,9 @@ function cuentaHTML(){
 /* ---------- Cuenta con email + nombre + PIN de 4 cifras ----------
    Firebase pide contraseñas de 6 caracteres como mínimo: la contraseña real es «equilibra-» + PIN. */
 const SAL_PIN = 'equilibra-';
+let authInicial = true, cuentaAlInicio = false;
+function ahoraNo(){ try{ sessionStorage.setItem('equilibra.sinCuenta', '1'); }catch(e){} cuentaAlInicio = false; ir('inicio'); }
+const volverCuenta = () => cuentaAlInicio ? `<button class="link volver" onclick="ahoraNo()">Ahora no, entrar sin cuenta →</button>` : `<button class="link volver" onclick="ir('ajustes')">← Ajustes</button>`;
 let cuentaModo = 'entrar';
 function errorCuenta(e){
   const m = {
@@ -1020,10 +1036,10 @@ const valor = id => (($('#' + id) || {}).value || '').trim();
 function pinValido(pin){ if(!/^\d{4}$/.test(pin)){ aviso('El PIN son 4 números'); return false; } return true; }
 function listoNube(){ if(!nube.listo){ aviso('Conectando… prueba de nuevo en un momento'); return false; } firebase.auth().languageCode = 'es'; return true; }
 function vCuenta(){
-  if(nube.usuario) return `<button class="link volver" onclick="ir('ajustes')">← Ajustes</button><section class="tarjeta ajustes"><h3>Tu cuenta</h3>${cuentaHTML()}</section>`;
+  if(nube.usuario) return `${volverCuenta()}<section class="tarjeta ajustes"><h3>Tu cuenta</h3>${cuentaHTML()}</section>`;
   const campoPin = (id, ph, auto) => `<input type="password" id="${id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="${auto}" placeholder="${ph}" class="pin">`;
-  let h = `<button class="link volver" onclick="ir('ajustes')">← Ajustes</button>
-    <h2 style="margin-top:6px">Tu cuenta</h2>
+  let h = `${volverCuenta()}
+    <h2 style="margin-top:6px">${cuentaAlInicio ? 'Bienvenido a Equilibra' : 'Tu cuenta'}</h2>
     <p class="suave peq" style="margin:4px 0 0">Con una cuenta tus flores se guardan en la nube y las ves en todos tus dispositivos.</p>
     <button class="btn google ancho" style="margin-top:16px" onclick="entrar()">Entrar con Google</button>
     <p class="separador"><span>o con tu email</span></p>`;
@@ -1160,6 +1176,39 @@ function borrarTodo(){
   if(!confirm('¿Borrar todas tus flores y acciones? No se puede deshacer.')) return;
   if(!confirm('¿Seguro? Se borrará todo tu jardín de Equilibra' + (nube.usuario ? ', también en la nube.' : ' en este dispositivo.'))) return;
   D = {evaluaciones: [], borradas: (D.borradas || []).concat(D.evaluaciones.map(e => e.id))}; guardar(); aviso('Datos borrados'); ir('inicio');
+}
+
+/* ---------- Deslizar el dedo: pétalo siguiente/anterior, o pestaña siguiente/anterior ---------- */
+const PESTANAS = ['inicio', 'historial', 'ajustes'];
+let toque = null;
+app.addEventListener('touchstart', e => {
+  const t = e.target;
+  if(e.touches.length !== 1 || t.closest('input, textarea, button.mic, .hoja')) { toque = null; return; }
+  toque = {x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now()};
+}, {passive: true});
+app.addEventListener('touchend', e => {
+  if(!toque) return;
+  const dx = e.changedTouches[0].clientX - toque.x, dy = e.changedTouches[0].clientY - toque.y, dt = Date.now() - toque.t;
+  toque = null;
+  if(Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6 || dt > 800) return;
+  deslizar(dx < 0 ? 1 : -1);
+}, {passive: true});
+function deslizar(dir){
+  if(vista === 'evaluar' && E){
+    if(dir > 0){ if(E.i === AREAS.length-1) return; siguiente(); }   // el último pétalo se guarda con su botón
+    else { if(E.i === 0) return; atras(); }
+    animarEntrada(dir);
+    return;
+  }
+  const actual = vista === 'detalle' ? 'historial' : vista;
+  const i = PESTANAS.indexOf(actual); if(i < 0) return;
+  const j = i + dir; if(j < 0 || j >= PESTANAS.length) return;
+  ir(PESTANAS[j]);
+  animarEntrada(dir);
+}
+function animarEntrada(dir){
+  app.classList.remove('desde-der', 'desde-izq'); void app.offsetWidth;
+  app.classList.add(dir > 0 ? 'desde-der' : 'desde-izq');
 }
 
 /* ---------- Aviso flotante ---------- */
