@@ -397,7 +397,7 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 
 <script>
 'use strict';
-const VERSION = 'v2.00';
+const VERSION = 'v2.01';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -698,7 +698,7 @@ function mostrarHoja(html, color){
   hoja.innerHTML = `<div class="hoja-in accion" style="--c:${color}"><div class="hoja-asa"></div>${html}</div>`;
   if(nueva) requestAnimationFrame(() => hoja.classList.add('ver'));
 }
-function cerrarHoja(){ hojaAbierta = null; const h = $('#hoja'); if(h){ h.classList.remove('ver'); setTimeout(() => h.remove(), 300); } }
+function cerrarHoja(){ hojaAbierta = null; const h = $('#hoja'); if(h){ h.id = ''; h.classList.remove('ver'); setTimeout(() => h.remove(), 300); } }
 const cerrarPetalo = cerrarHoja;
 function opcionesNivel(actual, onclick, compacta){
   return `<div class="opciones${compacta ? ' compacta' : ''}">${Object.keys(NIVELES).map(k => { const N = NIVELES[k];
@@ -852,9 +852,21 @@ function guardarPlan(){
 /* ---------- Dictar con la voz (micrófono) ---------- */
 const Reconocer = window.SpeechRecognition || window.webkitSpeechRecognition;
 const MIC = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-function botonMic(){ return Reconocer ? `<button class="mic" type="button" aria-label="Dictar con la voz" onclick="dictar(this)">${MIC}</button>` : ''; }
+const esApp = !!window.AndroidEquilibra;   // dentro de la app Android
+function botonMic(){ return (Reconocer || esApp) ? `<button class="mic" type="button" aria-label="Dictar con la voz" onclick="dictar(this)">${MIC}</button>` : ''; }
 let reconocimiento = null;
+let campoDictado = null;
+/* En la app Android el dictado lo hace el teléfono y vuelve por aquí */
+window.nativeDictation = (texto, error) => {
+  document.querySelectorAll('.mic.escuchando').forEach(b => b.classList.remove('escuchando'));
+  if(error){ aviso(error); return; }
+  if(!campoDictado || !texto) return;
+  let v = ((campoDictado.value.trim() ? campoDictado.value.trim() + ' ' : '') + texto).trim();
+  campoDictado.value = (v.charAt(0).toUpperCase() + v.slice(1)).slice(0, campoDictado.maxLength > 0 ? campoDictado.maxLength : 500);
+  campoDictado.dispatchEvent(new Event('input'));
+};
 function dictar(btn){
+  if(esApp){ campoDictado = btn.previousElementSibling; btn.classList.add('escuchando'); AndroidEquilibra.dictar(); return; }
   if(reconocimiento){ reconocimiento.stop(); return; }
   const campo = btn.previousElementSibling;
   const base = campo.value.trim() ? campo.value.trim() + ' ' : '';
@@ -1001,7 +1013,7 @@ function cuentaHTML(){
     <p class="nube-ok" style="margin:0 0 12px">☁️ Tus acciones y tu flor se guardan en la nube y se ven en todos tus dispositivos.</p>
     <button class="btn sec" onclick="salir()">Cerrar sesión</button>`;
   return `<p class="suave" style="margin-top:0">Entra para no perder tus acciones y verlas en el móvil y en el ordenador.</p>
-    <div class="bots"><button class="btn google ancho" onclick="entrar()">Entrar con Google</button>
+    <div class="bots">${esApp ? '' : '<button class="btn google ancho" onclick="entrar()">Entrar con Google</button>'}
     <button class="btn sec ancho" onclick="cuentaModo='entrar'; ir('cuenta')">Entrar con email y PIN</button>
     <button class="link" onclick="cuentaModo='crear'; ir('cuenta')">Crear una cuenta con email</button></div>`;
 }
@@ -1031,8 +1043,7 @@ function vCuenta(){
   let h = `${volverCuenta()}
     <h2 style="margin-top:6px">${cuentaAlInicio ? 'Bienvenido a Equilibra' : 'Tu cuenta'}</h2>
     <p class="suave peq" style="margin:4px 0 0">Con una cuenta tus acciones se guardan en la nube y las ves en todos tus dispositivos.</p>
-    <button class="btn google ancho" style="margin-top:16px" onclick="entrar()">Entrar con Google</button>
-    <p class="separador"><span>o con tu email</span></p>`;
+    ${esApp ? '<p class="suave peq" style="margin:14px 0 4px">En la app se entra con tu email y tu PIN.</p>' : '<button class="btn google ancho" style="margin-top:16px" onclick="entrar()">Entrar con Google</button><p class="separador"><span>o con tu email</span></p>'}`;
   if(cuentaModo === 'crear'){
     h += `<div class="formulario">
       <input type="text" id="c-nombre" autocomplete="name" placeholder="Tu nombre" maxlength="40">
@@ -1203,6 +1214,14 @@ function animarEntrada(dir){
   app.classList.remove('desde-der', 'desde-izq'); void app.offsetWidth;
   app.classList.add(dir > 0 ? 'desde-der' : 'desde-izq');
 }
+
+/* Botón «atrás» del móvil en la app Android: cierra la hoja o vuelve a Inicio */
+window.atrasNativo = () => {
+  if($('#hoja')){ cerrarHoja(); return true; }
+  if(vista === 'evaluar' && E){ atras(); return true; }
+  if(vista !== 'inicio'){ ir('inicio'); return true; }
+  return false;
+};
 
 /* ---------- Aviso flotante ---------- */
 let tToast;
