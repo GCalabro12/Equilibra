@@ -263,6 +263,12 @@ nav.abajo{border-top:0}
 .btn.google{background:#fff;color:#1f1f1f}
 .nube-ok{color:var(--sube);font-weight:700;font-size:13px}
 
+/* v1.07 · Flor más grande (de borde a borde) y sin copiar texto al mantener pulsado */
+.flor:not(.mini){width:calc(100% + 32px);max-width:none;margin:22px -16px 14px}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+img,svg{-webkit-user-drag:none}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -299,7 +305,7 @@ nav.abajo{border-top:0}
 
 <script>
 'use strict';
-const VERSION = 'v1.06';
+const VERSION = 'v1.07';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -312,7 +318,7 @@ const AREAS = [
   {id:'familia', corto:'Familia',     nombre:'Familia y amigos', etiqueta:'Familia y|amigos',        color:'#f08a24',
    pregunta:'¿Qué tan cuidados y presentes están tus vínculos cercanos?', ejemplos:['llamar a un amigo que hace tiempo no veo', 'comer con mi familia el domingo', 'escribir a alguien para quedar']},
   {id:'trabajo', corto:'Trabajo',     nombre:'Trabajo y dinero', etiqueta:'Trabajo y|dinero',        color:'#2b7fd4',
-   dobles:[{id:'gusta', texto:'¿Te gusta lo que haces?', corto:'Te gusta'},
+   dobles:[{id:'gusta', texto:'¿Te gusta tu trabajo?', corto:'Te gusta'},
            {id:'dinero',texto:'¿Te da el dinero que necesitas?', corto:'Dinero'}],
    ejemplos:['revisar mis gastos del mes el domingo', 'dedicar 1 hora a la tarea que más me gusta', 'buscar una forma de ganar algo más este mes']},
   {id:'crecimiento', corto:'Crecimiento', nombre:'Crecimiento personal', etiqueta:'Crecimiento|personal',    color:'#8b5cf6',
@@ -431,7 +437,7 @@ function petalo(L, W){
 let idFlor = 0;
 function flor(notas, previas, opc = {}){
   const mini = !!opc.mini, paso = 360/AREAS.length, LMAX = 132, n = ++idFlor;
-  const vb = mini ? 150 : 166, vx = vb;
+  const vb = 150, vx = vb;
   let s = `<svg viewBox="${-vx} ${-vb} ${vx*2} ${vb*2}" class="flor${mini?' mini':''}" role="img" aria-label="Flor de la semana${notas?': media '+fmt(media(notas)):''}">
   <defs><filter id="brillo${n}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <radialGradient id="centro${n}"><stop offset="0" stop-color="#ffe59a"/><stop offset=".6" stop-color="#f7b733"/><stop offset="1" stop-color="#d9831f"/></radialGradient></defs>`;
@@ -459,7 +465,9 @@ function flor(notas, previas, opc = {}){
       const [xm,ym] = pt(Math.max(L*.56, 44), ang), giro = (ang > 90 || ang < -90) ? ang + 180 : ang;
       s += `<text class="eti-nom" x="${xm.toFixed(1)}" y="${ym.toFixed(1)}" transform="rotate(${giro} ${xm.toFixed(1)} ${ym.toFixed(1)})" text-anchor="middle" dominant-baseline="central">${a.corto}</text>`;
       // la nota, fuera, justo en la punta del pétalo
-      const [xn,yn] = pt(L + 15, ang);
+      let [xn,yn] = pt(L + 15, ang);
+      // Familia (derecha) y Propósito (izquierda): la nota va encima de la punta del pétalo, no a su lado
+      if(i % 4 === 2){ [xn,yn] = pt(L - 12, ang); yn -= 24; }
       s += `<text class="eti-num" x="${xn.toFixed(1)}" y="${yn.toFixed(1)}" fill="${a.color}" text-anchor="middle" dominant-baseline="central">${fmt(v)}</text>`;
     });
   }
@@ -496,7 +504,7 @@ function pistaTrabajo(det){
   if(!det) return '';
   const [d1, d2] = a.dobles, v1 = det[d1.id], v2 = det[d2.id];
   if(Math.abs(v1 - v2) < 3) return 'Las dos van parejas.';
-  return v1 < v2 ? 'Lo que más tira hacia abajo: que te guste lo que haces.' : 'Lo que más tira hacia abajo: el dinero.';
+  return v1 < v2 ? 'Lo que más tira hacia abajo: que te guste tu trabajo.' : 'Lo que más tira hacia abajo: el dinero.';
 }
 
 /* ---------- Navegación ---------- */
@@ -544,7 +552,6 @@ function vInicio(){
       <div class="cifra"><b>${ico(alta,'g')}</b><span>más alta: ${alta.nombre}</span></div>
       <div class="cifra"><b>${ico(baja,'g')}</b><span>a cuidar: ${baja.nombre}</span></div>
     </div>
-    ${filasAreas(u, prev)}
   </section>`;
   const ts = tareasDe(u);
   if(ts.length){
