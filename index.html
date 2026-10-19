@@ -214,6 +214,55 @@ nav.abajo button.act span{filter:none;opacity:1}
   padding:10px 16px;border-radius:12px;opacity:0;transition:.3s;z-index:30;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 #toast.ver{opacity:1;transform:translate(-50%,0)}
 
+/* v1.06 · Sin bordes (Gustavo): secciones e imágenes a todo lo ancho, como tarjetas sin marco */
+.tarjeta{border:0;border-radius:0;box-shadow:none;background:transparent;margin:0 -16px;padding:22px 16px}
+.tarjeta + .tarjeta{padding-top:6px}
+.accion{border-left:0;background:linear-gradient(100deg,color-mix(in srgb,var(--c) 16%,transparent),transparent 75%)}
+.aviso-semana{border:0}
+.eval{margin:10px -16px 0}
+.eval .ilus{height:min(58vh,440px);background-position:center 25%}
+.eval .cuerpo{padding:0 16px 20px;margin-top:-70px}
+.bienvenida{margin:0 -16px}
+.bienvenida .hero{height:min(62vh,460px)}
+.bienvenida .hero::after{background:linear-gradient(to bottom,transparent 40%,var(--fondo))}
+.cifra,.maceta,.tarea{border:0}
+.cifra{background:rgba(255,255,255,.05)}
+.maceta{background:rgba(255,255,255,.05);border-radius:18px}
+.tarea{background:rgba(255,255,255,.07)}
+textarea,input[type=text]{border:0;background:rgba(255,255,255,.08)}
+textarea:focus,input[type=text]:focus{outline:2px solid var(--acento);outline-offset:0}
+.btn.sec{border:0;background:rgba(255,255,255,.09)}
+.btn.peligro{border:0;background:rgba(251,113,133,.12)}
+.btn-son{border:0;background:rgba(255,255,255,.08)}
+header.cab{border-bottom:0}
+nav.abajo{border-top:0}
+#grow-panel-boton .gp-boton{border-color:transparent}
+.fila{border-top:0;padding:7px 0}
+.comentario{border-top:0}
+/* Jardín: flores / acciones */
+.seg{display:flex;gap:6px;background:rgba(255,255,255,.06);padding:4px;border-radius:14px;margin-top:14px}
+.seg button{flex:1;border:0;background:transparent;color:var(--suave);font-weight:800;padding:9px;border-radius:11px}
+.seg button.on{background:rgba(255,255,255,.12);color:var(--tinta)}
+.semana-acc{margin:0 -16px;padding:16px;background:linear-gradient(100deg,color-mix(in srgb,var(--c) 14%,transparent),transparent 75%)}
+.semana-acc + .semana-acc{margin-top:8px}
+.sa-cab{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sa-cab span{font-size:12px;color:var(--suave)}
+.sa-area{margin:4px 0 8px;font-weight:700;font-size:14px}
+.sa-area .estrella{color:var(--oro)}
+.semana-acc ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.semana-acc li{display:flex;align-items:center;gap:10px;font-size:15px}
+.semana-acc li .caja{width:20px;height:20px;flex:none;border-radius:6px;border:2px solid var(--c);display:grid;place-items:center;color:transparent;font-size:12px}
+.semana-acc li.ok .caja{background:var(--c);color:#fff}
+.semana-acc li.ok span:last-child{color:var(--suave);text-decoration:line-through;text-decoration-color:var(--c)}
+.resumen-acc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+/* Cuenta */
+.cuenta{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.cuenta img{width:44px;height:44px;border-radius:50%}
+.cuenta b{display:block}
+.cuenta span{font-size:13px;color:var(--suave)}
+.btn.google{background:#fff;color:#1f1f1f}
+.nube-ok{color:var(--sube);font-weight:700;font-size:13px}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -250,7 +299,7 @@ nav.abajo button.act span{filter:none;opacity:1}
 
 <script>
 'use strict';
-const VERSION = 'v1.05';
+const VERSION = 'v1.06';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -292,7 +341,9 @@ function cargar(){
 function guardar(){
   try{ localStorage.setItem(CLAVE, JSON.stringify(D)); }catch(e){ aviso('No se pudo guardar en este navegador'); }
   enviarResumen();
+  programarSubida();
 }
+const marcar = ev => { ev.mod = new Date().toISOString(); };
 const ultima = () => D.evaluaciones[D.evaluaciones.length-1] || null;
 const porId = id => D.evaluaciones.find(e => e.id === id);
 const areaDe = id => AREAS.find(a => a.id === id);
@@ -359,13 +410,14 @@ function sonarPaso(i){ nota(ESCALA[Math.min(i, ESCALA.length-1)], 0, .2, .9); }
 function sonarMover(v){ const c = audio(); if(!c) return; nota(ESCALA[v-1] * 2, 0, .05, .18, false); }
 function sonarFinal(){ [0,2,4,5,7,9].forEach((n,k) => nota(ESCALA[n], k*.09, .16, 1.4, k === 0)); }
 function sonarPortada(){ AREAS.forEach((a,i) => nota(ESCALA[i], .12 + i*.11, .14, 1.3, i === 0)); nota(ESCALA[9], 1.15, .12, 2.2, false); }
+const musica = new Audio('sonido/inicio.mp3'); musica.preload = 'auto'; musica.volume = .9;
 function sonarHecho(){ nota(ESCALA[5], 0, .15, .6, false); nota(ESCALA[7], .1, .15, .9, false); }
 function iconoSonido(){ const b = $('#btn-son'); if(b){ b.textContent = sonidoOn ? '🔊' : '🔇'; b.setAttribute('aria-label', sonidoOn ? 'Silenciar sonidos' : 'Activar sonidos'); } }
 function alternarSonido(){
   sonidoOn = !sonidoOn;
   try{ localStorage.setItem(CLAVE_SONIDO, sonidoOn ? 'si' : 'no'); }catch(e){}
   iconoSonido();
-  if(sonidoOn) sonarHecho();
+  if(sonidoOn) sonarHecho(); else musica.pause();
   if(vista === 'ajustes') render();
 }
 
@@ -472,8 +524,9 @@ function vInicio(){
       <p>Cada semana tu vida dibuja una flor. Cada pétalo es un área: cuanto mejor estás en ella, más largo crece.</p>
       <p class="suave">Puntúas las 8 áreas del 1 al 10, ves tu flor y eliges una pequeña acción para la semana.</p>
       <div class="chips">${AREAS.map(a => `<span class="chip" style="--c:${a.color}">${ico(a)} ${a.nombre}</span>`).join('')}</div>
-      <button class="btn prim ancho" onclick="empezar()">🌱 Hacer mi primera flor</button>
-      <p class="peq suave">Tarda unos 3 minutos. Tus respuestas se guardan solo en este dispositivo.</p>
+      <button class="btn prim ancho" onclick="empezar()">Hacer mi primera flor</button>
+      ${nube.usuario ? '' : `<button class="link" style="margin-top:6px" onclick="entrar()">¿Ya usas Equilibra? Entra con Google</button>`}
+      <p class="peq suave">Tarda unos 3 minutos.</p>
     </div></section><div class="sellos">${sellosHTML()}</div>`;
   }
   const prev = anterior(u), m = media(u.notas), ord = ordenadas(u.notas), baja = ord[0], alta = ord[ord.length-1];
@@ -585,11 +638,11 @@ function siguiente(){
   let ev;
   if(u && semanaDe(u) === sem){
     // Una flor por semana: si ya existe la de esta semana, se actualiza (se conserva la acción)
-    Object.assign(u, {fecha: ahora.toISOString(), semana: sem, notas: {...E.notas}, detalle: JSON.parse(JSON.stringify(E.detalle)), comentarios});
+    Object.assign(u, {fecha: ahora.toISOString(), semana: sem, notas: {...E.notas}, detalle: JSON.parse(JSON.stringify(E.detalle)), comentarios}); marcar(u);
     ev = u;
   }else{
     ev = {id: Date.now().toString(36), fecha: ahora.toISOString(), semana: sem, notas: {...E.notas}, detalle: JSON.parse(JSON.stringify(E.detalle)), comentarios};
-    D.evaluaciones.push(ev);
+    marcar(ev); D.evaluaciones.push(ev);
   }
   guardar();
   E = null;
@@ -661,6 +714,7 @@ function guardarAccion(){
     return;
   }
   const antes = tareasDe(ev);
+  marcar(ev);
   ev.accion = {area: R.area, fecha: new Date().toISOString(),
     tareas: textos.map(t => ({texto: t, hecha: !!(antes.find(x => x.texto === t) || {}).hecha}))};
   guardar();
@@ -671,7 +725,7 @@ function guardarAccion(){
 function alternarTarea(i){
   const u = ultima(), ts = tareasDe(u); if(!ts[i]) return;
   u.accion = {area: u.accion.area, fecha: u.accion.fecha, tareas: ts};
-  ts[i].hecha = !ts[i].hecha;
+  ts[i].hecha = !ts[i].hecha; marcar(u);
   guardar();
   if(ts[i].hecha){
     if(ts.every(t => t.hecha)){ sonarFinal(); aviso('¡Semana completada! Tu flor lo nota 🌸'); }
@@ -695,13 +749,37 @@ function evolucionSVG(){
 function vHistorial(){
   if(!D.evaluaciones.length) return `<section class="tarjeta" style="text-align:center"><h2>Tu jardín</h2><p class="suave">Aquí irá creciendo una flor por cada semana.</p>
     <button class="btn prim" onclick="empezar()">Hacer mi primera flor</button></section>`;
-  let h = `<h2 style="margin-top:18px">Tu jardín 🌷</h2><p class="peq suave" style="margin:2px 0 0">Una flor por semana. Toca una para verla.</p>`;
+  let h = `<h2 style="margin-top:18px">Tu jardín</h2>
+    <div class="seg"><button class="${jardinModo==='flores'?'on':''}" onclick="jardinModo='flores';render()">Flores</button><button class="${jardinModo==='acciones'?'on':''}" onclick="jardinModo='acciones';render()">Acciones</button></div>`;
+  if(jardinModo === 'acciones') return h + vAccionesSemanas();
+  h += `<p class="peq suave" style="margin:10px 0 0">Una flor por semana. Toca una para verla.</p>`;
   if(D.evaluaciones.length >= 2) h += `<section class="tarjeta evolucion"><h3 style="font-size:16px">Evolución de tu media</h3>${evolucionSVG()}
     <div class="extremos"><span>${rangoSemana(semanaDe(D.evaluaciones[0]))}</span><span>${rangoSemana(semanaDe(ultima()))}</span></div></section>`;
   h += '<div class="jardin">' + D.evaluaciones.slice().reverse().map(e => {
     return `<button class="maceta" onclick="verDetalle('${e.id}')">${flor(e.notas, null, {mini:true})}
       <b>${textoSemana(semanaDe(e))}</b><span>${rangoSemana(semanaDe(e))}</span><span>Media ${fmt(media(e.notas))} / 10</span></button>`;
   }).join('') + '</div>';
+  return h;
+}
+let jardinModo = 'flores';
+/* Historial semanal de las acciones: qué elegiste cada semana y cuántas hiciste */
+function vAccionesSemanas(){
+  const semanas = D.evaluaciones.slice().reverse();
+  let total = 0, hechas = 0, completas = 0;
+  semanas.forEach(e => { const ts = tareasDe(e); total += ts.length; const h = ts.filter(t => t.hecha).length; hechas += h; if(ts.length && h === ts.length) completas++; });
+  let h = `<div class="resumen-acc">
+    <div class="cifra"><b>${hechas}</b><span>${hechas === 1 ? 'acción hecha' : 'acciones hechas'}</span></div>
+    <div class="cifra"><b>${total ? Math.round(hechas/total*100) : 0}%</b><span>de las elegidas</span></div>
+    <div class="cifra"><b>${completas}</b><span>${completas === 1 ? 'semana completa' : 'semanas completas'}</span></div></div>`;
+  h += semanas.map(e => {
+    const ts = tareasDe(e), sem = semanaDe(e);
+    if(!ts.length) return `<div class="semana-acc" style="--c:#6b5fa3"><div class="sa-cab"><b>${textoSemana(sem)}</b><span>${rangoSemana(sem)}</span></div>
+      <p class="sa-area suave" style="margin-bottom:0">Sin acciones elegidas</p></div>`;
+    const a = areaDe(e.accion.area), n = ts.filter(t => t.hecha).length;
+    return `<div class="semana-acc" style="--c:${a.color}"><div class="sa-cab"><b>${textoSemana(sem)}</b><span>${rangoSemana(sem)}</span></div>
+      <p class="sa-area">${ico(a)} ${a.nombre} · ${n} de ${ts.length} ${n === ts.length ? '<span class="estrella">· semana completa ★</span>' : ''}</p>
+      <ul>${ts.map(t => `<li class="${t.hecha?'ok':''}"><span class="caja">✓</span><span>${esc(t.texto)}</span></li>`).join('')}</ul></div>`;
+  }).join('');
   return h;
 }
 function verDetalle(id){ detalleId = id; ir('detalle'); }
@@ -725,7 +803,90 @@ function vDetalle(){
 function borrarEval(id){
   if(!confirm('¿Borrar esta flor del jardín? No se puede deshacer.')) return;
   D.evaluaciones = D.evaluaciones.filter(e => e.id !== id);
+  D.borradas = (D.borradas || []).concat(id);
   guardar(); aviso('Flor borrada'); ir('historial');
+}
+
+/* ---------- Nube (Firebase: proyecto «equilibra-6aff8», cuenta info@practicaintegral.club) ---------- */
+const FIREBASE = {
+  apiKey: 'AIzaSyBgutkr0jGcono1GZLz6XiC9TSP83ux8lg',
+  authDomain: 'equilibra-6aff8.firebaseapp.com',
+  projectId: 'equilibra-6aff8',
+  storageBucket: 'equilibra-6aff8.firebasestorage.app',
+  messagingSenderId: '682128349771',
+  appId: '1:682128349771:web:9e27263f55cab679ba8bce'
+};
+const nube = {listo:false, usuario:null, ref:null, sincronizando:false};
+function cargarScript(src){ return new Promise((ok, ko) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = ko; document.head.appendChild(s); }); }
+async function iniciarNube(){
+  try{
+    const b = 'https://www.gstatic.com/firebasejs/10.12.2/';
+    await cargarScript(b + 'firebase-app-compat.js');
+    await Promise.all([cargarScript(b + 'firebase-auth-compat.js'), cargarScript(b + 'firebase-firestore-compat.js')]);
+    firebase.initializeApp(FIREBASE);
+    nube.listo = true;
+    firebase.auth().getRedirectResult().catch(() => {});
+    firebase.auth().onAuthStateChanged(async u => {
+      nube.usuario = u;
+      // Cada persona tiene su propio documento: usuarios/{uid}/equilibra/datos (las reglas solo dejan entrar a su dueño)
+      nube.ref = u ? firebase.firestore().collection('usuarios').doc(u.uid).collection('equilibra').doc('datos') : null;
+      if(u) await traerNube();
+      if(['inicio','historial','ajustes'].includes(vista)) render();
+    });
+  }catch(e){ console.warn('Equilibra: nube no disponible', e); }
+}
+/* Une lo de este dispositivo con lo de la nube: una flor por semana, gana la versión cambiada más tarde */
+function fusionar(local, remoto){
+  if(!remoto) return local;
+  const borradas = [...new Set([...(local.borradas || []), ...(remoto.borradas || [])])];
+  const porSemana = {};
+  [...(remoto.evaluaciones || []), ...(local.evaluaciones || [])].forEach(e => {
+    if(borradas.includes(e.id)) return;
+    const k = semanaDe(e), y = porSemana[k];
+    if(!y || (e.mod || e.fecha) > (y.mod || y.fecha)) porSemana[k] = e;
+  });
+  const evaluaciones = Object.values(porSemana).sort((a,b) => a.fecha < b.fecha ? -1 : 1);
+  return {evaluaciones, borradas};
+}
+async function traerNube(){
+  if(!nube.ref) return;
+  nube.sincronizando = true;
+  try{
+    const doc = await nube.ref.get();
+    D = fusionar(D, doc.exists ? doc.data() : null);
+    try{ localStorage.setItem(CLAVE, JSON.stringify(D)); }catch(e){}
+    await subirNube();
+    enviarResumen();
+  }catch(e){ console.warn(e); aviso('No se pudo sincronizar con la nube'); }
+  nube.sincronizando = false;
+}
+let tSubida;
+function programarSubida(){ if(!nube.ref) return; clearTimeout(tSubida); tSubida = setTimeout(subirNube, 700); }
+async function subirNube(){
+  if(!nube.ref) return;
+  try{
+    await nube.ref.set(JSON.parse(JSON.stringify({evaluaciones: D.evaluaciones, borradas: D.borradas || [], actualizado: new Date().toISOString(), version: VERSION})));
+  }catch(e){ console.warn(e); }
+}
+function entrar(){
+  if(!nube.listo){ aviso('Conectando… prueba de nuevo en un momento'); return; }
+  const prov = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(prov).then(() => aviso('¡Listo! Tus flores se guardan en la nube ☁️')).catch(e => {
+    if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(e.code)) firebase.auth().signInWithRedirect(prov);
+    else if(!['auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(e.code)) aviso('No se pudo entrar (' + e.code + ')');
+  });
+}
+function salir(){
+  if(!nube.listo) return;
+  firebase.auth().signOut().then(() => { aviso('Sesión cerrada. Tus flores siguen en este dispositivo.'); render(); });
+}
+function cuentaHTML(){
+  const u = nube.usuario;
+  if(u) return `<div class="cuenta">${u.photoURL ? `<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">` : ''}<div><b>${esc(u.displayName || 'Tu cuenta')}</b><span>${esc(u.email || '')}</span></div></div>
+    <p class="nube-ok" style="margin:0 0 12px">☁️ Tus flores y acciones se guardan en la nube y se ven en todos tus dispositivos.</p>
+    <button class="btn sec" onclick="salir()">Cerrar sesión</button>`;
+  return `<p class="suave" style="margin-top:0">Entra con tu cuenta de Google para no perder tus flores y verlas en el móvil y en el ordenador.</p>
+    <button class="btn google ancho" onclick="entrar()">Entrar con Google</button>`;
 }
 
 /* ---------- Ajustes ---------- */
@@ -733,16 +894,20 @@ function vAjustes(){
   const n = D.evaluaciones.length;
   return `<h2 style="margin-top:18px">Ajustes</h2>
   <section class="tarjeta ajustes">
+    <h3>Tu cuenta</h3>
+    ${cuentaHTML()}
+  </section>
+  <section class="tarjeta ajustes">
     <h3>¿Qué es la flor de Equilibra?</h3>
     <p>Es la rueda de la vida convertida en flor: cada pétalo es un área de tu vida y crece según cómo estás en ella. Una flor con pétalos muy desiguales te muestra dónde poner energía.</p>
-    <p class="suave">Haz <b>una flor por semana</b> y elige <b>una sola acción pequeña</b>. Con el tiempo, tu jardín te enseña cómo vas cambiando.</p>
+    <p class="suave">Haz <b>una flor por semana</b> y elige <b>de 1 a 3 acciones pequeñas</b> según cómo esté el pétalo. Con el tiempo, tu jardín te enseña cómo vas cambiando.</p>
   </section>
   <section class="tarjeta ajustes">
     <label class="interruptor">🔊 Sonidos de la app<input type="checkbox" ${sonidoOn?'checked':''} onchange="alternarSonido()"></label>
   </section>
   <section class="tarjeta ajustes">
     <h3>Tus datos</h3>
-    <p class="suave">Se guardan solo en este dispositivo y navegador. Haz una copia de vez en cuando.</p>
+    <p class="suave">${nube.usuario ? 'Se guardan en este dispositivo y en tu cuenta.' : 'Ahora se guardan solo en este dispositivo. Entra con Google para tenerlas también en la nube.'} También puedes guardar una copia en un archivo.</p>
     <div class="bots">
       <button class="btn sec" onclick="exportar()">⬇️ Guardar una copia (archivo)</button>
       <button class="btn sec" onclick="$('#importar').click()">⬆️ Recuperar una copia</button>
@@ -769,7 +934,7 @@ function importar(inp){
       const d = JSON.parse(lector.result);
       if(!d || !Array.isArray(d.evaluaciones)) throw 0;
       if(!confirm(`La copia tiene ${d.evaluaciones.length} flores. ¿Reemplazar tus datos actuales por la copia?`)) return;
-      D = {evaluaciones: d.evaluaciones};
+      D = {evaluaciones: d.evaluaciones, borradas: D.borradas || []};
       guardar(); aviso('Copia recuperada ✓'); ir('inicio');
     }catch(e){ aviso('Ese archivo no es una copia de Equilibra'); }
   };
@@ -778,8 +943,8 @@ function importar(inp){
 }
 function borrarTodo(){
   if(!confirm('¿Borrar todas tus flores y acciones? No se puede deshacer.')) return;
-  if(!confirm('¿Seguro? Se borrará todo tu jardín de Equilibra en este dispositivo.')) return;
-  D = {evaluaciones: []}; guardar(); aviso('Datos borrados'); ir('inicio');
+  if(!confirm('¿Seguro? Se borrará todo tu jardín de Equilibra' + (nube.usuario ? ', también en la nube.' : ' en este dispositivo.'))) return;
+  D = {evaluaciones: [], borradas: (D.borradas || []).concat(D.evaluaciones.map(e => e.id))}; guardar(); aviso('Datos borrados'); ir('inicio');
 }
 
 /* ---------- Aviso flotante ---------- */
@@ -827,13 +992,20 @@ addEventListener('growpanel-listo', enviarResumen);
   }
   // La música de inicio suena por defecto. Si el navegador la bloquea (pasa la primera vez en la web,
   // no en la app instalada), suena en cuanto la persona toca la pantalla por primera vez.
-  let sonada = false;
+  let sonada = false, musicaFalla = false;
+  musica.addEventListener('error', () => { musicaFalla = true; });
   const tocarSonido = () => {
     if(sonada || !sonidoOn) return Promise.resolve(false);
+    const ok = () => { sonada = true; $('#tocar').classList.remove('ver'); return true; };
+    if(!musicaFalla){
+      musica.currentTime = 0;
+      return musica.play().then(ok).catch(() => false);
+    }
+    // Si el archivo no carga, la flor suena con las notas generadas
     const c = audio(); if(!c) return Promise.resolve(false);
     return (c.state === 'running' ? Promise.resolve() : c.resume()).then(() => {
-      if(c.state === 'running' && !sonada){ sonada = true; sonarPortada(); $('#tocar').classList.remove('ver'); }
-      return sonada;
+      if(c.state === 'running' && !sonada){ sonarPortada(); return ok(); }
+      return false;
     }).catch(() => false);
   };
   tocarSonido();
@@ -854,6 +1026,8 @@ addEventListener('growpanel-listo', enviarResumen);
     cerrar();
   });
   let tCerrar = setTimeout(cerrar, 3000);
+
+  iniciarNube();
 
   // App instalable (y que funcione sin conexión)
   if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
