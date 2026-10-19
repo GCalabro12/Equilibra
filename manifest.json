@@ -1,0 +1,16 @@
+{
+  "name": "Equilibra · La flor de tu semana",
+  "short_name": "Equilibra",
+  "description": "Puntúa cada semana las 8 áreas de tu vida, mira tu flor y elige pequeñas acciones para equilibrarla.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#140f26",
+  "theme_color": "#140f26",
+  "icons": [
+    {"src": "img/icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "img/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}

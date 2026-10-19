@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Equilibra">
 <link rel="icon" id="favicon">
 <link rel="apple-touch-icon" href="img/icono-192.png">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -249,7 +250,7 @@ nav.abajo button.act span{filter:none;opacity:1}
 
 <script>
 'use strict';
-const VERSION = 'v1.04';
+const VERSION = 'v1.05';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -824,22 +825,40 @@ addEventListener('growpanel-listo', enviarResumen);
     c.style.cssText = `left:50%;top:42%;--dx:${(Math.cos(ang)*dist).toFixed(0)}px;--dy:${(Math.sin(ang)*dist).toFixed(0)}px;animation-delay:${(1 + Math.random()*.8).toFixed(2)}s`;
     splash.appendChild(c);
   }
+  // La música de inicio suena por defecto. Si el navegador la bloquea (pasa la primera vez en la web,
+  // no en la app instalada), suena en cuanto la persona toca la pantalla por primera vez.
   let sonada = false;
-  const tocarSonido = () => { if(sonada || !sonidoOn) return; const c = audio(); if(c && c.state === 'running'){ sonada = true; sonarPortada(); } };
+  const tocarSonido = () => {
+    if(sonada || !sonidoOn) return Promise.resolve(false);
+    const c = audio(); if(!c) return Promise.resolve(false);
+    return (c.state === 'running' ? Promise.resolve() : c.resume()).then(() => {
+      if(c.state === 'running' && !sonada){ sonada = true; sonarPortada(); $('#tocar').classList.remove('ver'); }
+      return sonada;
+    }).catch(() => false);
+  };
   tocarSonido();
-  // Los navegadores no dejan sonar nada hasta que la persona toca la pantalla
-  if(!sonada && sonidoOn){
-    setTimeout(() => { if(!sonada && ctxAudio && ctxAudio.state !== 'running') $('#tocar').classList.add('ver'); }, 300);
-    setTimeout(tocarSonido, 120);
-  }
+  setTimeout(() => { if(!sonada && sonidoOn) $('#tocar').classList.add('ver'); }, 400);
+  const alPrimerToque = e => {
+    if(e.target.closest && e.target.closest('a')) return;
+    removeEventListener('pointerdown', alPrimerToque, true); removeEventListener('keydown', alPrimerToque, true);
+    if(performance.now() < 20000) tocarSonido();
+  };
+  addEventListener('pointerdown', alPrimerToque, true); addEventListener('keydown', alPrimerToque, true);
+
   let cerrada = false;
   const cerrar = () => { if(cerrada) return; cerrada = true; splash.classList.add('fuera'); setTimeout(() => splash.remove(), 700); };
   splash.addEventListener('click', e => {
     if(e.target.closest('a')) return;
-    if(!sonada && sonidoOn){ audio(); setTimeout(() => { tocarSonido(); }, 30); clearTimeout(tCerrar); tCerrar = setTimeout(cerrar, 1700); $('#tocar').classList.remove('ver'); return; }
+    // el primer toque hace sonar la flor; se deja verla abrirse un momento antes de entrar
+    if(!sonada && sonidoOn){ clearTimeout(tCerrar); tCerrar = setTimeout(cerrar, 1700); return; }
     cerrar();
   });
   let tCerrar = setTimeout(cerrar, 3000);
+
+  // App instalable (y que funcione sin conexión)
+  if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
 })();
 </script>
 <script src="https://gcalabro12.github.io/Grow-Panel/grow-panel-boton.js" data-app="equilibra" data-nombre="Equilibra" defer></script>
