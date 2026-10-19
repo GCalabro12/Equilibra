@@ -269,6 +269,15 @@ body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 img,svg{-webkit-user-drag:none}
 
+/* v1.08 · Micrófono para dictar */
+.campo-voz{position:relative;margin-top:8px}
+.campo-voz input{margin-top:0;padding-right:52px}
+.campo-voz textarea{padding-right:52px}
+.mic{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:var(--tinta);display:grid;place-items:center;padding:0}
+.campo-voz.area .mic{top:14px;transform:none}
+.mic.escuchando{background:var(--acento2);color:#fff;animation:latido 1s ease-in-out infinite}
+@keyframes latido{50%{box-shadow:0 0 0 8px rgba(226,69,107,.25)}}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -305,7 +314,7 @@ img,svg{-webkit-user-drag:none}
 
 <script>
 'use strict';
-const VERSION = 'v1.07';
+const VERSION = 'v1.08';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -614,7 +623,7 @@ function vEvaluar(){
         <h2>${a.nombre}</h2>
         ${cuerpo}
         <details class="nota" ${com?'open':''}><summary>＋ Añadir una nota (opcional)</summary>
-          <textarea placeholder="¿Algo que quieras recordar sobre esta área?" oninput="E.comentarios['${a.id}']=this.value">${esc(com)}</textarea></details>
+          <div class="campo-voz area"><textarea placeholder="¿Algo que quieras recordar sobre esta área?" oninput="E.comentarios['${a.id}']=this.value">${esc(com)}</textarea>${botonMic()}</div></details>
       </div>
     </section>
     <div class="bots-eval">
@@ -682,14 +691,14 @@ function vResultado(){
   const nota = ev.notas[sel.id], n = cuantas(nota), filas = Math.min(3, Math.max(n, R.textos.length));
   h += `<section class="tarjeta accion" style="--c:${sel.color}">
     <h3>Tus acciones para esta semana</h3>
-    <p class="peq suave" style="margin:6px 0 0">Elige un pétalo. Te proponemos el más corto, pero puedes cambiarlo.</p>
+    <p class="peq suave" style="margin:6px 0 0">Elige un pétalo. Te proponemos el que tiene menos puntuación, pero puedes cambiarlo.</p>
     <div class="chips" style="justify-content:flex-start;margin-bottom:6px">
       ${ord.map(a => `<button class="chip ${a.id===R.area?'sel':''}" style="--c:${a.color}" onclick="elegirArea('${a.id}')">${ico(a)} ${a.nombre} · ${fmt(ev.notas[a.id])}</button>`).join('')}
     </div>
     <p class="regla">${sel.nombre} tiene un ${fmt(nota)}: elige ${n === 1 ? 'al menos 1 acción pequeña' : n + ' acciones pequeñas'}.
-      <small>Cuanto más corto el pétalo, más acciones: de 1 a 4 → 3 acciones · de 5 a 7 → 2 · de 8 a 10 → 1.</small></p>
+      <small>Cuanta menos puntuación, más acciones: de 1 a 4 → 3 acciones · de 5 a 7 → 2 · de 8 a 10 → 1.</small></p>
     <div class="campo-accion">
-      ${Array.from({length: filas}, (_, i) => `<input type="text" maxlength="120" value="${esc(R.textos[i] || '')}" placeholder="${i+1}. Por ejemplo: ${esc(sel.ejemplos[i])}" oninput="R.textos[${i}]=this.value" onkeydown="if(event.key==='Enter')guardarAccion()">`).join('')}
+      ${Array.from({length: filas}, (_, i) => `<div class="campo-voz"><input type="text" maxlength="120" value="${esc(R.textos[i] || '')}" placeholder="${i+1}. Por ejemplo: ${esc(sel.ejemplos[i])}" oninput="R.textos[${i}]=this.value" onkeydown="if(event.key==='Enter')guardarAccion()">${botonMic()}</div>`).join('')}
     </div>
     ${filas < 3 ? `<button class="link" onclick="otraTarea()">＋ Añadir otra acción</button>` : ''}
     <div class="bots-eval">
@@ -704,6 +713,28 @@ function tareasDe(ev){
   if(!ev || !ev.accion) return [];
   if(Array.isArray(ev.accion.tareas)) return ev.accion.tareas;
   return ev.accion.texto ? [{texto: ev.accion.texto, hecha: !!ev.accion.hecha}] : [];   // formato de v1.00–v1.03
+}
+/* Dictar con la voz (micrófono): rellena el campo que está justo antes del botón */
+const Reconocer = window.SpeechRecognition || window.webkitSpeechRecognition;
+const MIC = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function botonMic(){ return Reconocer ? `<button class="mic" type="button" aria-label="Dictar con la voz" onclick="dictar(this)">${MIC}</button>` : ''; }
+let reconocimiento = null;
+function dictar(btn){
+  if(reconocimiento){ reconocimiento.stop(); return; }
+  const campo = btn.previousElementSibling;
+  const base = campo.value.trim() ? campo.value.trim() + ' ' : '';
+  const r = new Reconocer();
+  r.lang = 'es-ES'; r.interimResults = true; r.continuous = false;
+  r.onresult = e => {
+    let t = ''; for(const x of e.results) t += x[0].transcript;
+    let v = (base + t).trim(); v = v.charAt(0).toUpperCase() + v.slice(1);
+    campo.value = v.slice(0, campo.maxLength > 0 ? campo.maxLength : 500);
+    campo.dispatchEvent(new Event('input'));
+  };
+  r.onerror = e => { if(e.error === 'not-allowed' || e.error === 'service-not-allowed') aviso('Permite el micrófono para dictar'); else if(e.error !== 'no-speech' && e.error !== 'aborted') aviso('No se pudo dictar (' + e.error + ')'); };
+  r.onend = () => { btn.classList.remove('escuchando'); reconocimiento = null; };
+  btn.classList.add('escuchando'); reconocimiento = r;
+  try{ r.start(); }catch(e){ btn.classList.remove('escuchando'); reconocimiento = null; }
 }
 function elegirArea(id){ R.area = id; const y = window.scrollY; render(); window.scrollTo(0, y); }
 function otraTarea(){
