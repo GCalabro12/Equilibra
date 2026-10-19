@@ -205,8 +205,11 @@ nav.abajo button.act span{filter:none;opacity:1}
 @keyframes sube{from{opacity:0;transform:translateY(12px)}}
 #splash .chispa{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--oro);box-shadow:0 0 8px var(--oro);opacity:0;animation:chispa 2.4s ease-out forwards}
 @keyframes chispa{0%{opacity:0;transform:translate(0,0)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
-#splash .tocar{position:absolute;top:calc(18px + env(safe-area-inset-top));right:16px;font-size:12px;color:var(--suave);font-weight:700;opacity:0;transition:opacity .3s}
-#splash .tocar.ver{opacity:1}
+#splash .tocar{position:absolute;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);white-space:nowrap;
+  font-size:16px;color:#fff;font-weight:800;padding:12px 22px;border-radius:999px;background:linear-gradient(135deg,var(--acento),var(--acento2));
+  box-shadow:0 6px 24px rgba(226,69,107,.45);opacity:0;pointer-events:none;transition:opacity .4s}
+#splash .tocar.ver{opacity:1;animation:latido 1.4s ease-in-out infinite}
+.marca-t{display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid #fff}
 #splash .sellos{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom));left:16px;right:16px;margin:0;animation:sube .8s ease-out 1.6s both}
 
 /* Aviso flotante */
@@ -278,6 +281,19 @@ img,svg{-webkit-user-drag:none}
 .mic.escuchando{background:var(--acento2);color:#fff;animation:latido 1s ease-in-out infinite}
 @keyframes latido{50%{box-shadow:0 0 0 8px rgba(226,69,107,.25)}}
 
+/* v1.09 · Hoja del pétalo */
+.hoja{position:fixed;inset:0;z-index:25;background:rgba(8,5,20,0);transition:background .3s;display:flex;align-items:flex-end;justify-content:center}
+.hoja.ver{background:rgba(8,5,20,.55)}
+.hoja-in{width:100%;max-width:520px;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 22%,var(--tarjeta)),var(--tarjeta) 55%);
+  border-radius:24px 24px 0 0;padding:10px 18px calc(24px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s ease;max-height:82vh;overflow:auto}
+.hoja.ver .hoja-in{transform:none}
+.hoja-asa{width:42px;height:5px;border-radius:9px;background:rgba(255,255,255,.25);margin:0 auto 12px}
+.hoja-cab{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hoja-cab > div{display:flex;align-items:center;gap:10px}
+.hoja-cab h2{font-size:22px;font-weight:800}
+.hoja-nota{font-size:34px;font-weight:800;color:color-mix(in srgb,var(--c) 60%,#fff)}
+.hoja-nota .delta{font-size:13px;vertical-align:middle}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -285,7 +301,7 @@ img,svg{-webkit-user-drag:none}
 
 <div id="splash" aria-hidden="true">
   <div class="halo"></div>
-  <span class="tocar" id="tocar">🔊 Toca para oír</span>
+  <span class="tocar" id="tocar">🔊 Toca para entrar</span>
   <svg class="logo-s" id="logo-splash"></svg>
   <h1>Equilibra</h1>
   <p>La flor de tu semana</p>
@@ -314,7 +330,7 @@ img,svg{-webkit-user-drag:none}
 
 <script>
 'use strict';
-const VERSION = 'v1.08';
+const VERSION = 'v1.09';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -445,7 +461,7 @@ function petalo(L, W){
 }
 let idFlor = 0;
 function flor(notas, previas, opc = {}){
-  const mini = !!opc.mini, paso = 360/AREAS.length, LMAX = 132, n = ++idFlor;
+  const mini = !!opc.mini, paso = 360/AREAS.length, LMAX = 132, n = ++idFlor, T = opc.tareas || null;
   const vb = 150, vx = vb;
   let s = `<svg viewBox="${-vx} ${-vb} ${vx*2} ${vb*2}" class="flor${mini?' mini':''}" role="img" aria-label="Flor de la semana${notas?': media '+fmt(media(notas)):''}">
   <defs><filter id="brillo${n}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -455,7 +471,8 @@ function flor(notas, previas, opc = {}){
   AREAS.forEach((a,i) => {
     const v = notas && notas[a.id]; if(!(v > 0)) return;
     const L = 18 + (LMAX-18) * v/10;
-    s += `<g transform="rotate(${i*paso})"><path class="${mini?'':'petalo'}" style="animation-delay:${i*70}ms" d="${petalo(L)}" fill="${a.color}" ${mini?'':`filter="url(#brillo${n})"`}/>
+    const conT = T && T.area === a.id;   // pétalo con acciones asignadas: contorno blanco
+    s += `<g transform="rotate(${i*paso})"><path class="${mini?'':'petalo'}" style="animation-delay:${i*70}ms" d="${petalo(L)}" fill="${a.color}" ${mini?'':`filter="url(#brillo${n})"`} ${conT ? `stroke="#fff" stroke-width="${mini?5:2.6}" stroke-opacity=".95"` : ''}/>
       <path d="M0 -10L0 ${-L*.82}" stroke="#fff" stroke-opacity=".28" stroke-width="1.4" stroke-linecap="round" ${mini?'':`class="petalo" style="animation-delay:${i*70}ms"`}/></g>`;
   });
   if(previas){
@@ -478,8 +495,19 @@ function flor(notas, previas, opc = {}){
       // Familia (derecha) y Propósito (izquierda): la nota va encima de la punta del pétalo, no a su lado
       if(i % 4 === 2){ [xn,yn] = pt(L - 12, ang); yn -= 24; }
       s += `<text class="eti-num" x="${xn.toFixed(1)}" y="${yn.toFixed(1)}" fill="${a.color}" text-anchor="middle" dominant-baseline="central">${fmt(v)}</text>`;
+      // Acciones de la semana en este pétalo: un puntito por acción (relleno = hecha)
+      if(T && T.area === a.id){
+        let [xd,yd] = pt(L + 34, ang);
+        if(i % 4 === 2){ xd = xn; yd = yn - 19; }
+        T.lista.forEach((t,k) => {
+          const x = xd + (k - (T.lista.length-1)/2) * 11;
+          s += `<circle cx="${x.toFixed(1)}" cy="${yd.toFixed(1)}" r="4" fill="${t.hecha ? '#fff' : 'none'}" stroke="#fff" stroke-width="1.6"/>`;
+        });
+      }
     });
   }
+  // zonas para tocar cada pétalo (encima de todo, transparentes)
+  if(opc.clic) AREAS.forEach((a,i) => { s += `<path d="${petalo(LMAX + 14, 44)}" transform="rotate(${i*paso})" fill="transparent" style="cursor:pointer" onclick="abrirPetalo('${a.id}')"/>`; });
   return s + '</svg>';
 }
 /* Logo: flor plena, ligeramente irregular, como la ilustración */
@@ -553,14 +581,10 @@ function vInicio(){
     <button class="btn prim ancho" style="margin-top:12px" onclick="empezar()">Hacer la flor de esta semana</button></section>`;
   h += `<section class="tarjeta">
     <h2>${estaSemana ? 'Tu flor de esta semana' : 'Tu última flor'}</h2>
-    <p class="peq suave" style="margin:2px 0 0">${rangoSemana(semU)}</p>
-    ${flor(u.notas, prev && prev.notas)}
+    <p class="peq suave" style="margin:2px 0 0">${rangoSemana(semU)} · media <b style="color:var(--tinta)">${fmt(m)}</b> ${prev ? deltaHTML(m, media(prev.notas)) : ''}</p>
+    ${flor(u.notas, prev && prev.notas, {tareas: infoTareas(u), clic: true})}
+    <p class="peq suave" style="text-align:center;margin:0">Toca un pétalo para ver sus acciones</p>
     ${prev ? `<div class="leyenda-prev"><i></i> flor anterior (${rangoSemana(semanaDe(prev))})</div>` : ''}
-    <div class="cifras">
-      <div class="cifra"><b>${fmt(m)}</b><span>media /10 ${prev ? deltaHTML(m, media(prev.notas)) : ''}</span></div>
-      <div class="cifra"><b>${ico(alta,'g')}</b><span>más alta: ${alta.nombre}</span></div>
-      <div class="cifra"><b>${ico(baja,'g')}</b><span>a cuidar: ${baja.nombre}</span></div>
-    </div>
   </section>`;
   const ts = tareasDe(u);
   if(ts.length){
@@ -667,9 +691,9 @@ function siguiente(){
 }
 
 /* ---------- Resultado y acción ---------- */
-function editarAccion(){
-  const u = ultima();
-  R = {id: u.id, area: u.accion ? u.accion.area : ordenadas(u.notas)[0].id, nueva: false, textos: tareasDe(u).map(t => t.texto)};
+function editarAccion(area){
+  const u = ultima(), actual = u.accion ? u.accion.area : null, elegida = area || actual || ordenadas(u.notas)[0].id;
+  R = {id: u.id, area: elegida, nueva: false, textos: elegida === actual ? tareasDe(u).map(t => t.texto) : []};
   ir('resultado');
 }
 function vResultado(){
@@ -681,7 +705,7 @@ function vResultado(){
   if(R.nueva){
     h += `<div class="res-tit"><h1>¡Tu flor de la semana! 🌸</h1><p class="suave">${rangoSemana(semanaDe(ev))}</p></div>
     <section class="tarjeta">
-      ${flor(ev.notas, prev && prev.notas)}
+      ${flor(ev.notas, prev && prev.notas, {tareas: infoTareas(ev)})}
       ${prev ? `<div class="leyenda-prev"><i></i> flor anterior (${rangoSemana(semanaDe(prev))})</div>` : ''}
       <p class="resumen-txt">Tu media es <b>${fmt(m)}</b> de 10${prev ? ' ' + deltaHTML(m, media(prev.notas)) : ''}.<br>
       El pétalo más largo: <b>${ico(alta)} ${alta.nombre}</b> (${fmt(ev.notas[alta.id])}).<br>
@@ -708,6 +732,46 @@ function vResultado(){
   return h;
 }
 /* Nº de acciones según la nota del pétalo elegido */
+/* Datos de las acciones de una flor, para marcarlas en su pétalo */
+function infoTareas(ev){
+  const ts = tareasDe(ev); if(!ts.length) return null;
+  return {area: ev.accion.area, lista: ts, hechas: ts.filter(t => t.hecha).length};
+}
+function leyendaTareas(ev){
+  const T = infoTareas(ev); if(!T) return '';
+  const a = areaDe(T.area);
+  return `<div class="leyenda-prev"><span class="marca-t" style="background:${a.color}"></span> ${a.nombre}: ${T.lista.length === 1 ? 'tu acción' : 'tus ' + T.lista.length + ' acciones'} de la semana · ${T.hechas} de ${T.lista.length} ${T.lista.length === 1 ? 'hecha' : 'hechas'}</div>`;
+}
+/* Al tocar un pétalo: su nota y sus acciones de la semana */
+function abrirPetalo(id){
+  const u = ultima(); if(!u) return;
+  const a = areaDe(id), v = u.notas[id], prev = anterior(u), ts = tareasDe(u), suyas = u.accion && u.accion.area === id;
+  let det = '';
+  if(a.dobles && u.detalle && u.detalle[id]) det = `<p class="suave peq" style="margin:4px 0 0">${a.dobles.map(d => `${d.corto} ${u.detalle[id][d.id]}`).join(' · ')}</p>`;
+  let cuerpo;
+  if(suyas){
+    const n = ts.filter(t => t.hecha).length;
+    cuerpo = `<p class="eti" style="margin-top:16px">Tus acciones de la semana · ${n} de ${ts.length} ${ts.length === 1 ? 'hecha' : 'hechas'}</p>
+      <div class="tareas">${ts.map((t,i) => `<button class="tarea ${t.hecha?'ok':''}" onclick="alternarTarea(${i}); abrirPetalo('${id}')"><span class="caja">✓</span><span>${esc(t.texto)}</span></button>`).join('')}</div>
+      <button class="link" onclick="cerrarPetalo(); editarAccion('${id}')">Cambiar acciones</button>`;
+  }else if(ts.length){
+    cuerpo = `<p class="suave" style="margin-top:16px">Esta semana tus acciones son de <b style="color:var(--tinta)">${areaDe(u.accion.area).nombre}</b>.</p>
+      <button class="btn sec ancho" onclick="cerrarPetalo(); editarAccion('${id}')">Pasar mis acciones a ${a.nombre}</button>`;
+  }else{
+    const n = cuantas(v);
+    cuerpo = `<p class="suave" style="margin-top:16px">Aún no tienes acciones para este pétalo.</p>
+      <button class="btn prim ancho" onclick="cerrarPetalo(); editarAccion('${id}')">Elegir ${n === 1 ? 'una acción' : n + ' acciones'}</button>`;
+  }
+  const com = u.comentarios && u.comentarios[id] ? `<p class="peq" style="margin:12px 0 0"><span class="suave">Tu nota:</span> ${esc(u.comentarios[id])}</p>` : '';
+  let hoja = $('#hoja');
+  if(!hoja){ hoja = document.createElement('div'); hoja.id = 'hoja'; hoja.className = 'hoja'; hoja.onclick = e => { if(e.target === hoja) cerrarPetalo(); }; document.body.appendChild(hoja); }
+  hoja.innerHTML = `<div class="hoja-in accion" style="--c:${a.color}">
+    <div class="hoja-asa"></div>
+    <div class="hoja-cab"><div>${ico(a,'g')}<h2>${a.nombre}</h2></div><b class="hoja-nota">${fmt(v)}${prev ? ' ' + deltaHTML(v, prev.notas[id]) : ''}</b></div>
+    ${det}${com}${cuerpo}</div>`;
+  requestAnimationFrame(() => hoja.classList.add('ver'));
+}
+function cerrarPetalo(){ const h = $('#hoja'); if(h){ h.classList.remove('ver'); setTimeout(() => h.remove(), 300); } }
 function cuantas(nota){ return nota <= 4 ? 3 : nota <= 7 ? 2 : 1; }
 function tareasDe(ev){
   if(!ev || !ev.accion) return [];
@@ -794,7 +858,7 @@ function vHistorial(){
   if(D.evaluaciones.length >= 2) h += `<section class="tarjeta evolucion"><h3 style="font-size:16px">Evolución de tu media</h3>${evolucionSVG()}
     <div class="extremos"><span>${rangoSemana(semanaDe(D.evaluaciones[0]))}</span><span>${rangoSemana(semanaDe(ultima()))}</span></div></section>`;
   h += '<div class="jardin">' + D.evaluaciones.slice().reverse().map(e => {
-    return `<button class="maceta" onclick="verDetalle('${e.id}')">${flor(e.notas, null, {mini:true})}
+    return `<button class="maceta" onclick="verDetalle('${e.id}')">${flor(e.notas, null, {mini:true, tareas: infoTareas(e)})}
       <b>${textoSemana(semanaDe(e))}</b><span>${rangoSemana(semanaDe(e))}</span><span>Media ${fmt(media(e.notas))} / 10</span></button>`;
   }).join('') + '</div>';
   return h;
@@ -827,7 +891,7 @@ function vDetalle(){
   let h = `<button class="link volver" onclick="ir('historial')">← Jardín</button>
     <section class="tarjeta"><h2>${textoSemana(semanaDe(ev))}</h2>
     <p class="peq suave" style="margin:2px 0 0">${rangoSemana(semanaDe(ev))} · media ${fmt(media(ev.notas))} / 10 ${prev ? deltaHTML(media(ev.notas), media(prev.notas)) : ''}</p>
-    ${flor(ev.notas, prev && prev.notas)}
+    ${flor(ev.notas, prev && prev.notas, {tareas: infoTareas(ev)})}
     ${prev ? `<div class="leyenda-prev"><i></i> flor anterior (${rangoSemana(semanaDe(prev))})</div>` : ''}
     ${filasAreas(ev, prev)}</section>`;
   const coms = Object.keys(ev.comentarios || {});
@@ -1047,23 +1111,28 @@ addEventListener('growpanel-listo', enviarResumen);
     }).catch(() => false);
   };
   tocarSonido();
-  setTimeout(() => { if(!sonada && sonidoOn) $('#tocar').classList.add('ver'); }, 400);
+  // Los móviles solo dejan sonar después de un toque «de verdad» (click / touchend, no pointerdown)
+  const EVENTOS = ['click', 'touchend', 'keydown'];
   const alPrimerToque = e => {
     if(e.target.closest && e.target.closest('a')) return;
-    removeEventListener('pointerdown', alPrimerToque, true); removeEventListener('keydown', alPrimerToque, true);
-    if(performance.now() < 20000) tocarSonido();
+    EVENTOS.forEach(t => removeEventListener(t, alPrimerToque, true));
+    if(performance.now() < 60000) tocarSonido();
   };
-  addEventListener('pointerdown', alPrimerToque, true); addEventListener('keydown', alPrimerToque, true);
+  EVENTOS.forEach(t => addEventListener(t, alPrimerToque, true));
 
   let cerrada = false;
   const cerrar = () => { if(cerrada) return; cerrada = true; splash.classList.add('fuera'); setTimeout(() => splash.remove(), 700); };
   splash.addEventListener('click', e => {
     if(e.target.closest('a')) return;
-    // el primer toque hace sonar la flor; se deja verla abrirse un momento antes de entrar
-    if(!sonada && sonidoOn){ clearTimeout(tCerrar); tCerrar = setTimeout(cerrar, 1700); return; }
+    // el toque hace sonar la canción; se deja ver la flor un momento antes de entrar
+    if(!sonada && sonidoOn){ tocarSonido(); $('#tocar').classList.remove('ver'); clearTimeout(tCerrar); tCerrar = setTimeout(cerrar, 1800); return; }
     cerrar();
   });
-  let tCerrar = setTimeout(cerrar, 3000);
+  // Si el móvil no dejó sonar la música sola, la portada espera un toque («Toca para entrar») para que siempre suene
+  let tCerrar = setTimeout(() => {
+    if(sonada || !sonidoOn) cerrar();
+    else $('#tocar').classList.add('ver');
+  }, 2600);
 
   iniciarNube();
 
