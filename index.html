@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Equilibra · Tu rueda de la vida</title>
+<meta name="description" content="Equilibra: puntúa las 8 áreas de tu vida, mira tu rueda y elige una pequeña acción para equilibrarla.">
+<meta name="theme-color" content="#f6f3ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Equilibra">
+<link rel="icon" id="favicon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fondo:#f6f3ee; --tarjeta:#ffffff; --tinta:#1f2a37; --suave:#64748b; --linea:#e7e1d8;
+  --acento:#2f6f5e; --acento-claro:#e3efe9; --sube:#16a34a; --baja:#dc2626;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--fondo);color:var(--tinta);font-family:Nunito,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{line-height:1.2;margin:0}
+.envoltura{max-width:520px;margin:0 auto;padding:0 16px 110px}
+
+/* Cabecera */
+header.cab{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--fondo) 92%,transparent);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--linea)}
+.cab-in{max-width:520px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px}
+.cab-in .marca{display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px;letter-spacing:.2px}
+.cab-in .marca svg{width:30px;height:30px}
+.cab-in .ver{font-size:11px;font-weight:700;color:var(--suave);border:1px solid var(--linea);border-radius:999px;padding:1px 7px}
+.cab-in .der{margin-left:auto;display:flex;align-items:center}
+#grow-panel-boton .gp-boton{border-color:var(--linea)}
+
+/* Tarjetas y botones */
+.tarjeta{background:var(--tarjeta);border:1px solid var(--linea);border-radius:20px;padding:18px;margin-top:14px;box-shadow:0 1px 2px rgba(31,42,55,.04)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:13px 18px;font-weight:800;font-size:16px}
+.btn.prim{background:var(--acento);color:#fff}
+.btn.prim:active{transform:translateY(1px)}
+.btn.sec{background:transparent;border:1.5px solid var(--linea);color:var(--tinta)}
+.btn.ancho{width:100%}
+.btn.peligro{background:#fff;border:1.5px solid #fecaca;color:var(--baja)}
+.link{background:none;border:0;padding:6px 4px;color:var(--suave);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.suave{color:var(--suave)}
+.peq{font-size:13px}
+
+/* Rueda */
+.rueda{display:block;width:100%;max-width:340px;margin:6px auto 0;overflow:visible}
+.rueda .porc{animation:crece .7s cubic-bezier(.2,.8,.2,1) both;transform-origin:0px 0px}
+@keyframes crece{from{transform:scale(0)}}
+.rueda .eti-num{font-size:12px;font-weight:800;fill:var(--tinta)}
+.rueda .eti-emo{font-size:18px}
+.mini{width:64px;height:64px;flex:none;margin:0}
+.leyenda-prev{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--suave);margin-top:4px}
+.leyenda-prev i{display:inline-block;width:22px;border-top:2px dashed #475569}
+
+/* Cifras */
+.cifras{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.cifra{background:var(--fondo);border-radius:14px;padding:10px 8px;text-align:center}
+.cifra b{display:block;font-size:20px;font-weight:800}
+.cifra span{font-size:12px;color:var(--suave)}
+.delta{font-size:12px;font-weight:800;white-space:nowrap}
+.delta.up{color:var(--sube)} .delta.down{color:var(--baja)} .delta.igual{color:var(--suave)}
+
+/* Lista de áreas */
+.areas{margin-top:12px}
+.fila{display:grid;grid-template-columns:26px 1fr 70px 30px 34px;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--linea)}
+.fila:first-child{border-top:0}
+.fila .em{font-size:19px;text-align:center}
+.fila .nom{font-weight:700;font-size:15px;line-height:1.2}
+.fila .nom small{display:block;font-weight:600;font-size:12px;color:var(--suave)}
+.fila .barra{height:8px;border-radius:99px;background:#eef0f2;overflow:hidden}
+.fila .barra i{display:block;height:100%;border-radius:99px}
+.fila b{text-align:right;font-size:16px}
+.fila .delta{text-align:right}
+
+/* Bienvenida */
+.bienvenida{text-align:center;padding:26px 20px}
+.bienvenida .logo-g{width:110px;height:110px;margin:4px auto 10px}
+.bienvenida .logo-g svg{width:100%;height:100%;display:block}
+.bienvenida h1{font-size:26px;font-weight:800}
+.bienvenida p{margin:10px 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0 18px}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 11px;font-size:13px;font-weight:700;
+  background:color-mix(in srgb,var(--c) 12%,#fff);color:color-mix(in srgb,var(--c) 70%,#111);border:1.5px solid transparent}
+button.chip.sel{border-color:var(--c);background:color-mix(in srgb,var(--c) 22%,#fff)}
+
+/* Acción */
+.accion{border-left:5px solid var(--c,var(--acento))}
+.accion .eti{font-size:12px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--suave);margin:0}
+.accion .txt{font-size:18px;font-weight:700;margin:6px 0 12px}
+.accion.hecha .txt{text-decoration:line-through;text-decoration-color:var(--c);color:var(--suave)}
+.accion .acc-bots{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.aviso-mes{background:#fff7e6;border-color:#f5d9a8}
+
+/* Evaluar */
+.progreso{display:flex;gap:5px;margin-top:16px}
+.progreso i{flex:1;height:6px;border-radius:99px;background:#e6e1d9}
+.progreso i.hecho{background:var(--c)}
+.progreso i.actual{background:color-mix(in srgb,var(--c) 45%,#e6e1d9)}
+.paso{font-size:13px;color:var(--suave);font-weight:700;margin:8px 0 0}
+.eval{border-top:6px solid var(--c);text-align:center;padding-top:22px}
+.eval .emo{font-size:46px;line-height:1}
+.eval h2{font-size:24px;font-weight:800;margin-top:6px;color:color-mix(in srgb,var(--c) 75%,#111)}
+.pregunta{display:block;font-size:17px;font-weight:700;margin:18px 4px 0}
+.valor{font-size:46px;font-weight:800;color:var(--c);line-height:1.1;margin-top:6px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:12px;border-radius:99px;margin:10px 0 6px;outline:none;
+  background:linear-gradient(to right,var(--c) calc(var(--p,44.4)*1%),#e8e4dd 0)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;border:4px solid var(--c);box-shadow:0 2px 6px rgba(0,0,0,.18)}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:4px solid var(--c);box-shadow:0 2px 6px rgba(0,0,0,.18)}
+input[type=range]:focus-visible::-webkit-slider-thumb{outline:3px solid color-mix(in srgb,var(--c) 40%,transparent)}
+.extremos{display:flex;justify-content:space-between;font-size:12px;color:var(--suave);font-weight:600}
+.nota-doble{margin-top:18px;background:var(--fondo);border-radius:14px;padding:12px;font-weight:700}
+.nota-doble b{color:var(--c);font-size:20px}
+.nota-doble .pista{display:block;font-weight:600;font-size:13px;color:var(--suave);margin-top:2px}
+details.nota{margin-top:16px;text-align:left}
+details.nota summary{cursor:pointer;color:var(--suave);font-weight:700;font-size:14px;list-style:none;text-align:center}
+details.nota summary::-webkit-details-marker{display:none}
+textarea,input[type=text]{width:100%;font:inherit;border:1.5px solid var(--linea);border-radius:12px;padding:11px 12px;background:#fff;color:var(--tinta)}
+textarea{min-height:80px;resize:vertical;margin-top:8px}
+textarea:focus,input[type=text]:focus{outline:none;border-color:var(--acento)}
+.bots-eval{display:flex;gap:10px;margin-top:16px}
+.bots-eval .btn{flex:1}
+
+/* Resultado */
+.res-tit{text-align:center;margin-top:18px}
+.res-tit h1{font-size:24px;font-weight:800}
+.resumen-txt{margin:12px 0 0;text-align:center}
+.campo-accion{margin-top:12px}
+
+/* Historial */
+.evolucion svg{width:100%;height:auto;display:block}
+.item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--tarjeta);border:1px solid var(--linea);border-radius:18px;padding:12px 14px;margin-top:10px}
+.item div{flex:1;display:flex;flex-direction:column;gap:1px}
+.item div span{font-size:13px;color:var(--suave)}
+.item .flecha{font-size:24px;color:var(--suave)}
+.volver{margin-top:12px}
+.comentario{border-top:1px solid var(--linea);padding:8px 0;font-size:14px}
+.comentario:first-of-type{border-top:0}
+
+/* Ajustes */
+.ajustes h3{font-size:17px;margin-bottom:6px}
+.ajustes p{margin:6px 0 12px}
+.ajustes .bots{display:flex;flex-direction:column;gap:8px}
+
+/* Navegación inferior */
+nav.abajo{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#fff;border-top:1px solid var(--linea);padding-bottom:env(safe-area-inset-bottom)}
+nav.abajo .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+nav.abajo button{background:none;border:0;padding:9px 0 10px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:12px;font-weight:700;color:var(--suave)}
+nav.abajo button span{font-size:20px;line-height:1.1;filter:grayscale(1);opacity:.7}
+nav.abajo button.act{color:var(--acento)}
+nav.abajo button.act span{filter:none;opacity:1}
+
+/* Sellos de Práctica Integral (Grow Panel\SELLO.md, colores adaptados) */
+.sellos{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:26px 0 6px}
+.pi-seal,.gp-seal{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.3px;
+  line-height:16px;white-space:nowrap;color:#64748b;border:1px solid #cbd5e1;border-radius:999px;padding:6px 12px;text-decoration:none;background:transparent}
+.pi-seal::before{content:"";width:7px;height:7px;border-radius:50%;background:#4ADE80}
+.gp-seal svg{width:14px;height:14px;flex:none}
+.pi-seal:hover{border-color:#4ADE80}
+.gp-seal:hover{border-color:#8b5cf6}
+
+/* Splash */
+#splash{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 38%,#ffffff 0,#f6f3ee 55%,#ece5da 100%);transition:opacity .5s ease}
+#splash.fuera{opacity:0;pointer-events:none}
+#splash .logo-s{width:150px;height:150px;animation:gira 1.6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes gira{from{transform:rotate(-90deg) scale(.6);opacity:0}}
+#splash h1{font-size:38px;font-weight:800;margin-top:16px;letter-spacing:.5px}
+#splash p{margin:4px 0 0;color:var(--suave);font-weight:600}
+#splash .sellos{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom));left:16px;right:16px;margin:0}
+
+/* Aviso flotante */
+#toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--tinta);color:#fff;font-weight:700;
+  padding:10px 16px;border-radius:12px;opacity:0;transition:.3s;z-index:30;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
+#toast.ver{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<div id="splash" aria-hidden="true">
+  <svg class="logo-s" id="logo-splash"></svg>
+  <h1>Equilibra</h1>
+  <p>Tu rueda de la vida, en equilibrio</p>
+  <div class="sellos" id="sellos-splash"></div>
+</div>
+
+<header class="cab">
+  <div class="cab-in">
+    <div class="marca"><svg id="logo-cab"></svg>Equilibra</div>
+    <span class="ver" id="ver"></span>
+    <div class="der"><span id="grow-panel-boton"></span></div>
+  </div>
+</header>
+
+<main class="envoltura" id="app"></main>
+
+<nav class="abajo" id="nav">
+  <div class="in">
+    <button data-v="inicio" onclick="ir('inicio')"><span>🏠</span>Inicio</button>
+    <button data-v="historial" onclick="ir('historial')"><span>🗂️</span>Historial</button>
+    <button data-v="ajustes" onclick="ir('ajustes')"><span>⚙️</span>Ajustes</button>
+  </div>
+</nav>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+const VERSION = 'v1.00';
+const CLAVE = 'equilibra.datos';
+
+/* Las 8 áreas de la rueda (decididas con Gustavo el 19/10/2026) */
+const AREAS = [
+  {id:'salud',       nombre:'Salud',                   emoji:'💪', color:'#22a35a',
+   pregunta:'¿Cómo te sientes con tu cuerpo, tu energía y tu descanso?', ejemplo:'caminar 20 minutos el martes y el jueves'},
+  {id:'pareja',      nombre:'Pareja',                  emoji:'❤️', color:'#e2456b',
+   pregunta:'¿Cómo estás en tu vida de pareja o con tu situación sentimental?', ejemplo:'una cena sin móviles el viernes'},
+  {id:'familia',     nombre:'Familia y amigos',        emoji:'🤝', color:'#f08a24',
+   pregunta:'¿Qué tan cuidados y presentes están tus vínculos cercanos?', ejemplo:'llamar a un amigo que hace tiempo no veo'},
+  {id:'trabajo',     nombre:'Trabajo y dinero',        emoji:'💼', color:'#2b7fd4',
+   dobles:[{id:'gusta', texto:'¿Te gusta lo que haces?', corto:'Te gusta'},
+           {id:'dinero',texto:'¿Te da el dinero que necesitas?', corto:'Dinero'}],
+   ejemplo:'revisar mis gastos del mes el domingo'},
+  {id:'crecimiento', nombre:'Crecimiento personal',    emoji:'🌱', color:'#8b5cf6',
+   pregunta:'¿Estás aprendiendo y creciendo como te gustaría?', ejemplo:'leer 10 páginas cada noche'},
+  {id:'ocio',        nombre:'Ocio y disfrute',         emoji:'🎨', color:'#e0a810',
+   pregunta:'¿Tienes tiempo para disfrutar, jugar y descansar?', ejemplo:'reservar el sábado por la tarde para algo que me guste'},
+  {id:'proposito',   nombre:'Propósito / Espiritualidad', emoji:'✨', color:'#14a3a3',
+   pregunta:'¿Sientes que tu vida tiene sentido y dirección?', ejemplo:'10 minutos de silencio o meditación cada mañana'},
+  {id:'hogar',       nombre:'Hogar y entorno',         emoji:'🏡', color:'#b0703c',
+   pregunta:'¿Te sientes a gusto donde y cómo vives?', ejemplo:'ordenar el escritorio y dejarlo despejado'},
+];
+
+const $ = s => document.querySelector(s);
+const app = $('#app');
+let D = cargar();
+let vista = 'inicio';
+let E = null;          // evaluación en curso
+let R = null;          // contexto de la pantalla de resultado / acción
+let detalleId = null;
+
+/* ---------- Datos ---------- */
+function cargar(){
+  try{ const d = JSON.parse(localStorage.getItem(CLAVE)); if(d && Array.isArray(d.evaluaciones)) return d; }catch(e){}
+  return {evaluaciones:[]};
+}
+function guardar(){
+  try{ localStorage.setItem(CLAVE, JSON.stringify(D)); }catch(e){ aviso('No se pudo guardar en este navegador'); }
+  enviarResumen();
+}
+const ultima = () => D.evaluaciones[D.evaluaciones.length-1] || null;
+const porId = id => D.evaluaciones.find(e => e.id === id);
+const areaDe = id => AREAS.find(a => a.id === id);
+function anterior(ev){ const i = D.evaluaciones.findIndex(e => e.id === ev.id); return i > 0 ? D.evaluaciones[i-1] : null; }
+function media(notas){ return Math.round(AREAS.reduce((s,a) => s + (notas[a.id]||0), 0) / AREAS.length * 10) / 10; }
+function ordenadas(notas){ return AREAS.slice().sort((x,y) => notas[x.id] - notas[y.id]); }
+function fmt(n){ return Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ','); }
+function diasDesde(f){ const a = new Date(f); a.setHours(0,0,0,0); const b = new Date(); b.setHours(0,0,0,0); return Math.round((b-a)/864e5); }
+function fecha(f, larga){
+  return new Date(f).toLocaleDateString('es-ES', larga ? {weekday:'long', day:'numeric', month:'long', year:'numeric'} : {day:'numeric', month:'short', year:'numeric'});
+}
+function haceDias(d){ return d === 0 ? 'hoy' : d === 1 ? 'ayer' : `hace ${d} días`; }
+function esc(t){ return String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function deltaHTML(v, prev){
+  if(prev == null) return '<span class="delta"></span>';
+  const d = Math.round((v - prev)*10)/10;
+  if(d > 0) return `<span class="delta up">▲${fmt(d)}</span>`;
+  if(d < 0) return `<span class="delta down">▼${fmt(-d)}</span>`;
+  return '<span class="delta igual">=</span>';
+}
+
+/* ---------- Dibujos ---------- */
+function pt(r, ang){ const a = ang*Math.PI/180; return `${(r*Math.cos(a)).toFixed(2)} ${(r*Math.sin(a)).toFixed(2)}`; }
+function porcion(r, a0, a1){ return r <= 0 ? '' : `M0 0L${pt(r,a0)}A${r} ${r} 0 0 1 ${pt(r,a1)}Z`; }
+function arco(r, a0, a1){ return `M${pt(r,a0)}A${r} ${r} 0 0 1 ${pt(r,a1)}`; }
+
+function rueda(notas, previas, opc = {}){
+  const R0 = 135, paso = 360/AREAS.length, mini = !!opc.mini, vb = mini ? 140 : 192;
+  let s = `<svg viewBox="${-vb} ${-vb} ${vb*2} ${vb*2}" class="rueda${mini?' mini':''}" role="img" aria-label="Rueda de la vida${notas?': media '+fmt(media(notas)):''}">`;
+  AREAS.forEach((a,i) => {
+    const a0 = i*paso - 90 - paso/2, a1 = a0 + paso;
+    s += `<path d="${porcion(R0,a0,a1)}" fill="${a.color}" opacity=".09"/>`;
+    const v = notas && notas[a.id];
+    if(v > 0) s += `<path class="${mini?'':'porc'}" style="animation-delay:${i*40}ms" d="${porcion(R0*v/10,a0,a1)}" fill="${a.color}" opacity=".88"/>`;
+  });
+  for(let k = 2; k <= 10; k += 2) s += `<circle r="${R0*k/10}" fill="none" stroke="#1f2a37" stroke-opacity="${k===10?.18:.07}" stroke-width="${mini?2:1}"/>`;
+  AREAS.forEach((a,i) => { s += `<line x1="0" y1="0" x2="${pt(R0, i*paso-90-paso/2).replace(' ','" y2="')}" stroke="#fff" stroke-width="${mini?3:2}"/>`; });
+  if(previas){
+    AREAS.forEach((a,i) => {
+      const v = previas[a.id]; if(!(v > 0)) return;
+      const a0 = i*paso - 90 - paso/2;
+      s += `<path d="${arco(R0*v/10, a0+1.5, a0+paso-1.5)}" fill="none" stroke="#475569" stroke-width="2.2" stroke-dasharray="5 4" stroke-linecap="round"/>`;
+    });
+  }
+  if(!mini && notas){
+    AREAS.forEach((a,i) => {
+      const ang = (i*paso - 90)*Math.PI/180, x = 161*Math.cos(ang), y = 161*Math.sin(ang);
+      s += `<text class="eti-emo" x="${x.toFixed(1)}" y="${(y-7).toFixed(1)}" text-anchor="middle" dominant-baseline="central">${a.emoji}</text>`;
+      s += `<text class="eti-num" x="${x.toFixed(1)}" y="${(y+13).toFixed(1)}" text-anchor="middle" dominant-baseline="central">${fmt(notas[a.id])}</text>`;
+    });
+  }
+  return s + '</svg>';
+}
+
+function logoSVG(){
+  const largos = [9, 7, 8, 6.5, 9.5, 7.5, 8.5, 6], paso = 45;
+  let s = '<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">';
+  s += '<circle r="96" fill="#ffffff" stroke="#e7e1d8" stroke-width="4"/>';
+  AREAS.forEach((a,i) => { const a0 = i*paso - 90 - paso/2; s += `<path d="${porcion(86*largos[i]/10, a0+2, a0+paso-2)}" fill="${a.color}"/>`; });
+  s += '<circle r="13" fill="#2f6f5e"/><circle r="5" fill="#ffffff"/></svg>';
+  return s;
+}
+
+function sellosHTML(){
+  return `<a class="pi-seal" href="https://practicaintegral.club" target="_blank" rel="noopener">by Práctica Integral</a>
+  <a class="gp-seal" href="https://practicaintegral.club/grow-panel/" target="_blank" rel="noopener"><svg viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="107.5" r="69.1" fill="#f59e0b"/><circle cx="397.2" cy="210.1" r="69.1" fill="#0f766e"/><circle cx="343.3" cy="376.1" r="69.1" fill="#8b5cf6"/><circle cx="168.7" cy="376.1" r="69.1" fill="#3b82f6"/><circle cx="114.8" cy="210.1" r="69.1" fill="#ef4444"/><circle cx="256" cy="256" r="79.4" fill="#6b7280"/></svg>with Grow Panel</a>`;
+}
+
+function filasAreas(ev, prev){
+  return '<div class="areas">' + AREAS.map(a => {
+    const v = ev.notas[a.id];
+    let sub = '';
+    if(a.dobles && ev.detalle && ev.detalle[a.id]) sub = `<small>${a.dobles.map(d => `${d.corto} ${ev.detalle[a.id][d.id]}`).join(' · ')}</small>`;
+    return `<div class="fila"><span class="em">${a.emoji}</span><span class="nom">${a.nombre}${sub}</span>
+      <span class="barra"><i style="width:${v*10}%;background:${a.color}"></i></span><b>${fmt(v)}</b>${deltaHTML(v, prev ? prev.notas[a.id] : null)}</div>`;
+  }).join('') + '</div>';
+}
+
+function pistaTrabajo(det){
+  const a = areaDe('trabajo');
+  if(!det) return '';
+  const [d1, d2] = a.dobles, v1 = det[d1.id], v2 = det[d2.id];
+  if(Math.abs(v1 - v2) < 3) return 'Las dos van parejas.';
+  return v1 < v2 ? 'Lo que más tira hacia abajo: que te guste lo que haces.' : 'Lo que más tira hacia abajo: el dinero.';
+}
+
+/* ---------- Navegación ---------- */
+function ir(v){
+  vista = v;
+  if(v !== 'evaluar') E = E && v === 'resultado' ? E : null;
+  render();
+  window.scrollTo(0, 0);
+}
+function render(){
+  const vistas = {inicio:vInicio, evaluar:vEvaluar, resultado:vResultado, historial:vHistorial, detalle:vDetalle, ajustes:vAjustes};
+  app.innerHTML = (vistas[vista] || vInicio)();
+  const conNav = ['inicio','historial','detalle','ajustes'].includes(vista);
+  $('#nav').style.display = conNav ? '' : 'none';
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('act', b.dataset.v === vista || (vista === 'detalle' && b.dataset.v === 'historial')));
+  if(vista === 'evaluar') document.querySelectorAll('input[type=range]').forEach(pintarRango);
+}
+
+/* ---------- Inicio ---------- */
+function vInicio(){
+  const u = ultima();
+  if(!u){
+    return `<section class="tarjeta bienvenida">
+      <div class="logo-g">${logoSVG()}</div>
+      <h1>Bienvenido a Equilibra</h1>
+      <p>La rueda de la vida te muestra, en pocos minutos, cómo estás en las 8 áreas que más importan.</p>
+      <p class="suave">Puntúas cada una del 1 al 10, ves tu rueda y eliges una pequeña acción para la semana.</p>
+      <div class="chips">${AREAS.map(a => `<span class="chip" style="--c:${a.color}">${a.emoji} ${a.nombre}</span>`).join('')}</div>
+      <button class="btn prim ancho" onclick="empezar()">Hacer mi primera rueda</button>
+      <p class="peq suave">Tarda unos 3 minutos. Tus respuestas se guardan solo en este dispositivo.</p>
+    </section><div class="sellos">${sellosHTML()}</div>`;
+  }
+  const prev = anterior(u), m = media(u.notas), ord = ordenadas(u.notas), baja = ord[0], alta = ord[ord.length-1];
+  const dias = diasDesde(u.fecha);
+  let h = '';
+  if(dias >= 30) h += `<section class="tarjeta aviso-mes"><b>🗓️ Ya pasó un mes desde tu última rueda.</b><br><span class="suave">Es buen momento para revisarla y ver cómo has cambiado.</span></section>`;
+  h += `<section class="tarjeta">
+    <h2>Tu rueda</h2>
+    <p class="peq suave" style="margin:2px 0 0">Del ${fecha(u.fecha)} · ${haceDias(dias)}</p>
+    ${rueda(u.notas, prev && prev.notas)}
+    ${prev ? `<div class="leyenda-prev"><i></i> rueda anterior (${fecha(prev.fecha)})</div>` : ''}
+    <div class="cifras">
+      <div class="cifra"><b>${fmt(m)}</b><span>media /10 ${prev ? deltaHTML(m, media(prev.notas)) : ''}</span></div>
+      <div class="cifra"><b>${alta.emoji}</b><span>más alta: ${alta.nombre}</span></div>
+      <div class="cifra"><b>${baja.emoji}</b><span>a cuidar: ${baja.nombre}</span></div>
+    </div>
+    ${filasAreas(u, prev)}
+  </section>`;
+  if(u.accion){
+    const a = areaDe(u.accion.area);
+    h += `<section class="tarjeta accion ${u.accion.hecha?'hecha':''}" style="--c:${a.color}">
+      <p class="eti">Tu acción de la semana · ${a.emoji} ${a.nombre}</p>
+      <p class="txt">${esc(u.accion.texto)}</p>
+      <div class="acc-bots">
+        <button class="btn ${u.accion.hecha?'sec':'prim'}" onclick="alternarHecha()">${u.accion.hecha?'✓ Hecha · deshacer':'Marcar como hecha'}</button>
+        <button class="link" onclick="editarAccion()">Cambiar</button>
+      </div></section>`;
+  }else{
+    h += `<section class="tarjeta accion" style="--c:${baja.color}">
+      <p class="eti">Una acción para esta semana</p>
+      <p class="txt">¿Qué pequeño paso darías por ${baja.emoji} ${baja.nombre}?</p>
+      <button class="btn prim" onclick="editarAccion()">Elegir una acción</button></section>`;
+  }
+  h += `<button class="btn sec ancho" style="margin-top:14px" onclick="empezar()">🔄 Revisar mi rueda ${dias === 0 ? 'otra vez' : 'hoy'}</button>
+    <div class="sellos">${sellosHTML()}</div>`;
+  return h;
+}
+
+/* ---------- Evaluar ---------- */
+function empezar(){
+  const u = ultima(), notas = {}, det = {};
+  AREAS.forEach(a => {
+    notas[a.id] = u ? Math.round(u.notas[a.id]) : 5;
+    if(a.dobles){ det[a.id] = {}; a.dobles.forEach(d => det[a.id][d.id] = u && u.detalle && u.detalle[a.id] ? u.detalle[a.id][d.id] : 5); notas[a.id] = promedioDoble(a, det[a.id]); }
+  });
+  E = {i:0, notas, detalle:det, comentarios:{}};
+  ir('evaluar');
+}
+function promedioDoble(a, det){ return Math.round(a.dobles.reduce((s,d) => s + det[d.id], 0) / a.dobles.length * 10) / 10; }
+
+function deslizador(id, texto, valor){
+  return `<label class="pregunta" for="${id}">${texto}</label>
+    <div class="valor" id="${id}-v">${valor}</div>
+    <input type="range" min="1" max="10" step="1" id="${id}" value="${valor}" oninput="mover(this)">
+    <div class="extremos"><span>1 · Muy lejos de lo que quiero</span><span>10 · Pleno</span></div>`;
+}
+function vEvaluar(){
+  if(!E){ return vInicio(); }
+  const a = AREAS[E.i];
+  let cuerpo = '';
+  if(a.dobles){
+    cuerpo = a.dobles.map(d => deslizador('s-'+d.id, d.texto, E.detalle[a.id][d.id])).join('');
+    cuerpo += `<div class="nota-doble">Nota del área: <b id="nota-doble">${fmt(E.notas[a.id])}</b><span class="pista" id="pista-doble">${pistaTrabajo(E.detalle[a.id])}</span></div>`;
+  }else{
+    cuerpo = deslizador('s-nota', a.pregunta, E.notas[a.id]);
+  }
+  const com = E.comentarios[a.id] || '';
+  return `<div style="--c:${a.color}">
+    <div class="progreso">${AREAS.map((x,j) => `<i class="${j<E.i?'hecho':j===E.i?'actual':''}" style="--c:${x.color}"></i>`).join('')}</div>
+    <p class="paso">Área ${E.i+1} de ${AREAS.length}</p>
+    <section class="tarjeta eval">
+      <div class="emo">${a.emoji}</div>
+      <h2>${a.nombre}</h2>
+      ${cuerpo}
+      <details class="nota" ${com?'open':''}><summary>＋ Añadir una nota (opcional)</summary>
+        <textarea placeholder="¿Algo que quieras recordar sobre esta área?" oninput="E.comentarios['${a.id}']=this.value">${esc(com)}</textarea></details>
+    </section>
+    <div class="bots-eval">
+      <button class="btn sec" onclick="atras()">${E.i === 0 ? 'Cancelar' : '← Atrás'}</button>
+      <button class="btn prim" onclick="siguiente()">${E.i === AREAS.length-1 ? 'Ver mi rueda ✓' : 'Siguiente →'}</button>
+    </div></div>`;
+}
+function pintarRango(el){ el.style.setProperty('--p', (el.value-1)/9*100); }
+function mover(el){
+  const v = +el.value, a = AREAS[E.i];
+  pintarRango(el);
+  $('#'+el.id+'-v').textContent = v;
+  if(el.id === 's-nota'){ E.notas[a.id] = v; return; }
+  E.detalle[a.id][el.id.slice(2)] = v;
+  E.notas[a.id] = promedioDoble(a, E.detalle[a.id]);
+  $('#nota-doble').textContent = fmt(E.notas[a.id]);
+  $('#pista-doble').textContent = pistaTrabajo(E.detalle[a.id]);
+}
+function atras(){ if(E.i === 0){ E = null; ir('inicio'); } else { E.i--; render(); window.scrollTo(0,0); } }
+function siguiente(){
+  if(E.i < AREAS.length-1){ E.i++; render(); window.scrollTo(0,0); return; }
+  const comentarios = {};
+  Object.keys(E.comentarios).forEach(k => { const t = E.comentarios[k].trim(); if(t) comentarios[k] = t; });
+  const ev = {id: Date.now().toString(36), fecha: new Date().toISOString(), notas: {...E.notas}, detalle: JSON.parse(JSON.stringify(E.detalle)), comentarios};
+  D.evaluaciones.push(ev);
+  guardar();
+  E = null;
+  R = {id: ev.id, area: ordenadas(ev.notas)[0].id, nueva: true, texto: ''};
+  ir('resultado');
+}
+
+/* ---------- Resultado y acción ---------- */
+function editarAccion(){
+  const u = ultima();
+  R = {id: u.id, area: u.accion ? u.accion.area : ordenadas(u.notas)[0].id, nueva: false, texto: u.accion ? u.accion.texto : ''};
+  ir('resultado');
+}
+function vResultado(){
+  const ev = R && porId(R.id);
+  if(!ev) return vInicio();
+  const prev = anterior(ev), ord = ordenadas(ev.notas), baja = ord[0], alta = ord[ord.length-1], m = media(ev.notas);
+  const sel = areaDe(R.area);
+  let h = '';
+  if(R.nueva){
+    h += `<div class="res-tit"><h1>¡Tu rueda está lista! 🎉</h1></div>
+    <section class="tarjeta">
+      ${rueda(ev.notas, prev && prev.notas)}
+      ${prev ? `<div class="leyenda-prev"><i></i> rueda anterior (${fecha(prev.fecha)})</div>` : ''}
+      <p class="resumen-txt">Tu media es <b>${fmt(m)}</b> de 10${prev ? ' ' + deltaHTML(m, media(prev.notas)) : ''}.<br>
+      Lo más alto: <b>${alta.emoji} ${alta.nombre}</b> (${fmt(ev.notas[alta.id])}).<br>
+      Lo que más pide cuidado: <b>${baja.emoji} ${baja.nombre}</b> (${fmt(ev.notas[baja.id])}).</p>
+    </section>`;
+  }
+  h += `<section class="tarjeta accion" style="--c:${sel.color}">
+    <h3>Una acción pequeña para esta semana</h3>
+    <p class="peq suave" style="margin:6px 0 0">Elige un área. Te proponemos la más baja, pero puedes cambiarla.</p>
+    <div class="chips" style="justify-content:flex-start;margin-bottom:6px">
+      ${ord.map(a => `<button class="chip ${a.id===R.area?'sel':''}" style="--c:${a.color}" onclick="elegirArea('${a.id}')">${a.emoji} ${a.nombre} · ${fmt(ev.notas[a.id])}</button>`).join('')}
+    </div>
+    <div class="campo-accion">
+      <input type="text" id="accion" maxlength="120" value="${esc(R.texto)}" placeholder="Por ejemplo: ${esc(sel.ejemplo)}" oninput="R.texto=this.value" onkeydown="if(event.key==='Enter')guardarAccion()">
+    </div>
+    <div class="bots-eval">
+      <button class="btn sec" onclick="ir('inicio')">Ahora no</button>
+      <button class="btn prim" onclick="guardarAccion()">Guardar acción</button>
+    </div></section>`;
+  return h;
+}
+function elegirArea(id){ R.area = id; const y = window.scrollY; render(); window.scrollTo(0, y); }
+function guardarAccion(){
+  const t = (R.texto || '').trim();
+  if(!t){ aviso('Escribe una acción pequeña y concreta'); const i = $('#accion'); if(i) i.focus(); return; }
+  const ev = porId(R.id);
+  ev.accion = {area: R.area, texto: t, hecha: false, fecha: new Date().toISOString()};
+  guardar();
+  aviso('Acción guardada 🌱');
+  ir('inicio');
+}
+function alternarHecha(){
+  const u = ultima(); if(!u || !u.accion) return;
+  u.accion.hecha = !u.accion.hecha;
+  guardar();
+  if(u.accion.hecha) aviso('¡Bien hecho! Un paso más hacia el equilibrio 🌱');
+  render();
+}
+
+/* ---------- Historial ---------- */
+function evolucionSVG(){
+  const ev = D.evaluaciones; if(ev.length < 2) return '';
+  const W = 320, H = 110, px = 16, py = 14;
+  const x = i => px + i*(W-2*px)/(ev.length-1), y = v => H - py - (v-1)/9*(H-2*py);
+  const pts = ev.map((e,i) => `${x(i).toFixed(1)},${y(media(e.notas)).toFixed(1)}`).join(' ');
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolución de tu media">`;
+  [2,4,6,8,10].forEach(v => s += `<line x1="${px}" x2="${W-px}" y1="${y(v)}" y2="${y(v)}" stroke="#1f2a37" stroke-opacity=".06"/>`);
+  s += `<polyline points="${pts}" fill="none" stroke="#2f6f5e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+  ev.forEach((e,i) => s += `<circle cx="${x(i)}" cy="${y(media(e.notas))}" r="4.5" fill="#fff" stroke="#2f6f5e" stroke-width="2.5"/>`);
+  return s + '</svg>';
+}
+function vHistorial(){
+  if(!D.evaluaciones.length) return `<section class="tarjeta" style="text-align:center"><h2>Historial</h2><p class="suave">Aún no hay ruedas guardadas.</p>
+    <button class="btn prim" onclick="empezar()">Hacer mi primera rueda</button></section>`;
+  let h = `<h2 style="margin-top:18px">Historial</h2>`;
+  if(D.evaluaciones.length >= 2) h += `<section class="tarjeta evolucion"><h3 style="font-size:16px">Evolución de tu media</h3>${evolucionSVG()}
+    <div class="extremos"><span>${fecha(D.evaluaciones[0].fecha)}</span><span>${fecha(ultima().fecha)}</span></div></section>`;
+  h += D.evaluaciones.slice().reverse().map(e => {
+    const b = ordenadas(e.notas)[0];
+    return `<button class="item" onclick="verDetalle('${e.id}')">${rueda(e.notas, null, {mini:true})}
+      <div><b>${fecha(e.fecha)}</b><span>Media ${fmt(media(e.notas))} / 10</span><span>A cuidar: ${b.emoji} ${b.nombre}</span></div><span class="flecha">›</span></button>`;
+  }).join('');
+  return h;
+}
+function verDetalle(id){ detalleId = id; ir('detalle'); }
+function vDetalle(){
+  const ev = porId(detalleId); if(!ev) return vHistorial();
+  const prev = anterior(ev);
+  let h = `<button class="link volver" onclick="ir('historial')">← Historial</button>
+    <section class="tarjeta"><h2 style="text-transform:capitalize">${fecha(ev.fecha, true)}</h2>
+    <p class="peq suave" style="margin:2px 0 0">Media ${fmt(media(ev.notas))} / 10 ${prev ? deltaHTML(media(ev.notas), media(prev.notas)) : ''}</p>
+    ${rueda(ev.notas, prev && prev.notas)}
+    ${prev ? `<div class="leyenda-prev"><i></i> rueda anterior (${fecha(prev.fecha)})</div>` : ''}
+    ${filasAreas(ev, prev)}</section>`;
+  const coms = Object.keys(ev.comentarios || {});
+  if(coms.length) h += `<section class="tarjeta"><h3 style="font-size:16px">Tus notas</h3>${coms.map(k => { const a = areaDe(k); return `<div class="comentario"><b>${a.emoji} ${a.nombre}:</b> ${esc(ev.comentarios[k])}</div>`; }).join('')}</section>`;
+  if(ev.accion){ const a = areaDe(ev.accion.area); h += `<section class="tarjeta accion ${ev.accion.hecha?'hecha':''}" style="--c:${a.color}"><p class="eti">Acción elegida · ${a.emoji} ${a.nombre}</p><p class="txt" style="margin-bottom:0">${esc(ev.accion.texto)} ${ev.accion.hecha?'✓':''}</p></section>`; }
+  h += `<button class="btn peligro ancho" style="margin-top:14px" onclick="borrarEval('${ev.id}')">Borrar esta rueda</button>`;
+  return h;
+}
+function borrarEval(id){
+  if(!confirm('¿Borrar esta rueda del historial? No se puede deshacer.')) return;
+  D.evaluaciones = D.evaluaciones.filter(e => e.id !== id);
+  guardar(); aviso('Rueda borrada'); ir('historial');
+}
+
+/* ---------- Ajustes ---------- */
+function vAjustes(){
+  return `<h2 style="margin-top:18px">Ajustes</h2>
+  <section class="tarjeta ajustes">
+    <h3>¿Qué es la rueda de la vida?</h3>
+    <p>Es una herramienta de coaching muy sencilla: divides tu vida en áreas, puntúas cada una del 1 al 10 y la rueda te muestra de un vistazo dónde estás pleno y dónde conviene poner energía. Una rueda muy desigual «no rueda bien».</p>
+    <p class="suave">Te recomendamos revisarla <b>una vez al mes</b> y elegir siempre <b>una sola acción pequeña</b> por semana.</p>
+  </section>
+  <section class="tarjeta ajustes">
+    <h3>Tus datos</h3>
+    <p class="suave">Se guardan solo en este dispositivo y navegador. Haz una copia de vez en cuando.</p>
+    <div class="bots">
+      <button class="btn sec" onclick="exportar()">⬇️ Guardar una copia (archivo)</button>
+      <button class="btn sec" onclick="$('#importar').click()">⬆️ Recuperar una copia</button>
+      <input type="file" id="importar" accept=".json,application/json" hidden onchange="importar(this)">
+      <button class="btn peligro" onclick="borrarTodo()">Borrar todos mis datos</button>
+    </div>
+  </section>
+  <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION} · ${D.evaluaciones.length} ${D.evaluaciones.length===1?'rueda guardada':'ruedas guardadas'}</p>
+  <div class="sellos">${sellosHTML()}</div>`;
+}
+function exportar(){
+  const blob = new Blob([JSON.stringify(D, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `equilibra-copia-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function importar(inp){
+  const f = inp.files && inp.files[0]; if(!f) return;
+  const lector = new FileReader();
+  lector.onload = () => {
+    try{
+      const d = JSON.parse(lector.result);
+      if(!d || !Array.isArray(d.evaluaciones)) throw 0;
+      if(!confirm(`La copia tiene ${d.evaluaciones.length} ruedas. ¿Reemplazar tus datos actuales por la copia?`)) return;
+      D = {evaluaciones: d.evaluaciones};
+      guardar(); aviso('Copia recuperada ✓'); ir('inicio');
+    }catch(e){ aviso('Ese archivo no es una copia de Equilibra'); }
+  };
+  lector.readAsText(f);
+  inp.value = '';
+}
+function borrarTodo(){
+  if(!confirm('¿Borrar todas tus ruedas y acciones? No se puede deshacer.')) return;
+  if(!confirm('¿Seguro? Se borrará todo el historial de Equilibra en este dispositivo.')) return;
+  D = {evaluaciones: []}; guardar(); aviso('Datos borrados'); ir('inicio');
+}
+
+/* ---------- Aviso flotante ---------- */
+let tToast;
+function aviso(t){ const el = $('#toast'); el.textContent = t; el.classList.add('ver'); clearTimeout(tToast); tToast = setTimeout(() => el.classList.remove('ver'), 2400); }
+
+/* ---------- Grow Panel: resumen de la app (Grow Panel\BOTON.md) ---------- */
+function enviarResumen(){
+  const u = ultima();
+  let r;
+  if(!u){
+    r = {estado:'aviso', mensaje:'Aún no has hecho tu primera rueda de la vida', cifras:[], version:VERSION};
+  }else{
+    const dias = diasDesde(u.fecha), baja = ordenadas(u.notas)[0];
+    let msg = u.accion && !u.accion.hecha ? `Acción: ${u.accion.texto}` : `Área a cuidar: ${baja.emoji} ${baja.nombre}`;
+    if(msg.length > 90) msg = msg.slice(0, 89) + '…';
+    r = {estado: dias > 30 ? 'aviso' : 'ok', mensaje: msg, version: VERSION, cifras:[
+      {valor: fmt(media(u.notas)) + '/10', etiqueta:'media de tu rueda'},
+      {valor: dias === 0 ? 'hoy' : dias + ' d', etiqueta:'desde la última rueda'},
+      {valor: D.evaluaciones.length, etiqueta: D.evaluaciones.length === 1 ? 'rueda hecha' : 'ruedas hechas'}]};
+  }
+  window.growPanelResumen = r;
+  try{ if(window.GrowPanel && GrowPanel.resumen) GrowPanel.resumen(r); }catch(e){}
+}
+addEventListener('growpanel-listo', enviarResumen);
+
+/* ---------- Arranque ---------- */
+(function iniciar(){
+  const logo = logoSVG(), interior = logo.replace(/^<svg[^>]*>|<\/svg>$/g, '');
+  ['#logo-splash','#logo-cab'].forEach(s => { const el = $(s); el.setAttribute('viewBox','-100 -100 200 200'); el.innerHTML = interior; });
+  $('#favicon').href = 'data:image/svg+xml,' + encodeURIComponent(logo);
+  $('#ver').textContent = VERSION;
+  $('#sellos-splash').innerHTML = sellosHTML();
+  render();
+  enviarResumen();
+  const splash = $('#splash');
+  const cerrar = () => { splash.classList.add('fuera'); setTimeout(() => splash.remove(), 600); };
+  splash.addEventListener('click', e => { if(!e.target.closest('a')) cerrar(); });
+  setTimeout(cerrar, 1900);
+})();
+</script>
+<script src="https://gcalabro12.github.io/Grow-Panel/grow-panel-boton.js" data-app="equilibra" data-nombre="Equilibra" defer></script>
+</body>
+</html>
