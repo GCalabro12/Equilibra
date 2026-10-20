@@ -470,7 +470,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.36';
+const VERSION = 'v2.37';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -720,12 +720,12 @@ function bannerInstalar(){
   if(!enAndroidWeb() || oculto) return '';
   return `<section class="tarjeta ajustes banner-app"><h3>📲 Instala la app de Equilibra</h3>
   <p class="suave">Con la app de Android suena la música al abrir y cuenta tus pasos.</p>${pasosInstalar}
-  <div class="bots"><a class="btn prim" href="${APK}">Descargar Equilibra ${APK_ULTIMA}</a>
+  <div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">Descargar Equilibra ${APK_ULTIMA}</a>
   <button class="link" onclick="try{localStorage.setItem('equilibra.sinBannerApp',APK_ULTIMA)}catch(e){};render()">Ahora no</button></div></section>`;
 }
 const bannerApp = () => enAndroidWeb() ? bannerInstalar() : appVieja() ? `<section class="tarjeta ajustes banner-app"><h3>⬇️ Hay una app nueva (${APK_ULTIMA})</h3>
   <p class="suave">Tienes la ${esc(versionApp() || 'antigua')}. Toca el botón: se descarga en tu navegador; cuando termine, toca «Abrir» o la notificación y luego «Instalar». No pierdes tus datos.</p>
-  <div class="bots"><a class="btn prim" href="${APK}">Descargar Equilibra ${APK_ULTIMA}</a></div></section>` : '';
+  <div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">Descargar Equilibra ${APK_ULTIMA}</a></div></section>` : '';
 function vInicio(){
   if(!tieneDatos()){
     return `${bannerApp()}<section class="tarjeta bienvenida"><div class="hero"></div><div class="txt">
@@ -1140,7 +1140,9 @@ function bloquesTick(){
 const AGUA_PASO = 0.5;   // cada aviso sugiere medio vaso
 const MOV_TIPS = ['Levántate y estira los brazos hacia el techo.', 'Da una vuelta por la casa o la oficina.', 'Haz diez sentadillas suaves.',
   'Gira los hombros hacia atrás diez veces.', 'Sube y baja unas escaleras un par de minutos.', 'Camina mientras haces una llamada.', 'Ponte de puntillas veinte veces.'];
-const APK = 'https://github.com/GCalabro12/Equilibra-Android/releases/latest/download/Equilibra.apk';
+// En el navegador, el APK se baja de esta misma web (desde GitHub, la pestaña de descarga se quedaba trabada al 100 %).
+// Dentro de la app, el enlace de GitHub se abre en el navegador del móvil. Subir Equilibra.apk a la web con cada APK nueva.
+const APK = esApp ? 'https://github.com/GCalabro12/Equilibra-Android/releases/latest/download/Equilibra.apk' : 'Equilibra.apk';
 const APK_ULTIMA = '2.31';   // última app Android publicada
 const versionApp = () => { try{ return esApp ? String(AndroidEquilibra.version()) : ''; }catch(e){ return ''; } };
 const appVieja = () => { if(!esApp) return false; const a = versionApp().split('.').map(Number), b = APK_ULTIMA.split('.').map(Number);
@@ -1149,7 +1151,7 @@ function hojaActualizar(motivo){
   mostrarHoja(`<div class="aviso-salud"><div class="aviso-ico">⬇️</div><h2>Actualiza la app</h2>
     <p>${motivo} Tienes la versión ${esc(versionApp() || '?')} y la nueva es la ${APK_ULTIMA}.</p>
     <p class="peq suave">Toca el botón, descarga Equilibra.apk y ábrela para instalarla encima. No perderás tus datos.</p>
-    <a class="btn prim ancho" href="${APK}">Descargar la versión ${APK_ULTIMA}</a>
+    <a class="btn prim ancho" href="${APK}" download="Equilibra.apk">Descargar la versión ${APK_ULTIMA}</a>
     <button class="btn sec ancho" style="margin-top:8px" onclick="cerrarHoja()">Ahora no</button></div>`, '#8b5cf6');
 }
 const S_ = () => D.salud;
@@ -1185,7 +1187,7 @@ function estadoPasos(){
     <p class="peq suave" style="text-align:center;margin:0 0 8px">Como tienes las dos apps en el móvil, PC & Body-mind tiene preferencia para contar pasos y Equilibra no los cuenta. Si la desinstalas, Equilibra los contará.</p>
     <button class="btn sec ancho" onclick="AndroidEquilibra.abrirPC()">Abrir PC & Body-mind</button>`;
   if(!esApp) return `<p class="peq suave" style="text-align:center">Los pasos se cuentan en la <b>app Android de Equilibra</b>, siempre, también con la pantalla apagada. Aquí ves lo último que mandó tu móvil.</p>
-    <a class="btn sec ancho" href="${APK}" target="_blank" rel="noopener">Descargar la app Android</a>`;
+    <a class="btn sec ancho" href="${APK}" download="Equilibra.apk" target="_blank" rel="noopener">Descargar la app Android</a>`;
   let ok = true, sensor = true, bat = true;
   try{ ok = AndroidEquilibra.permissionOk(); sensor = AndroidEquilibra.hasSensor(); bat = AndroidEquilibra.batteryOk(); }catch(e){}
   if(!ok) return `<p class="peq aviso-p">Falta el permiso de «Actividad física» para contar pasos.</p>
@@ -1647,8 +1649,8 @@ function vAjustes(){
       <button class="btn peligro" onclick="borrarTodo()">Borrar todos mis datos</button>
     </div>
   </section>
-  ${enAndroidWeb() ? `<section class="tarjeta ajustes"><h3>App para Android</h3><p class="suave">Instálala para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}">⬇️ Descargar Equilibra ${APK_ULTIMA}</a></div></section>` : ''}
-  ${appVieja() ? `<section class="tarjeta ajustes"><h3>Hay una app nueva</h3><p class="suave">Tienes la app ${esc(versionApp())} y ya está la ${APK_ULTIMA}.</p><div class="bots"><a class="btn prim" href="${APK}">⬇️ Descargar la versión ${APK_ULTIMA}</a></div></section>` : ''}
+  ${enAndroidWeb() ? `<section class="tarjeta ajustes"><h3>App para Android</h3><p class="suave">Instálala para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar Equilibra ${APK_ULTIMA}</a></div></section>` : ''}
+  ${appVieja() ? `<section class="tarjeta ajustes"><h3>Hay una app nueva</h3><p class="suave">Tienes la app ${esc(versionApp())} y ya está la ${APK_ULTIMA}.</p><div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar la versión ${APK_ULTIMA}</a></div></section>` : ''}
   <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION}${esApp ? ' · app ' + esc(versionApp()) : ''} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
   <div class="sellos">${sellosHTML()}</div>`;
 }

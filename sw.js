@@ -1,5 +1,5 @@
 /* Equilibra: service worker. Subir CACHE con cada versión (igual que VERSION en index.html). */
-const CACHE = 'equilibra-v2.36';
+const CACHE = 'equilibra-v2.37';
 const BASE = ['./', 'index.html', 'manifest.json', 'img/flor.jpg', 'img/icono-192.png',
   'img/salud.jpg', 'img/pareja.jpg', 'img/familia.jpg', 'img/trabajo.jpg',
   'img/crecimiento.jpg', 'img/ocio.jpg', 'img/proposito.jpg', 'img/hogar.jpg', 'sonido/inicio.mp3'];
@@ -10,7 +10,7 @@ self.addEventListener('activate', e => {
 });
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  if(e.request.method !== 'GET' || url.origin !== location.origin) return;
+  if(e.request.method !== 'GET' || url.origin !== location.origin || url.pathname.endsWith('.apk')) return;
   // La página, primero de la red (para recibir versiones nuevas); las imágenes, primero de la caché
   if(e.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/')){
     e.respondWith(fetch(e.request).then(r => { const c = r.clone(); caches.open(CACHE).then(k => k.put(e.request, c)); return r; })
