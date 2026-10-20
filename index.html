@@ -325,14 +325,18 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .prox.falta .texto-p{font-size:17px;color:var(--suave);font-weight:700}
 .prox.saliendo{animation:sale .32s ease-in forwards}
 @keyframes sale{to{opacity:0;transform:translateX(70px)}}
-.salud-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 10px}
-.s-tile{border:0;border-radius:18px;padding:14px 6px 12px;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--tinta);display:flex;flex-direction:column;align-items:center;gap:1px;text-align:center;transition:background .2s}
+.salud-tiles{display:flex;flex-direction:column;gap:8px;margin:12px 0 10px}
+.s-tile{border:0;border-radius:18px;padding:14px 14px;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--tinta);display:flex;align-items:center;gap:12px;text-align:left;width:100%;transition:background .2s}
 .s-tile.sel{background:color-mix(in srgb,var(--c) 42%,transparent)}
-.s-tile .s-ico{font-size:24px;line-height:1.2}
+.s-tile .s-ico{font-size:28px;line-height:1;flex:none}
+.s-tile .s-num{display:flex;flex-direction:column;align-items:center;flex:none;min-width:64px}
 .s-tile b{font-size:22px;font-weight:800;line-height:1.15}
 .s-tile b i{font-style:normal;font-size:14px;color:var(--suave)}
 .s-tile small{font-size:12px;color:var(--suave)}
-.s-tile .s-est{font-size:12px;font-weight:700;margin-top:6px;line-height:1.2;color:color-mix(in srgb,var(--c) 45%,#fff)}
+.s-tile .s-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.s-tile .s-est{font-size:15px;font-weight:700;line-height:1.25;color:color-mix(in srgb,var(--c) 40%,#fff)}
+.s-tile .s-flecha{flex:none;font-size:18px;color:var(--suave)}
+.salud-tiles .salud-sec{margin:0}
 .asa{flex:none;align-self:stretch;display:flex;align-items:center;padding:0 6px;margin:0 -8px 0 -10px;color:rgba(255,255,255,.42);cursor:grab;touch-action:none}
 .otra .asa{margin:0 2px 0 -6px}
 .arrastrando{position:relative;z-index:5;animation:none!important;opacity:.95;box-shadow:0 14px 34px rgba(0,0,0,.5);background-color:#2a1f52}
@@ -483,7 +487,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.38';
+const VERSION = 'v2.39';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1274,11 +1278,14 @@ function vSalud(){
   const prox = (on, at) => !on ? 'Avisos desactivados' : !enHorario() ? 'Fuera de horario (5:30 – 22:00)' : 'Próximo aviso en ' + Math.max(1, Math.ceil((at - ahora) / 60000)) + ' min';
   const vasos = Array.from({length: Math.max(S.aguaGoal, Math.ceil(h.agua))}, (_, i) => `<span class="${i + 1 <= h.agua ? 'lleno' : i < h.agua ? 'medio' : ''}"></span>`).join('');
   const meta = p.steps >= S.meta, aguaOk = h.agua >= S.aguaGoal;
-  const estPasos = !esApp ? 'Se cuentan en la app' : pcCuentaPasos() ? 'Los cuenta PC & Body-mind' : meta ? '¡Meta cumplida!' : `Te faltan ${fmtN(S.meta - p.steps)}`;
-  const estAgua = aguaOk ? '¡Meta cumplida!' : h.agua === 0 ? 'Aún no has bebido' : `Te ${S.aguaGoal - h.agua <= 1 ? 'falta' : 'faltan'} ${fmtVasos(S.aguaGoal - h.agua)}`;
-  const estMov = h.mov === 0 ? 'Haz tu primera pausa' : h.mov < 4 ? '¡Bien! Sigue así' : '¡Muy activo hoy!';
-  const tile = (k, ico, valor, unidad, est, c) => `<button class="s-tile ${saludAbierta === k ? 'sel' : ''}" style="--c:${c}" onclick="abrirSalud('${k}')" aria-expanded="${saludAbierta === k}">
-    <span class="s-ico">${ico}</span><b>${valor}</b><small>${unidad}</small><span class="s-est">${est}</span></button>`;
+  const faltaA = S.aguaGoal - h.agua;
+  const estPasos = !esApp ? 'Se cuentan en la app Android de Equilibra' : pcCuentaPasos() ? 'Los cuenta PC & Body-mind' : meta ? `¡Meta cumplida! Has pasado de ${fmtN(S.meta)} pasos` : `Te faltan ${fmtN(S.meta - p.steps)} pasos para tu meta de ${fmtN(S.meta)}`;
+  const subPasos = esApp && !pcCuentaPasos() ? `${km} km · ${mins} min activos` : '';
+  const estAgua = aguaOk ? `¡Meta cumplida! Ya llevas ${fmtVasos(h.agua)} vasos` : h.agua === 0 ? 'Aún no has bebido: empieza con medio vaso' : `Te ${faltaA <= 1 ? 'falta' : 'faltan'} ${fmtVasos(faltaA)} ${faltaA <= 1 ? 'vaso' : 'vasos'} para llegar a ${S.aguaGoal}`;
+  const estMov = h.mov === 0 ? 'Haz tu primera pausa activa de hoy' : h.mov < 4 ? '¡Bien! Sigue moviéndote cada hora' : '¡Muy activo hoy! Sigue así';
+  const tile = (k, ico, valor, unidad, est, sub, c) => `<button class="s-tile ${saludAbierta === k ? 'sel' : ''}" style="--c:${c}" onclick="abrirSalud('${k}')" aria-expanded="${saludAbierta === k}">
+    <span class="s-ico">${ico}</span><span class="s-num"><b>${valor}</b><small>${unidad}</small></span>
+    <span class="s-txt"><span class="s-est">${est}</span>${sub ? `<small>${sub}</small>` : ''}</span><span class="s-flecha">${saludAbierta === k ? '⌃' : '⌄'}</span></button>`;
   const secciones = {pasos: `<section class="tarjeta salud-sec" id="sec-pasos">
     <h3>👣 Pasos</h3>
     <div class="anillo-caja">${anillo(p.steps, S.meta)}<div class="anillo-centro"><b>${fmtN(p.steps)}</b><span>de ${fmtN(S.meta)} pasos</span><small>${Math.round(Math.min(1, p.steps / S.meta) * 100)}%</small></div></div>
@@ -1314,11 +1321,11 @@ function vSalud(){
   </section>`};
   return `<h2 style="margin-top:18px">Tu salud de hoy</h2>
   <div class="salud-tiles">
-    ${tile('pasos', '👣', fmtN(p.steps), 'pasos', estPasos, '#f08a24')}
-    ${tile('agua', '💧', fmtVasos(h.agua) + '<i>/' + S.aguaGoal + '</i>', 'vasos', estAgua, '#14a3a3')}
-    ${tile('mov', '🤸', h.mov, h.mov === 1 ? 'pausa' : 'pausas', estMov, '#22a35a')}
+    ${tile('pasos', '👣', fmtN(p.steps), 'pasos', estPasos, subPasos, '#f08a24')}${saludAbierta === 'pasos' ? secciones.pasos : ''}
+    ${tile('agua', '💧', fmtVasos(h.agua) + '<i>/' + S.aguaGoal + '</i>', 'vasos', estAgua, prox(S.aguaOn, S.aguaNext), '#14a3a3')}${saludAbierta === 'agua' ? secciones.agua : ''}
+    ${tile('mov', '🤸', h.mov, h.mov === 1 ? 'pausa' : 'pausas', estMov, prox(S.movOn, S.movNext), '#22a35a')}${saludAbierta === 'mov' ? secciones.mov : ''}
   </div>
-  ${saludAbierta ? secciones[saludAbierta] : '<p class="peq suave" style="text-align:center;margin:6px 0 14px">Toca un recuadro para ver el detalle.</p>'}
+  ${saludAbierta ? '' : '<p class="peq suave" style="text-align:center;margin:6px 0 14px">Toca una fila para ver el detalle.</p>'}
   <p class="peq suave" style="text-align:center">Los avisos de agua y movimiento suenan entre las 5:30 y las 22:00, con la app abierta.</p>`;
 }
 let saludAbierta = null;
