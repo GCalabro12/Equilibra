@@ -41,6 +41,7 @@ header.cab{position:sticky;top:0;z-index:5;background:rgba(20,15,38,.82);backdro
 /* Tarjetas y botones */
 .tarjeta{background:var(--tarjeta);border:1px solid var(--linea);border-radius:22px;padding:18px;margin-top:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:16px;padding:14px 18px;font-weight:800;font-size:16px}
+a.btn{text-decoration:none;box-sizing:border-box}
 .btn.prim{background:linear-gradient(135deg,var(--acento),var(--acento2));color:#fff;box-shadow:0 6px 20px rgba(226,69,107,.35)}
 .btn.prim:active{transform:translateY(1px)}
 .btn.sec{background:rgba(255,255,255,.04);border:1.5px solid var(--linea);color:var(--tinta)}
@@ -469,7 +470,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.32';
+const VERSION = 'v2.33';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1126,6 +1127,17 @@ const AGUA_PASO = 0.5;   // cada aviso sugiere medio vaso
 const MOV_TIPS = ['Levántate y estira los brazos hacia el techo.', 'Da una vuelta por la casa o la oficina.', 'Haz diez sentadillas suaves.',
   'Gira los hombros hacia atrás diez veces.', 'Sube y baja unas escaleras un par de minutos.', 'Camina mientras haces una llamada.', 'Ponte de puntillas veinte veces.'];
 const APK = 'https://github.com/GCalabro12/Equilibra-Android/releases/latest/download/Equilibra.apk';
+const APK_ULTIMA = '2.31';   // última app Android publicada
+const versionApp = () => { try{ return esApp ? String(AndroidEquilibra.version()) : ''; }catch(e){ return ''; } };
+const appVieja = () => { if(!esApp) return false; const a = versionApp().split('.').map(Number), b = APK_ULTIMA.split('.').map(Number);
+  return (a[0]||0) < b[0] || ((a[0]||0) === b[0] && (a[1]||0) < b[1]); };
+function hojaActualizar(motivo){
+  mostrarHoja(`<div class="aviso-salud"><div class="aviso-ico">⬇️</div><h2>Actualiza la app</h2>
+    <p>${motivo} Tienes la versión ${esc(versionApp() || '?')} y la nueva es la ${APK_ULTIMA}.</p>
+    <p class="peq suave">Toca el botón, descarga Equilibra.apk y ábrela para instalarla encima. No perderás tus datos.</p>
+    <a class="btn prim ancho" href="${APK}">Descargar la versión ${APK_ULTIMA}</a>
+    <button class="btn sec ancho" style="margin-top:8px" onclick="cerrarHoja()">Ahora no</button></div>`, '#8b5cf6');
+}
 const S_ = () => D.salud;
 function claveDia(f){ const d = new Date(f); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 const minutosHoy = () => { const d = new Date(); return d.getHours()*60 + d.getMinutes(); };
@@ -1455,10 +1467,16 @@ window.nativeGoogle = (token, error) => {
 };
 function entrar(){
   if(!nube.listo){ aviso('Conectando… prueba de nuevo en un momento'); return; }
-  if(esApp && typeof AndroidEquilibra.googleLogin === 'function'){ AndroidEquilibra.googleLogin(); return; }
+  if(esApp){
+    // Dentro de la app, Google solo deja entrar con el inicio de sesión nativo (desde la app 2.31)
+    if(typeof AndroidEquilibra.googleLogin === 'function') AndroidEquilibra.googleLogin();
+    else hojaActualizar('Para entrar con Google necesitas la app nueva.');
+    return;
+  }
+  // En el navegador, solo ventana de Google (la redirección falla en Chrome por la separación de almacenamiento)
   const prov = new firebase.auth.GoogleAuthProvider();
   firebase.auth().signInWithPopup(prov).then(() => aviso('¡Listo! Tus acciones se guardan en la nube ☁️')).catch(e => {
-    if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(e.code)) firebase.auth().signInWithRedirect(prov);
+    if(e.code === 'auth/popup-blocked') aviso('El navegador ha bloqueado la ventana de Google: permite las ventanas emergentes o entra con tu email y PIN');
     else if(!['auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(e.code)) aviso('No se pudo entrar (' + e.code + ')');
   });
 }
@@ -1615,7 +1633,8 @@ function vAjustes(){
       <button class="btn peligro" onclick="borrarTodo()">Borrar todos mis datos</button>
     </div>
   </section>
-  <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
+  ${appVieja() ? `<section class="tarjeta ajustes"><h3>Hay una app nueva</h3><p class="suave">Tienes la app ${esc(versionApp())} y ya está la ${APK_ULTIMA}.</p><div class="bots"><a class="btn prim" href="${APK}">⬇️ Descargar la versión ${APK_ULTIMA}</a></div></section>` : ''}
+  <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION}${esApp ? ' · app ' + esc(versionApp()) : ''} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
   <div class="sellos">${sellosHTML()}</div>`;
 }
 /* Traer los bloques y tareas de PC & Body-mind (mismos 11 bloques, mismas tareas con su casilla) */
