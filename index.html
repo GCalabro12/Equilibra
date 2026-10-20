@@ -470,7 +470,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.33';
+const VERSION = 'v2.34';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -712,9 +712,12 @@ function tarjetaAccion(x, i){
     <div class="cuerpo-p"><div class="area-p">${ico(a)} ${a.nombre}</div><div class="texto-p">${esc(x.texto)}</div></div>
     <button class="check" aria-label="Marcar como hecha" onclick="hacerAccion('${x.id}')">✓</button></div>`;
 }
+const bannerApp = () => appVieja() ? `<section class="tarjeta ajustes banner-app"><h3>⬇️ Hay una app nueva (${APK_ULTIMA})</h3>
+  <p class="suave">Tienes la ${esc(versionApp() || 'antigua')}. Toca el botón: se descarga en tu navegador; cuando termine, toca «Abrir» o la notificación y luego «Instalar». No pierdes tus datos.</p>
+  <div class="bots"><a class="btn prim" href="${APK}">Descargar Equilibra ${APK_ULTIMA}</a></div></section>` : '';
 function vInicio(){
   if(!tieneDatos()){
-    return `<section class="tarjeta bienvenida"><div class="hero"></div><div class="txt">
+    return `${bannerApp()}<section class="tarjeta bienvenida"><div class="hero"></div><div class="txt">
       <h1>Bienvenido a Equilibra</h1>
       <p>Equilibra te ayuda a tener <b>muy claras tus próximas acciones</b> para vivir en equilibrio.</p>
       <p class="suave">Primero miras tu flor: en cada una de las 8 áreas de tu vida eliges si estás bien o si necesita acción. Después, Equilibra te muestra en grande lo siguiente que vas a hacer.</p>
@@ -724,7 +727,7 @@ function vInicio(){
     </div></section><div class="sellos">${sellosHTML()}</div>`;
   }
   const pend = pendientes(), prox = pend.slice(0, 3), resto = pend.slice(3), falta = faltan(), hs = hechasEstaSemana();
-  let h = `<h1 class="tit-acc">Tus próximas acciones</h1>
+  let h = `${bannerApp()}<h1 class="tit-acc">Tus próximas acciones</h1>
     <p class="suave peq" style="margin:4px 0 0">${pend.length ? `${pend.length} ${pend.length === 1 ? 'pendiente' : 'pendientes'}` : 'Nada pendiente'}${hs ? ` · ${hs} ${hs === 1 ? 'hecha' : 'hechas'} esta semana` : ''}</p>
     <div class="prox-lista">${prox.map(tarjetaAccion).join('')}`;
   // huecos: áreas que piden acción y aún no la tienen
