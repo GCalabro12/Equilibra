@@ -470,7 +470,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.34';
+const VERSION = 'v2.35';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -712,7 +712,18 @@ function tarjetaAccion(x, i){
     <div class="cuerpo-p"><div class="area-p">${ico(a)} ${a.nombre}</div><div class="texto-p">${esc(x.texto)}</div></div>
     <button class="check" aria-label="Marcar como hecha" onclick="hacerAccion('${x.id}')">✓</button></div>`;
 }
-const bannerApp = () => appVieja() ? `<section class="tarjeta ajustes banner-app"><h3>⬇️ Hay una app nueva (${APK_ULTIMA})</h3>
+// En el navegador de un Android: ofrecer la app (suena al abrir, cuenta pasos y entra con Google)
+const enAndroidWeb = () => !esApp && /Android/i.test(navigator.userAgent);
+const pasosInstalar = `<ol class="peq suave" style="margin:6px 0 10px;padding-left:20px"><li>Toca el botón: se descarga <b>Equilibra.apk</b>.</li><li>Cuando termine, toca <b>«Abrir»</b> (o la notificación de descarga).</li><li>Toca <b>«Instalar»</b>. Si te pide permiso para instalar apps desde el navegador, actívalo y vuelve atrás.</li></ol>`;
+function bannerInstalar(){
+  let oculto = false; try{ oculto = localStorage.getItem('equilibra.sinBannerApp') === APK_ULTIMA; }catch(e){}
+  if(!enAndroidWeb() || oculto) return '';
+  return `<section class="tarjeta ajustes banner-app"><h3>📲 Instala la app de Equilibra</h3>
+  <p class="suave">Con la app de Android suena la música al abrir y cuenta tus pasos.</p>${pasosInstalar}
+  <div class="bots"><a class="btn prim" href="${APK}">Descargar Equilibra ${APK_ULTIMA}</a>
+  <button class="link" onclick="try{localStorage.setItem('equilibra.sinBannerApp',APK_ULTIMA)}catch(e){};render()">Ahora no</button></div></section>`;
+}
+const bannerApp = () => enAndroidWeb() ? bannerInstalar() : appVieja() ? `<section class="tarjeta ajustes banner-app"><h3>⬇️ Hay una app nueva (${APK_ULTIMA})</h3>
   <p class="suave">Tienes la ${esc(versionApp() || 'antigua')}. Toca el botón: se descarga en tu navegador; cuando termine, toca «Abrir» o la notificación y luego «Instalar». No pierdes tus datos.</p>
   <div class="bots"><a class="btn prim" href="${APK}">Descargar Equilibra ${APK_ULTIMA}</a></div></section>` : '';
 function vInicio(){
@@ -1636,6 +1647,7 @@ function vAjustes(){
       <button class="btn peligro" onclick="borrarTodo()">Borrar todos mis datos</button>
     </div>
   </section>
+  ${enAndroidWeb() ? `<section class="tarjeta ajustes"><h3>App para Android</h3><p class="suave">Instálala para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}">⬇️ Descargar Equilibra ${APK_ULTIMA}</a></div></section>` : ''}
   ${appVieja() ? `<section class="tarjeta ajustes"><h3>Hay una app nueva</h3><p class="suave">Tienes la app ${esc(versionApp())} y ya está la ${APK_ULTIMA}.</p><div class="bots"><a class="btn prim" href="${APK}">⬇️ Descargar la versión ${APK_ULTIMA}</a></div></section>` : ''}
   <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION}${esApp ? ' · app ' + esc(versionApp()) : ''} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
   <div class="sellos">${sellosHTML()}</div>`;
