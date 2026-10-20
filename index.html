@@ -325,6 +325,9 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .prox.falta .texto-p{font-size:17px;color:var(--suave);font-weight:700}
 .prox.saliendo{animation:sale .32s ease-in forwards}
 @keyframes sale{to{opacity:0;transform:translateX(70px)}}
+.pausa-fila{display:flex;justify-content:center;margin:12px 0 4px}
+.quiet-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;font-size:14px;font-weight:700;border:0;background:rgba(139,92,246,.2);color:#c4b5fd}
+.quiet-btn.on{background:#facc15;color:#1a1530}
 .salud-tiles{display:flex;flex-direction:column;gap:8px;margin:12px 0 10px}
 .s-tile{border:0;border-radius:18px;padding:14px 14px;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--tinta);display:flex;align-items:center;gap:12px;text-align:left;width:100%;transition:background .2s}
 .s-tile.sel{background:color-mix(in srgb,var(--c) 42%,transparent)}
@@ -476,7 +479,7 @@ nav.abajo button{font-size:11px}
 <nav class="abajo" id="nav">
   <div class="in">
     <button data-v="inicio" onclick="ir('inicio')"><span>🏠</span>Inicio</button>
-    <button data-v="dia" onclick="ir('dia')"><span>⏱</span>Bloques</button>
+    <button data-v="dia" onclick="ir('dia')"><span>⏱</span>Tareas</button>
     <button data-v="salud" onclick="ir('salud')"><span>👣</span>Salud</button>
     <button data-v="historial" onclick="ir('historial')"><span>📅</span>Historial</button>
     <button data-v="ajustes" onclick="ir('ajustes')"><span>⚙️</span>Ajustes</button>
@@ -487,7 +490,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.39';
+const VERSION = 'v2.40';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1098,7 +1101,8 @@ function vDia(){
   const ya = new Set(acts.map(a => a.acc).filter(Boolean));
   const sugeridas = pendientes().filter(x => !ya.has(x.id)).slice(0, 4);
   const lleno = acts.length >= MAX_ACT;
-  return `<div class="dia-cab"><button class="dia-flecha" onclick="moverDia(-1)" aria-label="Día anterior">‹</button>
+  return `<h1 class="tit-acc">Bloques de tareas</h1>${botonPausa()}
+    <div class="dia-cab"><button class="dia-flecha" onclick="moverDia(-1)" aria-label="Día anterior">‹</button>
       <div><h2>${bDia === 0 ? 'Hoy' : bDia === 1 ? 'Mañana' : bDia === -1 ? 'Ayer' : DIAS_SEM[d.getDay()]}</h2><span>${DIAS_SEM[d.getDay()]} ${d.getDate()} ${d.toLocaleDateString('es-ES', {month:'short'})}</span></div>
       <button class="dia-flecha" onclick="moverDia(1)" aria-label="Día siguiente">›</button></div>
     <div class="tira-blk" id="tiraBlk">${tira}</div>
@@ -1178,7 +1182,7 @@ function bloquesTick(){
     recordarDesde = Date.now();
     const movidas = arrastrar(c);
     if(movidas || c >= 0) guardarBloques();
-    if(!primeraVez && c >= 0 && B.startVoice){
+    if(!primeraVez && c >= 0 && B.startVoice && !pausaAvisos){
       const acts = actsDe(claveDia(new Date()), c).filter(a => !hechaAct(a)).map(a => a.t);
       nota(ESCALA[5], 0, .15, .8, false);
       setTimeout(() => hablar(`Empieza el bloque de ${hm(BLOQUES[c].ini)} a ${hm(BLOQUES[c].fin)}. ` + (movidas ? (movidas === 1 ? 'Pasa una tarea sin terminar del bloque anterior. ' : `Pasan ${movidas} tareas sin terminar del bloque anterior. `) : '') +
@@ -1195,7 +1199,7 @@ function bloquesTick(){
   }
   // a las 22:00, a dormir
   const k = claveDia(new Date());
-  if(B.sleepOn && minutosHoy() >= 1320 && B.sleepDone !== k){
+  if(B.sleepOn && !pausaAvisos && minutosHoy() >= 1320 && B.sleepDone !== k){
     B.sleepDone = k; guardarBloques();
     if(!$('#hoja')) mostrarHoja(`<div class="aviso-salud"><div class="aviso-ico">🌙</div><h2>Hora de descansar</h2><p>Son las 22:00. Apaga las pantallas y vete a dormir. ¡Buenas noches!</p><button class="btn prim ancho" onclick="cerrarHoja()">Buenas noches</button></div>`, '#8b5cf6');
     setTimeout(() => hablar('Son las diez de la noche. Es hora de apagar las pantallas e ir a dormir. ¡Buenas noches!'), 900);
@@ -1230,8 +1234,26 @@ const fmtVasos = n => Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.'
 function saludHoy(){ const k = claveDia(new Date()); if(!S_().days[k]) S_().days[k] = {agua:0, mov:0}; return S_().days[k]; }
 function pasosHoy(){ return S_().pasos[claveDia(new Date())] || {steps:0, activeMs:0}; }
 function guardarSalud(subir){ S_().mod = ahoraISO(); try{ localStorage.setItem(CLAVE, JSON.stringify(D)); }catch(e){} if(subir) programarSubida(); }
+/* Pausa de todos los avisos y voces (como en PC & Body-mind). Los pasos se siguen contando. */
+let pausaAvisos = false; try{ pausaAvisos = localStorage.getItem('equilibra.pausa') === '1'; }catch(e){}
+function botonPausa(){
+  return `<div class="pausa-fila"><button class="quiet-btn ${pausaAvisos ? 'on' : ''}" aria-pressed="${pausaAvisos}" onclick="alternarPausa()">${pausaAvisos ? '▶ Avisos en pausa · toca para activarlos' : '⏸ Pausar avisos y voces'}</button></div>`;
+}
+function alternarPausa(){
+  pausaAvisos = !pausaAvisos;
+  try{ localStorage.setItem('equilibra.pausa', pausaAvisos ? '1' : '0'); }catch(e){}
+  if(pausaAvisos){ try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){} if(avisoSalud){ avisoSalud = null; cerrarHoja(); } }
+  else {   // al volver, los avisos empiezan a contar desde ahora (no salen todos de golpe)
+    const S = S_(), ahora = Date.now();
+    S.aguaNext = ahora + S.aguaMin * 60000; S.movNext = ahora + S.movMin * 60000; recordarDesde = ahora;
+    guardarSalud(false);
+  }
+  configNativa();
+  aviso(pausaAvisos ? 'Avisos y voces en pausa' : 'Avisos activados');
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+}
 function hablar(texto){
-  if(!sonidoOn) return;
+  if(!sonidoOn || pausaAvisos) return;
   if(esApp){ try{ AndroidEquilibra.speak(texto); }catch(e){} return; }
   if(!('speechSynthesis' in window)) return;
   const u = new SpeechSynthesisUtterance(texto); u.lang = 'es-ES';
@@ -1319,7 +1341,7 @@ function vSalud(){
     <p class="peq suave" style="text-align:center;margin:0 0 8px">${prox(S.movOn, S.movNext)}</p>
     <label class="fila-aj"><span><input type="checkbox" ${S.movOn ? 'checked' : ''} onchange="ajCheck('movOn', this, 'movNext', 'movMin')"> Avisarme para moverme cada</span><input type="number" min="10" max="240" inputmode="numeric" value="${S.movMin}" onchange="ajSalud('movMin', this, 10, 240, 'movNext')"></label>
   </section>`};
-  return `<h2 style="margin-top:18px">Tu salud de hoy</h2>
+  return `<h2 style="margin-top:18px">Tu salud de hoy</h2>${botonPausa()}
   <div class="salud-tiles">
     ${tile('pasos', '👣', fmtN(p.steps), 'pasos', estPasos, subPasos, '#f08a24')}${saludAbierta === 'pasos' ? secciones.pasos : ''}
     ${tile('agua', '💧', fmtVasos(h.agua) + '<i>/' + S.aguaGoal + '</i>', 'vasos', estAgua, prox(S.aguaOn, S.aguaNext), '#14a3a3')}${saludAbierta === 'agua' ? secciones.agua : ''}
@@ -1398,7 +1420,8 @@ function saludTick(){
   if(!S.movNext || ahora - S.movNext > 30*60000) S.movNext = ahora + S.movMin * 60000;
   caminarTick();
   if(!avisoSalud && !$('#hoja') && vista !== 'evaluar' && enHorario() && !$('#splash')){
-    if(S.aguaOn && ahora >= S.aguaNext) lanzarAviso('agua');
+    if(pausaAvisos){}
+    else if(S.aguaOn && ahora >= S.aguaNext) lanzarAviso('agua');
     else if(S.movOn && ahora >= S.movNext) lanzarAviso('mov');
   }
   if(vista === 'salud' && !$('#hoja')){ const y = window.scrollY; render(); window.scrollTo(0, y); }
@@ -1407,7 +1430,8 @@ function saludTick(){
 let pasosUlt = null, configUlt = '';
 function configNativa(){
   if(!esApp) return;
-  const S = S_(), cfg = JSON.stringify({goal: S.meta, voice: S.voz && sonidoOn, every: S.cada, blockOn: S.bloqueOn && sonidoOn, block: S.bloque, sound: sonidoOn ? 'campana' : 'ninguno'});
+  const suena = sonidoOn && !pausaAvisos;
+  const S = S_(), cfg = JSON.stringify({goal: S.meta, voice: S.voz && suena, every: S.cada, blockOn: S.bloqueOn && suena, block: S.bloque, sound: suena ? 'campana' : 'ninguno'});
   if(cfg === configUlt) return;
   configUlt = cfg;
   try{ AndroidEquilibra.setConfig(cfg); }catch(e){}
