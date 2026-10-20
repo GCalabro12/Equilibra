@@ -325,6 +325,19 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .prox.falta .texto-p{font-size:17px;color:var(--suave);font-weight:700}
 .prox.saliendo{animation:sale .32s ease-in forwards}
 @keyframes sale{to{opacity:0;transform:translateX(70px)}}
+.salud-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 10px}
+.s-tile{border:0;border-radius:18px;padding:14px 6px 12px;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--tinta);display:flex;flex-direction:column;align-items:center;gap:1px;text-align:center;transition:background .2s}
+.s-tile.sel{background:color-mix(in srgb,var(--c) 42%,transparent)}
+.s-tile .s-ico{font-size:24px;line-height:1.2}
+.s-tile b{font-size:22px;font-weight:800;line-height:1.15}
+.s-tile b i{font-style:normal;font-size:14px;color:var(--suave)}
+.s-tile small{font-size:12px;color:var(--suave)}
+.s-tile .s-est{font-size:12px;font-weight:700;margin-top:6px;line-height:1.2;color:color-mix(in srgb,var(--c) 45%,#fff)}
+.asa{flex:none;align-self:stretch;display:flex;align-items:center;padding:0 6px;margin:0 -8px 0 -10px;color:rgba(255,255,255,.42);cursor:grab;touch-action:none}
+.otra .asa{margin:0 2px 0 -6px}
+.arrastrando{position:relative;z-index:5;animation:none!important;opacity:.95;box-shadow:0 14px 34px rgba(0,0,0,.5);background-color:#2a1f52}
+.marca-antes{box-shadow:inset 0 3px 0 var(--oro)}
+.marca-despues{box-shadow:inset 0 -3px 0 var(--oro)}
 .check{width:50px;height:50px;flex:none;border-radius:50%;border:3px solid color-mix(in srgb,var(--c) 65%,#fff);background:transparent;display:grid;place-items:center;color:transparent;font-size:22px;font-weight:800;padding:0}
 .check:active{background:var(--c);color:#fff}
 .otras{margin-top:10px}
@@ -459,7 +472,7 @@ nav.abajo button{font-size:11px}
 <nav class="abajo" id="nav">
   <div class="in">
     <button data-v="inicio" onclick="ir('inicio')"><span>🏠</span>Inicio</button>
-    <button data-v="dia" onclick="ir('dia')"><span>⏱</span>Día</button>
+    <button data-v="dia" onclick="ir('dia')"><span>⏱</span>Bloques</button>
     <button data-v="salud" onclick="ir('salud')"><span>👣</span>Salud</button>
     <button data-v="historial" onclick="ir('historial')"><span>📅</span>Historial</button>
     <button data-v="ajustes" onclick="ir('ajustes')"><span>⚙️</span>Ajustes</button>
@@ -470,7 +483,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.37';
+const VERSION = 'v2.38';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -553,9 +566,16 @@ const nivel = id => D.niveles[id] || null;
 const tieneDatos = () => D.revisiones.length > 0 || D.acciones.length > 0;
 const ultimaRevision = () => D.revisiones[D.revisiones.length-1] || null;
 const pesoArea = id => nivel(id) ? NIVELES[nivel(id)].peso : 0;
-/* Pendientes ordenadas: primero las de las áreas que más lo necesitan, luego por antigüedad */
+/* Pendientes en el orden que elige la persona (seis puntitos). Las nuevas van al final:
+   las de las áreas tienen toda la semana, así que no pasan delante solas. */
 function pendientes(){
-  return D.acciones.filter(a => !a.hecha).sort((x,y) => (pesoArea(y.area) - pesoArea(x.area)) || (x.creada < y.creada ? -1 : 1));
+  const p = D.acciones.filter(a => !a.hecha);
+  const sin = p.filter(a => typeof a.orden !== 'number');
+  if(sin.length){   // acciones de antes del orden propio: se colocan como estaban
+    let n = Math.max(-1, ...p.filter(a => typeof a.orden === 'number').map(a => a.orden));
+    sin.sort((x,y) => (pesoArea(y.area) - pesoArea(x.area)) || (x.creada < y.creada ? -1 : 1)).forEach(a => { a.orden = ++n; });
+  }
+  return p.sort((x,y) => (x.orden - y.orden) || (x.creada < y.creada ? -1 : 1));
 }
 const proximas = () => pendientes().slice(0, 3);
 /* Áreas que piden acción y aún no tienen suficientes acciones pendientes */
@@ -564,7 +584,15 @@ function faltan(){
     .map(a => ({area: a, faltan: NIVELES[nivel(a.id)].n - D.acciones.filter(x => x.area === a.id && !x.hecha).length}))
     .filter(x => x.faltan > 0).sort((x,y) => pesoArea(y.area.id) - pesoArea(x.area.id));
 }
-function nuevaAccion(area, texto){ D.acciones.push({id: uid(), area, texto, hecha:false, creada: ahoraISO(), hechaEn:null, mod: ahoraISO()}); }
+function nuevaAccion(area, texto){
+  const orden = Math.max(-1, ...pendientes().map(a => a.orden)) + 1;
+  D.acciones.push({id: uid(), area, texto, hecha:false, creada: ahoraISO(), hechaEn:null, mod: ahoraISO(), orden});
+}
+function moverAcciones(ids){
+  const resto = pendientes().filter(a => !ids.includes(a.id));
+  [...ids.map(id => D.acciones.find(a => a.id === id)), ...resto].forEach((a, i) => { if(a && a.orden !== i){ a.orden = i; a.mod = ahoraISO(); } });
+  guardar(); const y = window.scrollY; render(); window.scrollTo(0, y);
+}
 function fecha(f, larga){
   return new Date(f).toLocaleDateString('es-ES', larga ? {weekday:'long', day:'numeric', month:'long', year:'numeric'} : {day:'numeric', month:'short', year:'numeric'});
 }
@@ -705,10 +733,45 @@ function render(){
 }
 
 /* ---------- Inicio: tus próximas acciones (lo principal) ---------- */
+const ASA = `<span class="asa" aria-label="Mantén y arrastra para ordenar"><svg viewBox="0 0 10 16" width="11" height="18" fill="currentColor"><circle cx="2" cy="2" r="1.6"/><circle cx="8" cy="2" r="1.6"/><circle cx="2" cy="8" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="2" cy="14" r="1.6"/><circle cx="8" cy="14" r="1.6"/></svg></span>`;
+/* Ordenar las acciones arrastrando los seis puntitos */
+let arrastre = null, finArrastre = 0;
+document.addEventListener('pointerdown', e => {
+  const asa = e.target.closest && e.target.closest('.asa'); if(!asa) return;
+  const el = asa.closest('[data-ord]'); if(!el) return;
+  e.preventDefault();
+  const items = [...document.querySelectorAll('[data-ord]')].filter(it => it.getClientRects().length);
+  arrastre = {el, id: el.dataset.ord, y0: e.clientY, s0: window.scrollY, items, desde: items.indexOf(el), destino: items.indexOf(el)};
+  el.classList.add('arrastrando');
+  try{ asa.setPointerCapture(e.pointerId); }catch(_){}
+  if(navigator.vibrate) try{ navigator.vibrate(15); }catch(_){}
+});
+document.addEventListener('pointermove', e => {
+  const A = arrastre; if(!A) return;
+  e.preventDefault();
+  if(e.clientY < 90) window.scrollBy(0, -10); else if(e.clientY > innerHeight - 130) window.scrollBy(0, 10);
+  A.el.style.transform = `translateY(${e.clientY - A.y0 + window.scrollY - A.s0}px)`;
+  const otros = A.items.filter(it => it !== A.el);
+  let d = 0; otros.forEach(it => { const r = it.getBoundingClientRect(); if(r.top + r.height / 2 < e.clientY) d++; });
+  A.destino = d;
+  otros.forEach((it, i) => { it.classList.toggle('marca-antes', i === d); it.classList.toggle('marca-despues', d === otros.length && i === otros.length - 1); });
+}, {passive: false});
+function soltarArrastre(){
+  const A = arrastre; if(!A) return;
+  arrastre = null; finArrastre = Date.now();
+  A.el.classList.remove('arrastrando'); A.el.style.transform = '';
+  A.items.forEach(it => it.classList.remove('marca-antes', 'marca-despues'));
+  if(A.destino === A.desde) return;
+  const ids = A.items.map(it => it.dataset.ord).filter(id => id !== A.id);
+  ids.splice(A.destino, 0, A.id);
+  moverAcciones(ids);
+}
+document.addEventListener('pointerup', soltarArrastre);
+document.addEventListener('pointercancel', soltarArrastre);
 function tarjetaAccion(x, i){
   const a = areaDe(x.area);
-  return `<div class="prox" id="acc-${x.id}" style="--c:${a.color};animation-delay:${i*70}ms">
-    <span class="num">${i+1}</span>
+  return `<div class="prox" id="acc-${x.id}" data-ord="${x.id}" style="--c:${a.color};animation-delay:${i*70}ms">
+    ${ASA}<span class="num">${i+1}</span>
     <div class="cuerpo-p"><div class="area-p">${ico(a)} ${a.nombre}</div><div class="texto-p">${esc(x.texto)}</div></div>
     <button class="check" aria-label="Marcar como hecha" onclick="hacerAccion('${x.id}')">✓</button></div>`;
 }
@@ -754,7 +817,7 @@ function vInicio(){
     ${tiraSalud()}`;
   if(resto.length){
     h += `<details class="otras"><summary class="link">Ver las otras ${resto.length}</summary>${resto.map(x => { const a = areaDe(x.area);
-      return `<div class="otra" style="--c:${a.color}"><button class="check" onclick="alternarAccion('${x.id}')">✓</button><span>${ico(a)} ${esc(x.texto)}</span></div>`; }).join('')}</details>`;
+      return `<div class="otra" data-ord="${x.id}" style="--c:${a.color}">${ASA}<button class="check" onclick="alternarAccion('${x.id}')">✓</button><span>${ico(a)} ${esc(x.texto)}</span></div>`; }).join('')}</details>`;
   }
   // la flor, en segundo plano
   const ult = ultimaRevision(), dias = ult ? diasDesde(ult.fecha) : null;
@@ -1142,8 +1205,8 @@ const MOV_TIPS = ['Levántate y estira los brazos hacia el techo.', 'Da una vuel
   'Gira los hombros hacia atrás diez veces.', 'Sube y baja unas escaleras un par de minutos.', 'Camina mientras haces una llamada.', 'Ponte de puntillas veinte veces.'];
 // En el navegador, el APK se baja de esta misma web (desde GitHub, la pestaña de descarga se quedaba trabada al 100 %).
 // Dentro de la app, el enlace de GitHub se abre en el navegador del móvil. Subir Equilibra.apk a la web con cada APK nueva.
-const APK = esApp ? 'https://github.com/GCalabro12/Equilibra-Android/releases/latest/download/Equilibra.apk' : 'Equilibra.apk';
-const APK_ULTIMA = '2.31';   // última app Android publicada
+const APK = esApp ? 'https://raw.githubusercontent.com/GCalabro12/Equilibra/main/Equilibra.apk' : 'Equilibra.apk';
+const APK_ULTIMA = '2.32';   // última app Android publicada
 const versionApp = () => { try{ return esApp ? String(AndroidEquilibra.version()) : ''; }catch(e){ return ''; } };
 const appVieja = () => { if(!esApp) return false; const a = versionApp().split('.').map(Number), b = APK_ULTIMA.split('.').map(Number);
   return (a[0]||0) < b[0] || ((a[0]||0) === b[0] && (a[1]||0) < b[1]); };
@@ -1210,8 +1273,13 @@ function vSalud(){
   const bloque = Math.max(100, S.bloque), nb = Math.floor(p.steps / bloque) + 1, enB = p.steps % bloque;
   const prox = (on, at) => !on ? 'Avisos desactivados' : !enHorario() ? 'Fuera de horario (5:30 – 22:00)' : 'Próximo aviso en ' + Math.max(1, Math.ceil((at - ahora) / 60000)) + ' min';
   const vasos = Array.from({length: Math.max(S.aguaGoal, Math.ceil(h.agua))}, (_, i) => `<span class="${i + 1 <= h.agua ? 'lleno' : i < h.agua ? 'medio' : ''}"></span>`).join('');
-  return `<h2 style="margin-top:18px">Tu salud de hoy</h2>
-  <section class="tarjeta salud-sec">
+  const meta = p.steps >= S.meta, aguaOk = h.agua >= S.aguaGoal;
+  const estPasos = !esApp ? 'Se cuentan en la app' : pcCuentaPasos() ? 'Los cuenta PC & Body-mind' : meta ? '¡Meta cumplida!' : `Te faltan ${fmtN(S.meta - p.steps)}`;
+  const estAgua = aguaOk ? '¡Meta cumplida!' : h.agua === 0 ? 'Aún no has bebido' : `Te ${S.aguaGoal - h.agua <= 1 ? 'falta' : 'faltan'} ${fmtVasos(S.aguaGoal - h.agua)}`;
+  const estMov = h.mov === 0 ? 'Haz tu primera pausa' : h.mov < 4 ? '¡Bien! Sigue así' : '¡Muy activo hoy!';
+  const tile = (k, ico, valor, unidad, est, c) => `<button class="s-tile ${saludAbierta === k ? 'sel' : ''}" style="--c:${c}" onclick="abrirSalud('${k}')" aria-expanded="${saludAbierta === k}">
+    <span class="s-ico">${ico}</span><b>${valor}</b><small>${unidad}</small><span class="s-est">${est}</span></button>`;
+  const secciones = {pasos: `<section class="tarjeta salud-sec" id="sec-pasos">
     <h3>👣 Pasos</h3>
     <div class="anillo-caja">${anillo(p.steps, S.meta)}<div class="anillo-centro"><b>${fmtN(p.steps)}</b><span>de ${fmtN(S.meta)} pasos</span><small>${Math.round(Math.min(1, p.steps / S.meta) * 100)}%</small></div></div>
     <div class="cifras"><div class="cifra"><b>${km}</b><span>km</span></div><div class="cifra"><b>${kcal}</b><span>kcal</span></div><div class="cifra"><b>${mins}</b><span>min activos</span></div></div>
@@ -1226,8 +1294,7 @@ function vSalud(){
       <label class="fila-aj"><span><input type="checkbox" ${S.caminarOn ? 'checked' : ''} onchange="ajCheck('caminarOn', this)"> Recordarme caminar si voy atrasado</span></label>
       <p class="peq suave" style="margin:2px 0 0">A las 11:00 si no llevo 2.000 pasos · 13:00, 4.000 · 16:00, 6.000 · 18:00, 8.000.</p>
     </details>
-  </section>
-  <section class="tarjeta salud-sec" style="--c:#14a3a3">
+  </section>`, agua: `<section class="tarjeta salud-sec" id="sec-agua" style="--c:#14a3a3">
     <h3>💧 Agua</h3>
     <div class="contador"><button class="cont-btn" onclick="sumarSalud('agua', -AGUA_PASO)" aria-label="Quitar medio vaso">−</button>
       <div><b>${fmtVasos(h.agua)}</b> / ${S.aguaGoal}<small>vasos hoy</small></div>
@@ -1236,8 +1303,7 @@ function vSalud(){
     <p class="peq suave" style="text-align:center;margin:8px 0">${prox(S.aguaOn, S.aguaNext)}</p>
     <label class="fila-aj"><span><input type="checkbox" ${S.aguaOn ? 'checked' : ''} onchange="ajCheck('aguaOn', this, 'aguaNext', 'aguaMin')"> Avisarme para beber agua cada</span><input type="number" min="10" max="240" inputmode="numeric" value="${S.aguaMin}" onchange="ajSalud('aguaMin', this, 10, 240, 'aguaNext')"></label>
     <label class="fila-aj">Meta (vasos al día) <input type="number" min="1" max="20" inputmode="numeric" value="${S.aguaGoal}" onchange="ajSalud('aguaGoal', this, 1, 20)"></label>
-  </section>
-  <section class="tarjeta salud-sec" style="--c:#22a35a">
+  </section>`, mov: `<section class="tarjeta salud-sec" id="sec-mov" style="--c:#22a35a">
     <h3>🤸 Movimiento</h3>
     <div class="contador"><button class="cont-btn" onclick="sumarSalud('mov', -1)" aria-label="Quitar una pausa activa">−</button>
       <div><b>${h.mov}</b><small>pausas activas hoy</small></div>
@@ -1245,8 +1311,22 @@ function vSalud(){
     <p class="peq" style="text-align:center;margin:8px 0">💡 ${MOV_TIPS[new Date().getHours() % MOV_TIPS.length]}</p>
     <p class="peq suave" style="text-align:center;margin:0 0 8px">${prox(S.movOn, S.movNext)}</p>
     <label class="fila-aj"><span><input type="checkbox" ${S.movOn ? 'checked' : ''} onchange="ajCheck('movOn', this, 'movNext', 'movMin')"> Avisarme para moverme cada</span><input type="number" min="10" max="240" inputmode="numeric" value="${S.movMin}" onchange="ajSalud('movMin', this, 10, 240, 'movNext')"></label>
-  </section>
+  </section>`};
+  return `<h2 style="margin-top:18px">Tu salud de hoy</h2>
+  <div class="salud-tiles">
+    ${tile('pasos', '👣', fmtN(p.steps), 'pasos', estPasos, '#f08a24')}
+    ${tile('agua', '💧', fmtVasos(h.agua) + '<i>/' + S.aguaGoal + '</i>', 'vasos', estAgua, '#14a3a3')}
+    ${tile('mov', '🤸', h.mov, h.mov === 1 ? 'pausa' : 'pausas', estMov, '#22a35a')}
+  </div>
+  ${saludAbierta ? secciones[saludAbierta] : '<p class="peq suave" style="text-align:center;margin:6px 0 14px">Toca un recuadro para ver el detalle.</p>'}
   <p class="peq suave" style="text-align:center">Los avisos de agua y movimiento suenan entre las 5:30 y las 22:00, con la app abierta.</p>`;
+}
+let saludAbierta = null;
+function abrirSalud(k){
+  saludAbierta = saludAbierta === k ? null : k;
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+  const sec = saludAbierta && $('#sec-' + saludAbierta);
+  if(sec) sec.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 function sumarSalud(tipo, n){
   const h = saludHoy(); h[tipo] = Math.max(0, h[tipo] + n);
@@ -1726,13 +1806,14 @@ const PESTANAS = ['inicio', 'dia', 'salud', 'historial', 'ajustes'];
 let toque = null;
 app.addEventListener('touchstart', e => {
   const t = e.target;
-  if(e.touches.length !== 1 || t.closest('input, textarea, button.mic, .hoja')) { toque = null; return; }
+  if(e.touches.length !== 1 || t.closest('input, textarea, button.mic, .hoja, .asa')) { toque = null; return; }
   toque = {x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now()};
 }, {passive: true});
 app.addEventListener('touchend', e => {
   if(!toque) return;
   const dx = e.changedTouches[0].clientX - toque.x, dy = e.changedTouches[0].clientY - toque.y, dt = Date.now() - toque.t;
   toque = null;
+  if(arrastre || Date.now() - finArrastre < 400) return;
   if(Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6 || dt > 800) return;
   deslizar(dx < 0 ? 1 : -1);
 }, {passive: true});
