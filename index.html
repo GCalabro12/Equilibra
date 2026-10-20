@@ -469,7 +469,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.30';
+const VERSION = 'v2.32';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -717,8 +717,7 @@ function vInicio(){
       <h1>Bienvenido a Equilibra</h1>
       <p>Equilibra te ayuda a tener <b>muy claras tus próximas acciones</b> para vivir en equilibrio.</p>
       <p class="suave">Primero miras tu flor: en cada una de las 8 áreas de tu vida eliges si estás bien o si necesita acción. Después, Equilibra te muestra en grande lo siguiente que vas a hacer.</p>
-      <div class="chips">${AREAS.map(a => `<span class="chip" style="--c:${a.color}">${ico(a)} ${a.nombre}</span>`).join('')}</div>
-      <button class="btn prim ancho" onclick="empezar()">Empezar: revisar mi flor</button>
+      <button class="btn prim ancho" style="margin-top:18px" onclick="empezar()">Empezar: revisa las áreas de tu vida</button>
       ${nube.usuario ? '' : `<button class="link" style="margin-top:6px" onclick="ir('cuenta')">¿Ya tienes cuenta? Entra</button>`}
       <p class="peq suave">Tarda unos 2 minutos.</p>
     </div></section><div class="sellos">${sellosHTML()}</div>`;
@@ -1446,8 +1445,17 @@ async function subirNube(){
     await nube.ref.set(JSON.parse(JSON.stringify(Object.assign({}, D, {actualizado: new Date().toISOString(), version: VERSION}))));
   }catch(e){ console.warn(e); }
 }
+/* En la app Android, Google no deja iniciar sesión dentro de la web: el teléfono la hace y devuelve un token */
+window.nativeGoogle = (token, error) => {
+  if(error !== null && error !== undefined){ if(error) aviso(error); return; }
+  if(!token || !nube.listo) return;
+  firebase.auth().signInWithCredential(firebase.auth.GoogleAuthProvider.credential(token))
+    .then(() => aviso('¡Listo! Tus acciones se guardan en la nube ☁️'))
+    .catch(e => aviso('No se pudo entrar con Google (' + (e.code || 'error') + ')'));
+};
 function entrar(){
   if(!nube.listo){ aviso('Conectando… prueba de nuevo en un momento'); return; }
+  if(esApp && typeof AndroidEquilibra.googleLogin === 'function'){ AndroidEquilibra.googleLogin(); return; }
   const prov = new firebase.auth.GoogleAuthProvider();
   firebase.auth().signInWithPopup(prov).then(() => aviso('¡Listo! Tus acciones se guardan en la nube ☁️')).catch(e => {
     if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(e.code)) firebase.auth().signInWithRedirect(prov);
@@ -1464,7 +1472,7 @@ function cuentaHTML(){
     <p class="nube-ok" style="margin:0 0 12px">☁️ Tus acciones y tu flor se guardan en la nube y se ven en todos tus dispositivos.</p>
     <button class="btn sec" onclick="salir()">Cerrar sesión</button>`;
   return `<p class="suave" style="margin-top:0">Entra para no perder tus acciones y verlas en el móvil y en el ordenador.</p>
-    <div class="bots">${esApp ? '' : '<button class="btn google ancho" onclick="entrar()">Entrar con Google</button>'}
+    <div class="bots"><button class="btn google ancho" onclick="entrar()">Entrar con Google</button>
     <button class="btn sec ancho" onclick="cuentaModo='entrar'; ir('cuenta')">Entrar con email y PIN</button>
     <button class="link" onclick="cuentaModo='crear'; ir('cuenta')">Crear una cuenta con email</button></div>`;
 }
@@ -1494,7 +1502,7 @@ function vCuenta(){
   let h = `${volverCuenta()}
     <h2 style="margin-top:6px">${cuentaAlInicio ? 'Bienvenido a Equilibra' : 'Tu cuenta'}</h2>
     <p class="suave peq" style="margin:4px 0 0">Con una cuenta tus acciones se guardan en la nube y las ves en todos tus dispositivos.</p>
-    ${esApp ? '<p class="suave peq" style="margin:14px 0 4px">En la app se entra con tu email y tu PIN.</p>' : '<button class="btn google ancho" style="margin-top:16px" onclick="entrar()">Entrar con Google</button><p class="separador"><span>o con tu email</span></p>'}`;
+    <button class="btn google ancho" style="margin-top:16px" onclick="entrar()">Entrar con Google</button><p class="separador"><span>o con tu email</span></p>`;
   if(cuentaModo === 'crear'){
     h += `<div class="formulario">
       <input type="text" id="c-nombre" autocomplete="name" placeholder="Tu nombre" maxlength="40">
