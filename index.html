@@ -470,7 +470,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.35';
+const VERSION = 'v2.36';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1789,6 +1789,9 @@ addEventListener('growpanel-listo', enviarResumen);
   ['#logo-splash','#logo-cab'].forEach(s => { const el = $(s); el.setAttribute('viewBox','-100 -100 200 200'); el.innerHTML = interior; });
   $('#favicon').href = 'data:image/svg+xml,' + encodeURIComponent(logoSVG().replace(/ class="[^"]*"| style="[^"]*"/g, ''));
   $('#ver').textContent = VERSION;
+  // Al abrir, siempre arriba del todo (el navegador recordaba la posición y el aviso de arriba quedaba oculto)
+  try{ if('scrollRestoration' in history) history.scrollRestoration = 'manual'; }catch(e){}
+  window.scrollTo(0, 0); addEventListener('load', () => window.scrollTo(0, 0));
   $('#sellos-splash').innerHTML = sellosHTML();
   iconoSonido();
   render();
@@ -1831,7 +1834,7 @@ addEventListener('growpanel-listo', enviarResumen);
   EVENTOS.forEach(t => addEventListener(t, alPrimerToque, true));
 
   let cerrada = false;
-  const cerrar = () => { if(cerrada) return; cerrada = true; splash.classList.add('fuera'); setTimeout(() => splash.remove(), 700); };
+  const cerrar = () => { if(cerrada) return; cerrada = true; splash.classList.add('fuera'); window.scrollTo(0, 0); setTimeout(() => splash.remove(), 700); };
   splash.addEventListener('click', e => {
     if(e.target.closest('a')) return;
     // el toque hace sonar la canción; se deja ver la flor un momento antes de entrar
