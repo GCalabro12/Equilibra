@@ -325,6 +325,16 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .prox.falta .texto-p{font-size:17px;color:var(--suave);font-weight:700}
 .prox.saliendo{animation:sale .32s ease-in forwards}
 @keyframes sale{to{opacity:0;transform:translateX(70px)}}
+.aj-lista{display:flex;flex-direction:column;gap:8px;margin:12px 0 0}
+.aj-fila{border:0;border-radius:18px;padding:14px;background:rgba(139,92,246,.13);color:var(--tinta);display:flex;align-items:center;gap:12px;text-align:left;width:100%;transition:background .2s}
+.aj-fila.sel{background:rgba(139,92,246,.32)}
+.aj-fila .aj-ico{font-size:24px;line-height:1;flex:none;width:30px;text-align:center}
+.aj-fila .aj-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.aj-fila .aj-t b{font-size:17px}
+.aj-fila .aj-t small{font-size:13px;color:var(--suave);overflow-wrap:anywhere}
+.aj-aviso{color:#facc15;font-weight:700}
+.aj-cont{padding:6px 6px 14px;animation:entra .25s ease-out both}
+.aj-cont .pausa-fila{justify-content:flex-start}
 .ver-fila{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:16px}
 .ver-fila b{font-size:18px;color:var(--oro)}
 .pausa-fila{display:flex;justify-content:center;margin:12px 0 4px}
@@ -492,7 +502,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.41';
+const VERSION = 'v2.42';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1103,7 +1113,7 @@ function vDia(){
   const ya = new Set(acts.map(a => a.acc).filter(Boolean));
   const sugeridas = pendientes().filter(x => !ya.has(x.id)).slice(0, 4);
   const lleno = acts.length >= MAX_ACT;
-  return `<h1 class="tit-acc">Bloques de tareas</h1>${botonPausa()}
+  return `<h1 class="tit-acc">Bloques de tareas</h1>${botonPausa('tareas')}
     <div class="dia-cab"><button class="dia-flecha" onclick="moverDia(-1)" aria-label="Día anterior">‹</button>
       <div><h2>${bDia === 0 ? 'Hoy' : bDia === 1 ? 'Mañana' : bDia === -1 ? 'Ayer' : DIAS_SEM[d.getDay()]}</h2><span>${DIAS_SEM[d.getDay()]} ${d.getDate()} ${d.toLocaleDateString('es-ES', {month:'short'})}</span></div>
       <button class="dia-flecha" onclick="moverDia(1)" aria-label="Día siguiente">›</button></div>
@@ -1184,11 +1194,11 @@ function bloquesTick(){
     recordarDesde = Date.now();
     const movidas = arrastrar(c);
     if(movidas || c >= 0) guardarBloques();
-    if(!primeraVez && c >= 0 && B.startVoice && !pausaAvisos){
+    if(!primeraVez && c >= 0 && B.startVoice && !pausa.tareas){
       const acts = actsDe(claveDia(new Date()), c).filter(a => !hechaAct(a)).map(a => a.t);
       nota(ESCALA[5], 0, .15, .8, false);
       setTimeout(() => hablar(`Empieza el bloque de ${hm(BLOQUES[c].ini)} a ${hm(BLOQUES[c].fin)}. ` + (movidas ? (movidas === 1 ? 'Pasa una tarea sin terminar del bloque anterior. ' : `Pasan ${movidas} tareas sin terminar del bloque anterior. `) : '') +
-        (acts.length ? (acts.length === 1 ? 'Tienes planeado: ' : 'Tienes planeadas estas actividades: ') + acts.join('. ') + '.' : 'Todavía no has planificado este bloque.')), 900);
+        (acts.length ? (acts.length === 1 ? 'Tienes planeado: ' : 'Tienes planeadas estas actividades: ') + acts.join('. ') + '.' : 'Todavía no has planificado este bloque.'), 'tareas'), 900);
     }
     if(vista === 'dia' && bDia === 0 && bSel === bUltimo && c >= 0) bSel = c;
     bUltimo = c;
@@ -1197,14 +1207,14 @@ function bloquesTick(){
   if(B.remindOn && c >= 0 && Date.now() - recordarDesde >= B.remindMin * 60000){
     recordarDesde = Date.now();
     const sig = actsDe(claveDia(new Date()), c).find(a => !hechaAct(a));
-    if(sig) hablar(`Recuerda: ahora estás con ${sig.t}.`);
+    if(sig) hablar(`Recuerda: ahora estás con ${sig.t}.`, 'tareas');
   }
   // a las 22:00, a dormir
   const k = claveDia(new Date());
-  if(B.sleepOn && !pausaAvisos && minutosHoy() >= 1320 && B.sleepDone !== k){
+  if(B.sleepOn && !pausa.tareas && minutosHoy() >= 1320 && B.sleepDone !== k){
     B.sleepDone = k; guardarBloques();
     if(!$('#hoja')) mostrarHoja(`<div class="aviso-salud"><div class="aviso-ico">🌙</div><h2>Hora de descansar</h2><p>Son las 22:00. Apaga las pantallas y vete a dormir. ¡Buenas noches!</p><button class="btn prim ancho" onclick="cerrarHoja()">Buenas noches</button></div>`, '#8b5cf6');
-    setTimeout(() => hablar('Son las diez de la noche. Es hora de apagar las pantallas e ir a dormir. ¡Buenas noches!'), 900);
+    setTimeout(() => hablar('Son las diez de la noche. Es hora de apagar las pantallas e ir a dormir. ¡Buenas noches!', 'tareas'), 900);
   }
   if(vista === 'dia' && !$('#hoja') && !(document.activeElement && document.activeElement.id === 'b-nueva')) rerenderDia();
 }
@@ -1237,25 +1247,35 @@ function saludHoy(){ const k = claveDia(new Date()); if(!S_().days[k]) S_().days
 function pasosHoy(){ return S_().pasos[claveDia(new Date())] || {steps:0, activeMs:0}; }
 function guardarSalud(subir){ S_().mod = ahoraISO(); try{ localStorage.setItem(CLAVE, JSON.stringify(D)); }catch(e){} if(subir) programarSubida(); }
 /* Pausa de todos los avisos y voces (como en PC & Body-mind). Los pasos se siguen contando. */
-let pausaAvisos = false; try{ pausaAvisos = localStorage.getItem('equilibra.pausa') === '1'; }catch(e){}
-function botonPausa(){
-  return `<div class="pausa-fila"><button class="quiet-btn ${pausaAvisos ? 'on' : ''}" aria-pressed="${pausaAvisos}" onclick="alternarPausa()">${pausaAvisos ? '▶ Avisos en pausa · toca para activarlos' : '⏸ Pausar avisos y voces'}</button></div>`;
+let pausa = {salud: false, tareas: false};
+try{ const v = localStorage.getItem('equilibra.pausa'); pausa = v === '1' ? {salud: true, tareas: true} : v && v !== '0' ? Object.assign(pausa, JSON.parse(v)) : pausa; }catch(e){}
+const TXT_PAUSA = {
+  salud: ['⏸ Pausar avisos de salud', '▶ Avisos de salud en pausa · toca para activarlos'],
+  tareas: ['⏸ Pausar avisos de tareas', '▶ Avisos de tareas en pausa · toca para activarlos'],
+  todo: ['⏸ Pausar todos los avisos', '▶ Todos los avisos en pausa · toca para activarlos']};
+function botonPausa(tipo){
+  const on = tipo === 'todo' ? pausa.salud && pausa.tareas : pausa[tipo];
+  return `<div class="pausa-fila"><button class="quiet-btn ${on ? 'on' : ''}" aria-pressed="${on}" onclick="alternarPausa('${tipo}')">${TXT_PAUSA[tipo][on ? 1 : 0]}</button></div>`;
 }
-function alternarPausa(){
-  pausaAvisos = !pausaAvisos;
-  try{ localStorage.setItem('equilibra.pausa', pausaAvisos ? '1' : '0'); }catch(e){}
-  if(pausaAvisos){ try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){} if(avisoSalud){ avisoSalud = null; cerrarHoja(); } }
-  else {   // al volver, los avisos empiezan a contar desde ahora (no salen todos de golpe)
-    const S = S_(), ahora = Date.now();
-    S.aguaNext = ahora + S.aguaMin * 60000; S.movNext = ahora + S.movMin * 60000; recordarDesde = ahora;
-    guardarSalud(false);
-  }
+function alternarPausa(tipo){
+  const antes = {...pausa};
+  if(tipo === 'todo'){ const v = !(pausa.salud && pausa.tareas); pausa.salud = v; pausa.tareas = v; }
+  else pausa[tipo] = !pausa[tipo];
+  try{ localStorage.setItem('equilibra.pausa', JSON.stringify(pausa)); }catch(e){}
+  const ahora = Date.now();
+  if(pausa.salud || pausa.tareas){ try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){} }
+  if(pausa.salud && avisoSalud){ avisoSalud = null; cerrarHoja(); }
+  // al volver, los avisos empiezan a contar desde ahora (no salen todos de golpe)
+  if(antes.salud && !pausa.salud){ const S = S_(); S.aguaNext = ahora + S.aguaMin * 60000; S.movNext = ahora + S.movMin * 60000; guardarSalud(false); }
+  if(antes.tareas && !pausa.tareas) recordarDesde = ahora;
   configNativa();
-  aviso(pausaAvisos ? 'Avisos y voces en pausa' : 'Avisos activados');
+  const nombre = tipo === 'todo' ? 'Todos los avisos' : tipo === 'salud' ? 'Avisos de salud' : 'Avisos de tareas';
+  const on = tipo === 'todo' ? pausa.salud && pausa.tareas : pausa[tipo];
+  aviso(nombre + (on ? ' en pausa' : ' activados'));
   const y = window.scrollY; render(); window.scrollTo(0, y);
 }
-function hablar(texto){
-  if(!sonidoOn || pausaAvisos) return;
+function hablar(texto, tipo){
+  if(!sonidoOn || (tipo && pausa[tipo])) return;
   if(esApp){ try{ AndroidEquilibra.speak(texto); }catch(e){} return; }
   if(!('speechSynthesis' in window)) return;
   const u = new SpeechSynthesisUtterance(texto); u.lang = 'es-ES';
@@ -1343,7 +1363,7 @@ function vSalud(){
     <p class="peq suave" style="text-align:center;margin:0 0 8px">${prox(S.movOn, S.movNext)}</p>
     <label class="fila-aj"><span><input type="checkbox" ${S.movOn ? 'checked' : ''} onchange="ajCheck('movOn', this, 'movNext', 'movMin')"> Avisarme para moverme cada</span><input type="number" min="10" max="240" inputmode="numeric" value="${S.movMin}" onchange="ajSalud('movMin', this, 10, 240, 'movNext')"></label>
   </section>`};
-  return `<h2 style="margin-top:18px">Tu salud de hoy</h2>${botonPausa()}
+  return `<h2 style="margin-top:18px">Tu salud de hoy</h2>${botonPausa('salud')}
   <div class="salud-tiles">
     ${tile('pasos', '👣', fmtN(p.steps), 'pasos', estPasos, subPasos, '#f08a24')}${saludAbierta === 'pasos' ? secciones.pasos : ''}
     ${tile('agua', '💧', fmtVasos(h.agua) + '<i>/' + S.aguaGoal + '</i>', 'vasos', estAgua, prox(S.aguaOn, S.aguaNext), '#14a3a3')}${saludAbierta === 'agua' ? secciones.agua : ''}
@@ -1389,7 +1409,7 @@ function lanzarAviso(tipo){
     <button class="btn prim ancho" onclick="responderAviso(true)">✓ Hecho</button>
     <button class="btn sec ancho" style="margin-top:8px" onclick="responderAviso(false)">Posponer 10 minutos</button></div>`, agua ? '#14a3a3' : '#22a35a');
   sonarHecho();
-  setTimeout(() => hablar(agua ? 'Es hora de beber medio vaso de agua.' : 'Es hora de moverte. ' + tip), 900);
+  setTimeout(() => hablar(agua ? 'Es hora de beber medio vaso de agua.' : 'Es hora de moverte. ' + tip, 'salud'), 900);
   if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
 }
 function responderAviso(hecho){
@@ -1412,7 +1432,7 @@ function caminarTick(){
   S.caminarHecho.n = idx + 1; guardarSalud(false);
   const [t, meta] = CAMINAR[idx], pasos = pasosHoy().steps;
   if(m - t > 60 || pasos >= meta) return;
-  hablar(`Son las ${Math.floor(t/60)} y llevas ${fmtN(pasos)} pasos. Te faltan ${fmtN(meta - pasos)} para los ${fmtN(meta)}. Es buen momento para caminar.`);
+  hablar(`Son las ${Math.floor(t/60)} y llevas ${fmtN(pasos)} pasos. Te faltan ${fmtN(meta - pasos)} para los ${fmtN(meta)}. Es buen momento para caminar.`, 'salud');
 }
 /* Cada medio minuto: avisos de agua y movimiento (solo con la app abierta y en horario) */
 function saludTick(){
@@ -1422,7 +1442,7 @@ function saludTick(){
   if(!S.movNext || ahora - S.movNext > 30*60000) S.movNext = ahora + S.movMin * 60000;
   caminarTick();
   if(!avisoSalud && !$('#hoja') && vista !== 'evaluar' && enHorario() && !$('#splash')){
-    if(pausaAvisos){}
+    if(pausa.salud){}
     else if(S.aguaOn && ahora >= S.aguaNext) lanzarAviso('agua');
     else if(S.movOn && ahora >= S.movNext) lanzarAviso('mov');
   }
@@ -1432,7 +1452,7 @@ function saludTick(){
 let pasosUlt = null, configUlt = '';
 function configNativa(){
   if(!esApp) return;
-  const suena = sonidoOn && !pausaAvisos;
+  const suena = sonidoOn && !pausa.salud;
   const S = S_(), cfg = JSON.stringify({goal: S.meta, voice: S.voz && suena, every: S.cada, blockOn: S.bloqueOn && suena, block: S.bloque, sound: suena ? 'campana' : 'ninguno'});
   if(cfg === configUlt) return;
   configUlt = cfg;
@@ -1749,49 +1769,61 @@ async function buscarActualizacion(manual){
     } else if(manual && est) est.textContent = '✓ Tienes la última versión de la web (' + VERSION + ')' + (appVieja() ? ' · hay una app Android nueva: ' + APK_ULTIMA : '');
   }catch(e){ if(manual && est) est.textContent = 'No he podido comprobarlo (¿sin conexión?)'; }
 }
+/* Ajustes ordenados: una fila por tema; al tocarla se despliega (solo una abierta a la vez) */
+let ajAbierto = null;
+function abrirAj(k){
+  ajAbierto = ajAbierto === k ? null : k;
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+  const el = ajAbierto && $('#aj-' + ajAbierto);
+  if(el) el.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+}
 function vAjustes(){
-  const n = D.acciones.filter(a => a.hecha).length;
+  const n = D.acciones.filter(a => a.hecha).length, u = nube.usuario;
+  const appNueva = appVieja() || enAndroidWeb();
+  const temas = [
+    {k: 'cuenta', ico: '👤', t: 'Tu cuenta',
+      sub: u ? esc(u.email || u.displayName || 'Con cuenta') : 'Sin cuenta: tus datos solo están en este móvil',
+      html: () => cuentaHTML()},
+    {k: 'sonidos', ico: '🔊', t: 'Sonidos y avisos',
+      sub: (sonidoOn ? 'Sonidos activados' : 'Sonidos apagados') + (pausa.salud && pausa.tareas ? ' · todos los avisos en pausa' : pausa.salud ? ' · salud en pausa' : pausa.tareas ? ' · tareas en pausa' : ''),
+      html: () => `<label class="interruptor">🔊 Sonidos de la app<input type="checkbox" ${sonidoOn ? 'checked' : ''} onchange="alternarSonido()"></label>
+        <p class="peq suave" style="margin:10px 0 0">Para dejar de recibir avisos un rato (los pasos se siguen contando):</p>${botonPausa('todo')}
+        <p class="peq suave" style="margin:12px 0 0">O solo una parte:</p>${botonPausa('salud')}${botonPausa('tareas')}`},
+    {k: 'versiones', ico: '📲', t: 'Versiones y actualizaciones',
+      sub: appNueva ? `<span class="aj-aviso">${appVieja() ? 'Hay una app nueva: ' + APK_ULTIMA : 'Instala la app de Android'}</span>` : `Web ${VERSION}${esApp ? ' · app ' + esc(versionApp() || '?') : ''}`,
+      html: () => `<div class="ver-fila"><span>Equilibra (web)</span><b>${VERSION}</b></div>
+        ${esApp ? `<div class="ver-fila"><span>App Android</span><b>${esc(versionApp() || '?')}</b></div>` : ''}
+        <p class="peq suave" id="ver-estado" style="margin:8px 0 0">La web se actualiza sola al abrir Equilibra${esApp ? '; la app Android, con el aviso «Hay una app nueva»' : ''}.</p>
+        <div class="bots"><button class="btn sec" onclick="buscarActualizacion(true)">🔄 Buscar actualizaciones</button>
+        ${appVieja() ? `<a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar la app ${APK_ULTIMA}</a>` : ''}</div>
+        ${enAndroidWeb() ? `<p class="suave" style="margin-top:12px">Instala la app de Android para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar Equilibra ${APK_ULTIMA}</a></div>` : ''}`},
+    {k: 'pc', ico: '⏱', t: 'Bloques de PC & Body-mind',
+      sub: 'Los mismos bloques y tareas que usabas allí',
+      html: () => `<p class="suave">Si usabas los bloques de tiempo en PC & Body-mind, tráelos aquí: son los mismos bloques y las mismas tareas.</p>
+        <div class="bots">
+          <button class="btn sec" onclick="traerBloquesAuto()">⬇️ Traer mis bloques de PC & Body-mind</button>
+          <div class="campo-voz area"><textarea id="pegar-bloques" placeholder="Si estás en la app Android: en PC & Body-mind toca «Copiar mis bloques para Equilibra» y pega aquí el texto"></textarea></div>
+          <button class="btn sec" onclick="traerBloques(valor('pegar-bloques'))">Traer el texto pegado</button>
+        </div>`},
+    {k: 'datos', ico: '💾', t: 'Tus datos',
+      sub: u ? 'En este móvil y en la nube' : 'Solo en este móvil',
+      html: () => `<p class="suave">${u ? 'Se guardan en este dispositivo y en tu cuenta.' : 'Ahora se guardan solo en este dispositivo. Entra con Google para tenerlas también en la nube.'} También puedes guardar una copia en un archivo.</p>
+        <div class="bots">
+          <button class="btn sec" onclick="exportar()">⬇️ Guardar una copia (archivo)</button>
+          <button class="btn sec" onclick="$('#importar').click()">⬆️ Recuperar una copia</button>
+          <input type="file" id="importar" accept=".json,application/json" hidden onchange="importar(this)">
+          <button class="btn peligro" onclick="borrarTodo()">Borrar todos mis datos</button>
+        </div>`},
+    {k: 'ayuda', ico: '❓', t: '¿Cómo funciona Equilibra?',
+      sub: 'Tus próximas acciones y la flor',
+      html: () => `<p>Lo principal son <b>tus próximas acciones</b>: siempre las tienes en grande en la pantalla de inicio. Cuando haces una, la marcas y sube la siguiente. Con los seis puntitos las ordenas.</p>
+        <p class="suave">La flor te dice dónde poner energía: en cada área eliges <b>Estoy bien</b>, <b>Una acción a la semana</b> o <b>Necesita más acción</b>. Revísala cuando sientas que algo ha cambiado (te lo recordamos cada mes).</p>`}
+  ];
   return `<h2 style="margin-top:18px">Ajustes</h2>
-  <section class="tarjeta ajustes versiones">
-    <h3>Tus versiones</h3>
-    <div class="ver-fila"><span>Equilibra (web)</span><b>${VERSION}</b></div>
-    ${esApp ? `<div class="ver-fila"><span>App Android</span><b>${esc(versionApp() || '?')}</b></div>` : ''}
-    <p class="peq suave" id="ver-estado" style="margin:8px 0 0">La web se actualiza sola al abrir Equilibra${esApp ? '; la app Android, con el aviso «Hay una app nueva»' : ''}.</p>
-    <div class="bots"><button class="btn sec" onclick="buscarActualizacion(true)">🔄 Buscar actualizaciones</button></div>
-  </section>
-  <section class="tarjeta ajustes">
-    <h3>Tu cuenta</h3>
-    ${cuentaHTML()}
-  </section>
-  <section class="tarjeta ajustes">
-    <h3>¿Cómo funciona Equilibra?</h3>
-    <p>Lo principal son <b>tus próximas acciones</b>: siempre las tienes en grande en la pantalla de inicio. Cuando haces una, la marcas y sube la siguiente.</p>
-    <p class="suave">La flor te dice dónde poner energía: en cada área eliges <b>Estoy bien</b>, <b>Una acción a la semana</b> o <b>Necesita más acción</b>. Revísala cuando sientas que algo ha cambiado (te lo recordamos cada mes).</p>
-  </section>
-  <section class="tarjeta ajustes">
-    <label class="interruptor">🔊 Sonidos de la app<input type="checkbox" ${sonidoOn?'checked':''} onchange="alternarSonido()"></label>
-  </section>
-  <section class="tarjeta ajustes">
-    <h3>Bloques de PC & Body-mind</h3>
-    <p class="suave">Si usabas los bloques de tiempo en PC & Body-mind, tráelos aquí: son los mismos bloques y las mismas tareas.</p>
-    <div class="bots">
-      <button class="btn sec" onclick="traerBloquesAuto()">⬇️ Traer mis bloques de PC & Body-mind</button>
-      <div class="campo-voz area"><textarea id="pegar-bloques" placeholder="Si estás en la app Android: en PC & Body-mind toca «Copiar mis bloques para Equilibra» y pega aquí el texto"></textarea></div>
-      <button class="btn sec" onclick="traerBloques(valor('pegar-bloques'))">Traer el texto pegado</button>
-    </div>
-  </section>
-  <section class="tarjeta ajustes">
-    <h3>Tus datos</h3>
-    <p class="suave">${nube.usuario ? 'Se guardan en este dispositivo y en tu cuenta.' : 'Ahora se guardan solo en este dispositivo. Entra con Google para tenerlas también en la nube.'} También puedes guardar una copia en un archivo.</p>
-    <div class="bots">
-      <button class="btn sec" onclick="exportar()">⬇️ Guardar una copia (archivo)</button>
-      <button class="btn sec" onclick="$('#importar').click()">⬆️ Recuperar una copia</button>
-      <input type="file" id="importar" accept=".json,application/json" hidden onchange="importar(this)">
-      <button class="btn peligro" onclick="borrarTodo()">Borrar todos mis datos</button>
-    </div>
-  </section>
-  ${enAndroidWeb() ? `<section class="tarjeta ajustes"><h3>App para Android</h3><p class="suave">Instálala para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar Equilibra ${APK_ULTIMA}</a></div></section>` : ''}
-  ${appVieja() ? `<section class="tarjeta ajustes"><h3>Hay una app nueva</h3><p class="suave">Tienes la app ${esc(versionApp())} y ya está la ${APK_ULTIMA}.</p><div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar la versión ${APK_ULTIMA}</a></div></section>` : ''}
+  <div class="aj-lista">${temas.map(T => `<button class="aj-fila ${ajAbierto === T.k ? 'sel' : ''}" onclick="abrirAj('${T.k}')" aria-expanded="${ajAbierto === T.k}">
+      <span class="aj-ico">${T.ico}</span><span class="aj-t"><b>${T.t}</b><small>${T.sub}</small></span><span class="s-flecha">${ajAbierto === T.k ? '⌃' : '⌄'}</span></button>
+    ${ajAbierto === T.k ? `<section class="aj-cont ajustes" id="aj-${T.k}">${T.html()}</section>` : ''}`).join('')}
+  </div>
   <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION}${esApp ? ' · app ' + esc(versionApp()) : ''} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
   <div class="sellos">${sellosHTML()}</div>`;
 }
