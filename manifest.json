@@ -1,7 +1,7 @@
 {
-  "name": "Equilibra · La flor de tu semana",
-  "short_name": "Equilibra",
-  "description": "Puntúa cada semana las 8 áreas de tu vida, mira tu flor y elige pequeñas acciones para equilibrarla.",
+  "name": "Amable Life · Tus próximas acciones",
+  "short_name": "Amable Life",
+  "description": "Ten claras tus próximas acciones para vivir en equilibrio. La flor de 8 áreas te dice dónde poner energía.",
   "lang": "es",
   "start_url": "./",
   "scope": "./",

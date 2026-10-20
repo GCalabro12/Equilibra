@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Equilibra · Tus próximas acciones</title>
-<meta name="description" content="Equilibra: ten claras tus próximas acciones para vivir en equilibrio. La flor de 8 áreas te dice dónde poner energía.">
+<title>Amable Life · Tus próximas acciones</title>
+<meta name="description" content="Amable Life: ten claras tus próximas acciones para vivir en equilibrio. La flor de 8 áreas te dice dónde poner energía.">
 <meta name="theme-color" content="#140f26">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Equilibra">
+<meta name="apple-mobile-web-app-title" content="Amable Life">
 <link rel="icon" id="favicon">
 <link rel="apple-touch-icon" href="img/icono-192.png">
 <link rel="manifest" href="manifest.json">
@@ -312,7 +312,7 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 @keyframes desdeIzq{from{opacity:.3;transform:translateX(-40px)}}
 #app{touch-action:pan-y}
 
-/* v2.00 · Equilibra = tus próximas acciones */
+/* v2.00 · Amable Life = tus próximas acciones */
 .tit-acc{font-size:30px;font-weight:800;margin-top:22px;line-height:1.1}
 .prox-lista{display:flex;flex-direction:column;gap:10px;margin:16px -16px 0}
 .prox{display:flex;align-items:center;gap:14px;padding:20px 16px;border:0;width:100%;text-align:left;color:var(--tinta);
@@ -473,14 +473,14 @@ nav.abajo button{font-size:11px}
   <div class="halo"></div>
   <span class="tocar" id="tocar">🔊 Toca para entrar</span>
   <svg class="logo-s" id="logo-splash"></svg>
-  <h1>Equilibra</h1>
+  <h1>Amable Life</h1>
   <p>Tus próximas acciones, en equilibrio</p>
   <div class="sellos" id="sellos-splash"></div>
 </div>
 
 <header class="cab">
   <div class="cab-in">
-    <div class="marca"><svg id="logo-cab"></svg>Equilibra</div>
+    <div class="marca"><svg id="logo-cab"></svg>Amable Life</div>
     <span class="ver" id="ver"></span>
     <div class="der"><button class="btn-son" id="btn-son" onclick="alternarSonido()" aria-label="Sonido"></button><span id="grow-panel-boton"></span></div>
   </div>
@@ -502,7 +502,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.43';
+const VERSION = 'v2.44';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -539,11 +539,11 @@ const NIVELES = {
   una:  {marca:'1',  titulo:'Una acción a la semana', sub:'Necesita un pequeño paso',    n:1, peso:1},
   mas:  {marca:'2+', titulo:'Necesita más acción',    sub:'2 o 3 acciones esta semana',  n:2, peso:2},
 };
-/* Salud (venido de PC Amable): agua, movimiento y pasos */
+/* Salud (venido de Amable PC): agua, movimiento y pasos */
 const SALUD_DEF = {aguaOn:true, aguaMin:45, aguaGoal:8, movOn:true, movMin:60, aguaNext:0, movNext:0, days:{},
   meta:8000, voz:true, cada:500, bloqueOn:true, bloque:2000, caminarOn:true, caminarHecho:null, pasos:{}, mod:null};
 const nuevaSalud = (x = {}) => Object.assign({}, SALUD_DEF, {days:{}, pasos:{}}, x);
-/* Bloques de tiempo (venidos de PC Amable): días → bloque → hasta 3 actividades {t, d, acc} */
+/* Bloques de tiempo (venidos de Amable PC): días → bloque → hasta 3 actividades {t, d, acc} */
 const BLOQUES_DEF = {days:{}, startVoice:true, remindOn:true, remindMin:5, sleepOn:true, sleepDone:'', ultimo:null, mod:null};
 const nuevosBloques = (x = {}) => Object.assign({}, BLOQUES_DEF, {days:{}}, x);
 const vacio = () => ({v:2, niveles:{}, detalle:{}, comentarios:{}, nivelesMod:null, revisiones:[], acciones:[], borradas:[], salud: nuevaSalud(), bloques: nuevosBloques()});
@@ -800,20 +800,20 @@ const pasosInstalar = `<ol class="peq suave" style="margin:6px 0 10px;padding-le
 function bannerInstalar(){
   let oculto = false; try{ oculto = localStorage.getItem('equilibra.sinBannerApp') === APK_ULTIMA; }catch(e){}
   if(!enAndroidWeb() || oculto) return '';
-  return `<section class="tarjeta ajustes banner-app"><h3>📲 Instala la app de Equilibra</h3>
+  return `<section class="tarjeta ajustes banner-app"><h3>📲 Instala la app de Amable Life</h3>
   <p class="suave">Con la app de Android suena la música al abrir y cuenta tus pasos.</p>${pasosInstalar}
-  <div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">Descargar Equilibra ${APK_ULTIMA}</a>
+  <div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">Descargar Amable Life ${APK_ULTIMA}</a>
   <button class="link" onclick="try{localStorage.setItem('equilibra.sinBannerApp',APK_ULTIMA)}catch(e){};render()">Ahora no</button></div></section>`;
 }
 const bannerApp = () => enAndroidWeb() ? bannerInstalar() : appVieja() ? `<section class="tarjeta ajustes banner-app"><h3>⬇️ Hay una app nueva (${APK_ULTIMA})</h3>
   <p class="suave">Tienes la ${esc(versionApp() || 'antigua')}. Toca el botón: se descarga en tu navegador; cuando termine, toca «Abrir» o la notificación y luego «Instalar». No pierdes tus datos.</p>
-  <div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">Descargar Equilibra ${APK_ULTIMA}</a></div></section>` : '';
+  <div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">Descargar Amable Life ${APK_ULTIMA}</a></div></section>` : '';
 function vInicio(){
   if(!tieneDatos()){
     return `${bannerApp()}<section class="tarjeta bienvenida"><div class="hero"></div><div class="txt">
-      <h1>Bienvenido a Equilibra</h1>
-      <p>Equilibra te ayuda a tener <b>muy claras tus próximas acciones</b> para vivir en equilibrio.</p>
-      <p class="suave">Primero miras tu flor: en cada una de las 8 áreas de tu vida eliges si estás bien o si necesita acción. Después, Equilibra te muestra en grande lo siguiente que vas a hacer.</p>
+      <h1>Bienvenido a Amable Life</h1>
+      <p>Amable Life te ayuda a tener <b>muy claras tus próximas acciones</b> para vivir en equilibrio.</p>
+      <p class="suave">Primero miras tu flor: en cada una de las 8 áreas de tu vida eliges si estás bien o si necesita acción. Después, Amable Life te muestra en grande lo siguiente que vas a hacer.</p>
       <button class="btn prim ancho" style="margin-top:18px" onclick="empezar()">Empezar: revisa las áreas de tu vida</button>
       ${nube.usuario ? '' : `<button class="link" style="margin-top:6px" onclick="ir('cuenta')">¿Ya tienes cuenta? Entra</button>`}
       <p class="peq suave">Tarda unos 2 minutos.</p>
@@ -1066,7 +1066,7 @@ function dictar(btn){
   try{ r.start(); }catch(e){ btn.classList.remove('escuchando'); reconocimiento = null; }
 }
 
-/* ---------- Día: bloques de tiempo de 5:30 a 22:00 (venidos de PC Amable) ---------- */
+/* ---------- Día: bloques de tiempo de 5:30 a 22:00 (venidos de Amable PC) ---------- */
 const BLOQUES = []; for(let m = 330; m < 1320; m += 90) BLOQUES.push({ini: m, fin: m + 90});
 const MAX_ACT = 3;
 const hm = m => Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0');
@@ -1219,14 +1219,14 @@ function bloquesTick(){
   if(vista === 'dia' && !$('#hoja') && !(document.activeElement && document.activeElement.id === 'b-nueva')) rerenderDia();
 }
 
-/* ---------- Salud: pasos, agua y movimiento (venido de PC Amable) ---------- */
+/* ---------- Salud: pasos, agua y movimiento (venido de Amable PC) ---------- */
 const AGUA_PASO = 0.5;   // cada aviso sugiere medio vaso
 const MOV_TIPS = ['Levántate y estira los brazos hacia el techo.', 'Da una vuelta por la casa o la oficina.', 'Haz diez sentadillas suaves.',
   'Gira los hombros hacia atrás diez veces.', 'Sube y baja unas escaleras un par de minutos.', 'Camina mientras haces una llamada.', 'Ponte de puntillas veinte veces.'];
 // En el navegador, el APK se baja de esta misma web (desde GitHub, la pestaña de descarga se quedaba trabada al 100 %).
 // Dentro de la app, el enlace de GitHub se abre en el navegador del móvil. Subir Equilibra.apk a la web con cada APK nueva.
 const APK = esApp ? 'https://raw.githubusercontent.com/GCalabro12/Equilibra/main/Equilibra.apk' : 'Equilibra.apk';
-const APK_ULTIMA = '2.32';   // última app Android publicada
+const APK_ULTIMA = '2.33';   // última app Android publicada
 const versionApp = () => { try{ return esApp ? String(AndroidEquilibra.version()) : ''; }catch(e){ return ''; } };
 const appVieja = () => { if(!esApp) return false; const a = versionApp().split('.').map(Number), b = APK_ULTIMA.split('.').map(Number);
   return (a[0]||0) < b[0] || ((a[0]||0) === b[0] && (a[1]||0) < b[1]); };
@@ -1246,7 +1246,7 @@ const fmtVasos = n => Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.'
 function saludHoy(){ const k = claveDia(new Date()); if(!S_().days[k]) S_().days[k] = {agua:0, mov:0}; return S_().days[k]; }
 function pasosHoy(){ return S_().pasos[claveDia(new Date())] || {steps:0, activeMs:0}; }
 function guardarSalud(subir){ S_().mod = ahoraISO(); try{ localStorage.setItem(CLAVE, JSON.stringify(D)); }catch(e){} if(subir) programarSubida(); }
-/* Pausa de todos los avisos y voces (como en PC Amable). Los pasos se siguen contando. */
+/* Pausa de todos los avisos y voces (como en Amable PC). Los pasos se siguen contando. */
 let pausa = {salud: false, tareas: false};
 try{ const v = localStorage.getItem('equilibra.pausa'); pausa = v === '1' ? {salud: true, tareas: true} : v && v !== '0' ? Object.assign(pausa, JSON.parse(v)) : pausa; }catch(e){}
 const TXT_PAUSA = {
@@ -1294,10 +1294,10 @@ function anillo(v, meta){
 }
 const pcCuentaPasos = () => { try{ return esApp && AndroidEquilibra.pcInstalada(); }catch(e){ return false; } };
 function estadoPasos(){
-  if(pcCuentaPasos()) return `<p class="peq ok-p">● Tus pasos los cuenta <b>PC Amable</b></p>
-    <p class="peq suave" style="text-align:center;margin:0 0 8px">Como tienes las dos apps en el móvil, PC Amable tiene preferencia para contar pasos y Equilibra no los cuenta. Si la desinstalas, Equilibra los contará.</p>
-    <button class="btn sec ancho" onclick="AndroidEquilibra.abrirPC()">Abrir PC Amable</button>`;
-  if(!esApp) return `<p class="peq suave" style="text-align:center">Los pasos se cuentan en la <b>app Android de Equilibra</b>, siempre, también con la pantalla apagada. Aquí ves lo último que mandó tu móvil.</p>
+  if(pcCuentaPasos()) return `<p class="peq ok-p">● Tus pasos los cuenta <b>Amable PC</b></p>
+    <p class="peq suave" style="text-align:center;margin:0 0 8px">Como tienes las dos apps en el móvil, Amable PC tiene preferencia para contar pasos y Amable Life no los cuenta. Si la desinstalas, Amable Life los contará.</p>
+    <button class="btn sec ancho" onclick="AndroidEquilibra.abrirPC()">Abrir Amable PC</button>`;
+  if(!esApp) return `<p class="peq suave" style="text-align:center">Los pasos se cuentan en la <b>app Android de Amable Life</b>, siempre, también con la pantalla apagada. Aquí ves lo último que mandó tu móvil.</p>
     <a class="btn sec ancho" href="${APK}" download="Equilibra.apk" target="_blank" rel="noopener">Descargar la app Android</a>`;
   let ok = true, sensor = true, bat = true;
   try{ ok = AndroidEquilibra.permissionOk(); sensor = AndroidEquilibra.hasSensor(); bat = AndroidEquilibra.batteryOk(); }catch(e){}
@@ -1306,7 +1306,7 @@ function estadoPasos(){
     <button class="link" onclick="AndroidEquilibra.openAppSettings()">Abrir ajustes → Permisos → Actividad física</button>`;
   if(!sensor) return `<p class="peq aviso-p">Este teléfono no tiene podómetro: no puede contar pasos con la pantalla apagada.</p>`;
   return `<p class="peq ok-p">● Contando siempre, también con la pantalla apagada</p>` + (bat ? '' :
-    `<p class="peq suave">Para que Android no pare el contador, quita el ahorro de batería para Equilibra (gasta muy poco).</p>
+    `<p class="peq suave">Para que Android no pare el contador, quita el ahorro de batería para Amable Life (gasta muy poco).</p>
     <button class="btn sec ancho" onclick="AndroidEquilibra.openBatterySettings()">Quitar ahorro de batería</button>`);
 }
 function barras7(){
@@ -1323,7 +1323,7 @@ function vSalud(){
   const vasos = Array.from({length: Math.max(S.aguaGoal, Math.ceil(h.agua))}, (_, i) => `<span class="${i + 1 <= h.agua ? 'lleno' : i < h.agua ? 'medio' : ''}"></span>`).join('');
   const meta = p.steps >= S.meta, aguaOk = h.agua >= S.aguaGoal;
   const faltaA = S.aguaGoal - h.agua;
-  const estPasos = !esApp ? 'Se cuentan en la app Android de Equilibra' : pcCuentaPasos() ? 'Los cuenta PC Amable' : meta ? `¡Meta cumplida! Has pasado de ${fmtN(S.meta)} pasos` : `Te faltan ${fmtN(S.meta - p.steps)} pasos para tu meta de ${fmtN(S.meta)}`;
+  const estPasos = !esApp ? 'Se cuentan en la app Android de Amable Life' : pcCuentaPasos() ? 'Los cuenta Amable PC' : meta ? `¡Meta cumplida! Has pasado de ${fmtN(S.meta)} pasos` : `Te faltan ${fmtN(S.meta - p.steps)} pasos para tu meta de ${fmtN(S.meta)}`;
   const subPasos = esApp && !pcCuentaPasos() ? `${km} km · ${mins} min activos` : '';
   const estAgua = aguaOk ? `¡Meta cumplida! Ya llevas ${fmtVasos(h.agua)} vasos` : h.agua === 0 ? 'Aún no has bebido: empieza con medio vaso' : `Te ${faltaA <= 1 ? 'falta' : 'faltan'} ${fmtVasos(faltaA)} ${faltaA <= 1 ? 'vaso' : 'vasos'} para llegar a ${S.aguaGoal}`;
   const estMov = h.mov === 0 ? 'Haz tu primera pausa activa de hoy' : h.mov < 4 ? '¡Bien! Sigue moviéndote cada hora' : '¡Muy activo hoy! Sigue así';
@@ -1553,7 +1553,7 @@ async function iniciarNube(){
       if(u && cuentaAlInicio){ cuentaAlInicio = false; if(vista === 'cuenta') vista = 'inicio'; }
       if(['inicio','dia','salud','historial','ajustes','cuenta'].includes(vista)) render();
     });
-  }catch(e){ console.warn('Equilibra: nube no disponible', e); }
+  }catch(e){ console.warn('Amable Life: nube no disponible', e); }
 }
 /* Une lo de este dispositivo con lo de la nube: por id, gana lo cambiado más tarde */
 function fusionar(local, remoto){
@@ -1667,7 +1667,7 @@ function vCuenta(){
   if(nube.usuario) return `${volverCuenta()}<section class="tarjeta ajustes"><h3>Tu cuenta</h3>${cuentaHTML()}</section>`;
   const campoPin = (id, ph, auto) => `<input type="password" id="${id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="${auto}" placeholder="${ph}" class="pin">`;
   let h = `${volverCuenta()}
-    <h2 style="margin-top:6px">${cuentaAlInicio ? 'Bienvenido a Equilibra' : 'Tu cuenta'}</h2>
+    <h2 style="margin-top:6px">${cuentaAlInicio ? 'Bienvenido a Amable Life' : 'Tu cuenta'}</h2>
     <p class="suave peq" style="margin:4px 0 0">Con una cuenta tus acciones se guardan en la nube y las ves en todos tus dispositivos.</p>
     <button class="btn google ancho" style="margin-top:16px" onclick="entrar()">Entrar con Google</button><p class="separador"><span>o con tu email</span></p>`;
   if(cuentaModo === 'crear'){
@@ -1791,18 +1791,18 @@ function vAjustes(){
         <p class="peq suave" style="margin:12px 0 0">O solo una parte:</p>${botonPausa('salud')}${botonPausa('tareas')}`},
     {k: 'versiones', ico: '📲', t: 'Versiones y actualizaciones',
       sub: appNueva ? `<span class="aj-aviso">${appVieja() ? 'Hay una app nueva: ' + APK_ULTIMA : 'Instala la app de Android'}</span>` : `Web ${VERSION}${esApp ? ' · app ' + esc(versionApp() || '?') : ''}`,
-      html: () => `<div class="ver-fila"><span>Equilibra (web)</span><b>${VERSION}</b></div>
+      html: () => `<div class="ver-fila"><span>Amable Life (web)</span><b>${VERSION}</b></div>
         ${esApp ? `<div class="ver-fila"><span>App Android</span><b>${esc(versionApp() || '?')}</b></div>` : ''}
-        <p class="peq suave" id="ver-estado" style="margin:8px 0 0">La web se actualiza sola al abrir Equilibra${esApp ? '; la app Android, con el aviso «Hay una app nueva»' : ''}.</p>
+        <p class="peq suave" id="ver-estado" style="margin:8px 0 0">La web se actualiza sola al abrir Amable Life${esApp ? '; la app Android, con el aviso «Hay una app nueva»' : ''}.</p>
         <div class="bots"><button class="btn sec" onclick="buscarActualizacion(true)">🔄 Buscar actualizaciones</button>
         ${appVieja() ? `<a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar la app ${APK_ULTIMA}</a>` : ''}</div>
-        ${enAndroidWeb() ? `<p class="suave" style="margin-top:12px">Instala la app de Android para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar Equilibra ${APK_ULTIMA}</a></div>` : ''}`},
-    {k: 'pc', ico: '⏱', t: 'Bloques de PC Amable',
+        ${enAndroidWeb() ? `<p class="suave" style="margin-top:12px">Instala la app de Android para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar Amable Life ${APK_ULTIMA}</a></div>` : ''}`},
+    {k: 'pc', ico: '⏱', t: 'Bloques de Amable PC',
       sub: 'Los mismos bloques y tareas que usabas allí',
-      html: () => `<p class="suave">Si usabas los bloques de tiempo en PC Amable, tráelos aquí: son los mismos bloques y las mismas tareas.</p>
+      html: () => `<p class="suave">Si usabas los bloques de tiempo en Amable PC, tráelos aquí: son los mismos bloques y las mismas tareas.</p>
         <div class="bots">
-          <button class="btn sec" onclick="traerBloquesAuto()">⬇️ Traer mis bloques de PC Amable</button>
-          <div class="campo-voz area"><textarea id="pegar-bloques" placeholder="Si estás en la app Android: en PC Amable toca «Copiar mis bloques para Equilibra» y pega aquí el texto"></textarea></div>
+          <button class="btn sec" onclick="traerBloquesAuto()">⬇️ Traer mis bloques de Amable PC</button>
+          <div class="campo-voz area"><textarea id="pegar-bloques" placeholder="Si estás en la app Android: en Amable PC toca «Copiar mis bloques para Amable Life» y pega aquí el texto"></textarea></div>
           <button class="btn sec" onclick="traerBloques(valor('pegar-bloques'))">Traer el texto pegado</button>
         </div>`},
     {k: 'datos', ico: '💾', t: 'Tus datos',
@@ -1814,7 +1814,7 @@ function vAjustes(){
           <input type="file" id="importar" accept=".json,application/json" hidden onchange="importar(this)">
           <button class="btn peligro" onclick="borrarTodo()">Borrar todos mis datos</button>
         </div>`},
-    {k: 'ayuda', ico: '❓', t: '¿Cómo funciona Equilibra?',
+    {k: 'ayuda', ico: '❓', t: '¿Cómo funciona Amable Life?',
       sub: 'Tus próximas acciones y la flor',
       html: () => `<p>Lo principal son <b>tus próximas acciones</b>: siempre las tienes en grande en la pantalla de inicio. Cuando haces una, la marcas y sube la siguiente. Con los seis puntitos las ordenas.</p>
         <p class="suave">La flor te dice dónde poner energía: en cada área eliges <b>Estoy bien</b>, <b>Una acción a la semana</b> o <b>Necesita más acción</b>. Revísala cuando sientas que algo ha cambiado (te lo recordamos cada mes).</p>`}
@@ -1824,10 +1824,10 @@ function vAjustes(){
       <span class="aj-ico">${T.ico}</span><span class="aj-t"><b>${T.t}</b><small>${T.sub}</small></span><span class="s-flecha">${ajAbierto === T.k ? '⌃' : '⌄'}</span></button>
     ${ajAbierto === T.k ? `<section class="aj-cont ajustes" id="aj-${T.k}">${T.html()}</section>` : ''}`).join('')}
   </div>
-  <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION}${esApp ? ' · app ' + esc(versionApp()) : ''} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
+  <p class="peq suave" style="text-align:center;margin-top:18px">Amable Life ${VERSION}${esApp ? ' · app ' + esc(versionApp()) : ''} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
   <div class="sellos">${sellosHTML()}</div>`;
 }
-/* Traer los bloques y tareas de PC Amable (mismos 11 bloques, mismas tareas con su casilla) */
+/* Traer los bloques y tareas de Amable PC (mismos 11 bloques, mismas tareas con su casilla) */
 function leerBloquesPC(){
   // En el navegador, las dos webs comparten almacenamiento (mismo sitio): se leen directamente
   try{ const d = JSON.parse(localStorage.getItem('pasos_app_v1')); if(d && d.bloques && d.bloques.days) return d.bloques; }catch(e){}
@@ -1859,7 +1859,7 @@ function traerBloques(origen){
 }
 function traerBloquesAuto(){
   const b = leerBloquesPC();
-  if(!b){ aviso('No encuentro PC Amable en este navegador: pega el texto de abajo'); return; }
+  if(!b){ aviso('No encuentro Amable PC en este navegador: pega el texto de abajo'); return; }
   traerBloques(b);
 }
 function exportar(){
@@ -1882,14 +1882,14 @@ function importar(inp){
       nd.borradas = [...new Set([...(D.borradas || []), ...(nd.borradas || [])])];
       D = nd;
       guardar(); aviso('Copia recuperada ✓'); ir('inicio');
-    }catch(e){ aviso('Ese archivo no es una copia de Equilibra'); }
+    }catch(e){ aviso('Ese archivo no es una copia de Amable Life'); }
   };
   lector.readAsText(f);
   inp.value = '';
 }
 function borrarTodo(){
   if(!confirm('¿Borrar todas tus acciones y tu flor? No se puede deshacer.')) return;
-  if(!confirm('¿Seguro? Se borrará todo Equilibra' + (nube.usuario ? ', también en la nube.' : ' en este dispositivo.'))) return;
+  if(!confirm('¿Seguro? Se borrará todo Amable Life' + (nube.usuario ? ', también en la nube.' : ' en este dispositivo.'))) return;
   const ids = [...D.acciones.map(a => a.id), ...D.revisiones.map(r => r.id)];
   D = vacio(); D.borradas = ids; guardar(); aviso('Datos borrados'); ir('inicio');
 }
@@ -2036,6 +2036,6 @@ addEventListener('growpanel-listo', enviarResumen);
   setTimeout(() => buscarActualizacion(false), 4000);
 })();
 </script>
-<script src="https://gcalabro12.github.io/Grow-Panel/grow-panel-boton.js" data-app="equilibra" data-nombre="Equilibra" defer></script>
+<script src="https://gcalabro12.github.io/Grow-Panel/grow-panel-boton.js" data-app="equilibra" data-nombre="Amable Life" defer></script>
 </body>
 </html>
