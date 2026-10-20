@@ -502,7 +502,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.44';
+const VERSION = 'v2.45';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -796,18 +796,18 @@ function tarjetaAccion(x, i){
 }
 // En el navegador de un Android: ofrecer la app (suena al abrir, cuenta pasos y entra con Google)
 const enAndroidWeb = () => !esApp && /Android/i.test(navigator.userAgent);
-const pasosInstalar = `<ol class="peq suave" style="margin:6px 0 10px;padding-left:20px"><li>Toca el botón: se descarga <b>Equilibra.apk</b>.</li><li>Cuando termine, toca <b>«Abrir»</b> (o la notificación de descarga).</li><li>Toca <b>«Instalar»</b>. Si te pide permiso para instalar apps desde el navegador, actívalo y vuelve atrás.</li></ol>`;
+const pasosInstalar = `<ol class="peq suave" style="margin:6px 0 10px;padding-left:20px"><li>Toca el botón: se descarga <b>Amable Life.apk</b>.</li><li>Cuando termine, toca <b>«Abrir»</b> (o la notificación de descarga).</li><li>Toca <b>«Instalar»</b>. Si te pide permiso para instalar apps desde el navegador, actívalo y vuelve atrás.</li></ol>`;
 function bannerInstalar(){
   let oculto = false; try{ oculto = localStorage.getItem('equilibra.sinBannerApp') === APK_ULTIMA; }catch(e){}
   if(!enAndroidWeb() || oculto) return '';
   return `<section class="tarjeta ajustes banner-app"><h3>📲 Instala la app de Amable Life</h3>
   <p class="suave">Con la app de Android suena la música al abrir y cuenta tus pasos.</p>${pasosInstalar}
-  <div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">Descargar Amable Life ${APK_ULTIMA}</a>
+  <div class="bots"><a class="btn prim" href="${APK}" download="Amable Life.apk">Descargar Amable Life ${APK_ULTIMA}</a>
   <button class="link" onclick="try{localStorage.setItem('equilibra.sinBannerApp',APK_ULTIMA)}catch(e){};render()">Ahora no</button></div></section>`;
 }
 const bannerApp = () => enAndroidWeb() ? bannerInstalar() : appVieja() ? `<section class="tarjeta ajustes banner-app"><h3>⬇️ Hay una app nueva (${APK_ULTIMA})</h3>
   <p class="suave">Tienes la ${esc(versionApp() || 'antigua')}. Toca el botón: se descarga en tu navegador; cuando termine, toca «Abrir» o la notificación y luego «Instalar». No pierdes tus datos.</p>
-  <div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">Descargar Amable Life ${APK_ULTIMA}</a></div></section>` : '';
+  <div class="bots"><a class="btn prim" href="${APK}" download="Amable Life.apk">Descargar Amable Life ${APK_ULTIMA}</a></div></section>` : '';
 function vInicio(){
   if(!tieneDatos()){
     return `${bannerApp()}<section class="tarjeta bienvenida"><div class="hero"></div><div class="txt">
@@ -1224,17 +1224,17 @@ const AGUA_PASO = 0.5;   // cada aviso sugiere medio vaso
 const MOV_TIPS = ['Levántate y estira los brazos hacia el techo.', 'Da una vuelta por la casa o la oficina.', 'Haz diez sentadillas suaves.',
   'Gira los hombros hacia atrás diez veces.', 'Sube y baja unas escaleras un par de minutos.', 'Camina mientras haces una llamada.', 'Ponte de puntillas veinte veces.'];
 // En el navegador, el APK se baja de esta misma web (desde GitHub, la pestaña de descarga se quedaba trabada al 100 %).
-// Dentro de la app, el enlace de GitHub se abre en el navegador del móvil. Subir Equilibra.apk a la web con cada APK nueva.
-const APK = esApp ? 'https://raw.githubusercontent.com/GCalabro12/Equilibra/main/Equilibra.apk' : 'Equilibra.apk';
-const APK_ULTIMA = '2.33';   // última app Android publicada
+// Dentro de la app, el enlace de GitHub se abre en el navegador del móvil. Subir Amable-Life.apk a la web con cada APK nueva.
+const APK = esApp ? 'https://raw.githubusercontent.com/GCalabro12/Equilibra/main/Amable-Life.apk' : 'Amable-Life.apk';
+const APK_ULTIMA = '2.34';   // última app Android publicada
 const versionApp = () => { try{ return esApp ? String(AndroidEquilibra.version()) : ''; }catch(e){ return ''; } };
 const appVieja = () => { if(!esApp) return false; const a = versionApp().split('.').map(Number), b = APK_ULTIMA.split('.').map(Number);
   return (a[0]||0) < b[0] || ((a[0]||0) === b[0] && (a[1]||0) < b[1]); };
 function hojaActualizar(motivo){
   mostrarHoja(`<div class="aviso-salud"><div class="aviso-ico">⬇️</div><h2>Actualiza la app</h2>
     <p>${motivo} Tienes la versión ${esc(versionApp() || '?')} y la nueva es la ${APK_ULTIMA}.</p>
-    <p class="peq suave">Toca el botón, descarga Equilibra.apk y ábrela para instalarla encima. No perderás tus datos.</p>
-    <a class="btn prim ancho" href="${APK}" download="Equilibra.apk">Descargar la versión ${APK_ULTIMA}</a>
+    <p class="peq suave">Toca el botón, descarga Amable Life.apk y ábrela para instalarla encima. No perderás tus datos.</p>
+    <a class="btn prim ancho" href="${APK}" download="Amable Life.apk">Descargar la versión ${APK_ULTIMA}</a>
     <button class="btn sec ancho" style="margin-top:8px" onclick="cerrarHoja()">Ahora no</button></div>`, '#8b5cf6');
 }
 const S_ = () => D.salud;
@@ -1298,7 +1298,7 @@ function estadoPasos(){
     <p class="peq suave" style="text-align:center;margin:0 0 8px">Como tienes las dos apps en el móvil, Amable PC tiene preferencia para contar pasos y Amable Life no los cuenta. Si la desinstalas, Amable Life los contará.</p>
     <button class="btn sec ancho" onclick="AndroidEquilibra.abrirPC()">Abrir Amable PC</button>`;
   if(!esApp) return `<p class="peq suave" style="text-align:center">Los pasos se cuentan en la <b>app Android de Amable Life</b>, siempre, también con la pantalla apagada. Aquí ves lo último que mandó tu móvil.</p>
-    <a class="btn sec ancho" href="${APK}" download="Equilibra.apk" target="_blank" rel="noopener">Descargar la app Android</a>`;
+    <a class="btn sec ancho" href="${APK}" download="Amable Life.apk" target="_blank" rel="noopener">Descargar la app Android</a>`;
   let ok = true, sensor = true, bat = true;
   try{ ok = AndroidEquilibra.permissionOk(); sensor = AndroidEquilibra.hasSensor(); bat = AndroidEquilibra.batteryOk(); }catch(e){}
   if(!ok) return `<p class="peq aviso-p">Falta el permiso de «Actividad física» para contar pasos.</p>
@@ -1795,8 +1795,8 @@ function vAjustes(){
         ${esApp ? `<div class="ver-fila"><span>App Android</span><b>${esc(versionApp() || '?')}</b></div>` : ''}
         <p class="peq suave" id="ver-estado" style="margin:8px 0 0">La web se actualiza sola al abrir Amable Life${esApp ? '; la app Android, con el aviso «Hay una app nueva»' : ''}.</p>
         <div class="bots"><button class="btn sec" onclick="buscarActualizacion(true)">🔄 Buscar actualizaciones</button>
-        ${appVieja() ? `<a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar la app ${APK_ULTIMA}</a>` : ''}</div>
-        ${enAndroidWeb() ? `<p class="suave" style="margin-top:12px">Instala la app de Android para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar Amable Life ${APK_ULTIMA}</a></div>` : ''}`},
+        ${appVieja() ? `<a class="btn prim" href="${APK}" download="Amable Life.apk">⬇️ Descargar la app ${APK_ULTIMA}</a>` : ''}</div>
+        ${enAndroidWeb() ? `<p class="suave" style="margin-top:12px">Instala la app de Android para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}" download="Amable Life.apk">⬇️ Descargar Amable Life ${APK_ULTIMA}</a></div>` : ''}`},
     {k: 'pc', ico: '⏱', t: 'Bloques de Amable PC',
       sub: 'Los mismos bloques y tareas que usabas allí',
       html: () => `<p class="suave">Si usabas los bloques de tiempo en Amable PC, tráelos aquí: son los mismos bloques y las mismas tareas.</p>
