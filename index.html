@@ -325,6 +325,8 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .prox.falta .texto-p{font-size:17px;color:var(--suave);font-weight:700}
 .prox.saliendo{animation:sale .32s ease-in forwards}
 @keyframes sale{to{opacity:0;transform:translateX(70px)}}
+.ver-fila{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:16px}
+.ver-fila b{font-size:18px;color:var(--oro)}
 .pausa-fila{display:flex;justify-content:center;margin:12px 0 4px}
 .quiet-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;font-size:14px;font-weight:700;border:0;background:rgba(139,92,246,.2);color:#c4b5fd}
 .quiet-btn.on{background:#facc15;color:#1a1530}
@@ -490,7 +492,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.40';
+const VERSION = 'v2.41';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1726,9 +1728,37 @@ async function cambiarPin(){
 }
 
 /* ---------- Ajustes ---------- */
+/* ¿Hay una versión nueva de la web? Se pregunta al servidor sin caché y, si la hay, se recarga */
+let recargando = false;
+async function buscarActualizacion(manual){
+  const est = $('#ver-estado');
+  if(manual && est) est.textContent = 'Buscando…';
+  try{
+    const txt = await (await fetch('./?v=' + Date.now(), {cache: 'no-store'})).text();
+    const m = txt.match(/const VERSION = '(v[0-9.]+)'/);
+    if(!m) throw 0;
+    if(m[1] !== VERSION){
+      let ya = ''; try{ ya = sessionStorage.getItem('equilibra.recarga') || ''; }catch(e){}
+      if(manual || (!$('#hoja') && ya !== m[1])){   // automático: una sola vez por versión (sin bucles)
+        try{ sessionStorage.setItem('equilibra.recarga', m[1]); }catch(e){}
+        aviso('Actualizando a la ' + m[1] + '…');
+        try{ const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))); }catch(e){}
+        try{ const r = await navigator.serviceWorker.getRegistration(); if(r) await r.update(); }catch(e){}
+        recargando = true; setTimeout(() => location.reload(), 600);
+      }
+    } else if(manual && est) est.textContent = '✓ Tienes la última versión de la web (' + VERSION + ')' + (appVieja() ? ' · hay una app Android nueva: ' + APK_ULTIMA : '');
+  }catch(e){ if(manual && est) est.textContent = 'No he podido comprobarlo (¿sin conexión?)'; }
+}
 function vAjustes(){
   const n = D.acciones.filter(a => a.hecha).length;
   return `<h2 style="margin-top:18px">Ajustes</h2>
+  <section class="tarjeta ajustes versiones">
+    <h3>Tus versiones</h3>
+    <div class="ver-fila"><span>Equilibra (web)</span><b>${VERSION}</b></div>
+    ${esApp ? `<div class="ver-fila"><span>App Android</span><b>${esc(versionApp() || '?')}</b></div>` : ''}
+    <p class="peq suave" id="ver-estado" style="margin:8px 0 0">La web se actualiza sola al abrir Equilibra${esApp ? '; la app Android, con el aviso «Hay una app nueva»' : ''}.</p>
+    <div class="bots"><button class="btn sec" onclick="buscarActualizacion(true)">🔄 Buscar actualizaciones</button></div>
+  </section>
   <section class="tarjeta ajustes">
     <h3>Tu cuenta</h3>
     ${cuentaHTML()}
@@ -1966,8 +1996,12 @@ addEventListener('growpanel-listo', enviarResumen);
 
   // App instalable (y que funcione sin conexión)
   if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    const habia = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register('sw.js').then(r => r.update()).catch(() => {});
+    // si entra un service worker nuevo (versión nueva), se recarga una vez para mostrarla
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if(habia && !recargando){ recargando = true; location.reload(); } });
   }
+  setTimeout(() => buscarActualizacion(false), 4000);
 })();
 </script>
 <script src="https://gcalabro12.github.io/Grow-Panel/grow-panel-boton.js" data-app="equilibra" data-nombre="Equilibra" defer></script>
