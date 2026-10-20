@@ -174,7 +174,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--acento)}
 
 /* Navegación inferior */
 nav.abajo{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(20,15,38,.94);backdrop-filter:blur(10px);border-top:1px solid var(--linea);padding-bottom:env(safe-area-inset-bottom)}
-nav.abajo .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+nav.abajo .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
 nav.abajo button{background:none;border:0;padding:9px 0 10px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:12px;font-weight:700;color:var(--suave)}
 nav.abajo button span{font-size:20px;line-height:1.1;filter:grayscale(1);opacity:.6}
 nav.abajo button.act{color:var(--oro)}
@@ -361,6 +361,46 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .fila-niv b{font-size:14px}
 .semana-acc li{cursor:pointer}
 
+/* v2.10 · Salud: pasos, agua y movimiento */
+.tira-salud{display:flex;justify-content:space-around;gap:8px;width:100%;margin-top:12px;border:0;border-radius:16px;padding:12px 8px;background:rgba(255,255,255,.06);color:var(--suave);font-size:14px;font-weight:700}
+.tira-salud b{color:var(--tinta);font-size:16px}
+.salud-sec h3{font-size:19px}
+.salud-sec + .salud-sec{padding-top:22px}
+.anillo-caja{position:relative;width:220px;height:220px;margin:8px auto 0}
+.anillo{width:100%;height:100%}
+.anillo-centro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.anillo-centro b{font-size:40px;font-weight:800;line-height:1}
+.anillo-centro span{font-size:13px;color:var(--suave);margin-top:4px}
+.anillo-centro small{font-size:15px;font-weight:800;color:var(--oro);margin-top:4px}
+.bloque-fila{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--suave);margin-top:14px}
+.mini-barra{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:6px}
+.mini-barra i{display:block;height:100%;background:linear-gradient(90deg,#22a35a,#f7c35b);border-radius:99px}
+.barras{display:flex;align-items:flex-end;gap:8px;height:90px;margin:16px 0 10px}
+.barra7{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px}
+.barra7 i{width:100%;border-radius:6px 6px 2px 2px;background:rgba(255,255,255,.18)}
+.barra7 i.meta{background:#22a35a}
+.barra7 span{font-size:11px;color:var(--suave);font-weight:700}
+.ok-p{color:var(--sube);font-weight:700;text-align:center}
+.aviso-p{color:var(--oro);font-weight:700}
+.ajustes-salud{margin-top:12px}
+.ajustes-salud summary{cursor:pointer;color:var(--suave);font-weight:700;list-style:none;text-align:center}
+.fila-aj{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;font-weight:700;margin-top:10px}
+.fila-aj span{display:flex;align-items:center;gap:8px}
+.fila-aj input[type=number]{width:84px;font:inherit;border:0;border-radius:10px;padding:8px;background:rgba(255,255,255,.08);color:var(--tinta);text-align:center}
+.fila-aj input[type=checkbox]{width:20px;height:20px;accent-color:var(--acento)}
+.contador{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:10px;text-align:center}
+.contador b{font-size:40px;font-weight:800}
+.contador small{display:block;font-size:13px;color:var(--suave)}
+.cont-btn{width:52px;height:52px;border-radius:50%;border:0;background:color-mix(in srgb,var(--c,#14a3a3) 30%,transparent);color:#fff;font-size:28px;font-weight:800;padding:0}
+.vasos{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px}
+.vasos span{width:20px;height:28px;border-radius:3px 3px 7px 7px;background:rgba(255,255,255,.08);position:relative;overflow:hidden}
+.vasos span.lleno{background:#14a3a3}
+.vasos span.medio{background:linear-gradient(to top,#14a3a3 50%,rgba(255,255,255,.08) 50%)}
+.aviso-salud{text-align:center;padding:6px 0}
+.aviso-salud .aviso-ico{font-size:52px}
+.aviso-salud h2{font-size:24px;margin-top:6px}
+.aviso-salud p{color:var(--suave);margin:8px 0 16px}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -388,6 +428,7 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 <nav class="abajo" id="nav">
   <div class="in">
     <button data-v="inicio" onclick="ir('inicio')"><span>🏠</span>Inicio</button>
+    <button data-v="salud" onclick="ir('salud')"><span>👣</span>Salud</button>
     <button data-v="historial" onclick="ir('historial')"><span>📅</span>Historial</button>
     <button data-v="ajustes" onclick="ir('ajustes')"><span>⚙️</span>Ajustes</button>
   </div>
@@ -397,7 +438,7 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 
 <script>
 'use strict';
-const VERSION = 'v2.01';
+const VERSION = 'v2.10';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -434,7 +475,11 @@ const NIVELES = {
   una:  {marca:'1',  titulo:'Una acción a la semana', sub:'Necesita un pequeño paso',    n:1, peso:1},
   mas:  {marca:'2+', titulo:'Necesita más acción',    sub:'2 o 3 acciones esta semana',  n:2, peso:2},
 };
-const vacio = () => ({v:2, niveles:{}, detalle:{}, comentarios:{}, nivelesMod:null, revisiones:[], acciones:[], borradas:[]});
+/* Salud (venido de PC & Body-mind): agua, movimiento y pasos */
+const SALUD_DEF = {aguaOn:true, aguaMin:45, aguaGoal:8, movOn:true, movMin:60, aguaNext:0, movNext:0, days:{},
+  meta:8000, voz:true, cada:500, bloqueOn:true, bloque:2000, caminarOn:true, caminarHecho:null, pasos:{}, mod:null};
+const nuevaSalud = (x = {}) => Object.assign({}, SALUD_DEF, {days:{}, pasos:{}}, x);
+const vacio = () => ({v:2, niveles:{}, detalle:{}, comentarios:{}, nivelesMod:null, revisiones:[], acciones:[], borradas:[], salud: nuevaSalud()});
 const nivelDeNota = n => n <= 4 ? 'mas' : n <= 7 ? 'una' : 'bien';
 /* Pasa los datos de v1 (notas del 1 al 10 y acciones por semana) al formato nuevo */
 function migrar(d){
@@ -452,8 +497,9 @@ function migrar(d){
 }
 function normalizar(d){
   if(!d) return vacio();
-  if(d.v !== 2) return migrar(d);
-  return Object.assign(vacio(), d);
+  const r = d.v !== 2 ? migrar(d) : Object.assign(vacio(), d);
+  r.salud = nuevaSalud(r.salud || {});
+  return r;
 }
 function cargar(){
   try{ const d = JSON.parse(localStorage.getItem(CLAVE)); if(d) return normalizar(d); }catch(e){}
@@ -543,6 +589,7 @@ function alternarSonido(){
   try{ localStorage.setItem(CLAVE_SONIDO, sonidoOn ? 'si' : 'no'); }catch(e){}
   iconoSonido();
   if(sonidoOn) sonarHecho(); else musica.pause();
+  if(typeof configNativa === 'function') configNativa();
   if(vista === 'ajustes') render();
 }
 
@@ -611,9 +658,9 @@ function ir(v){
   window.scrollTo(0, 0);
 }
 function render(){
-  const vistas = {inicio:vInicio, evaluar:vEvaluar, plan:vPlan, historial:vHistorial, detalle:vDetalle, ajustes:vAjustes, cuenta:vCuenta};
+  const vistas = {inicio:vInicio, salud:vSalud, evaluar:vEvaluar, plan:vPlan, historial:vHistorial, detalle:vDetalle, ajustes:vAjustes, cuenta:vCuenta};
   app.innerHTML = (vistas[vista] || vInicio)();
-  const conNav = ['inicio','historial','detalle','ajustes'].includes(vista);
+  const conNav = ['inicio','salud','historial','detalle','ajustes'].includes(vista);
   $('#nav').style.display = conNav ? '' : 'none';
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('act', b.dataset.v === vista || (vista === 'detalle' && b.dataset.v === 'historial')));
   if(hojaAbierta && $('#hoja')) hojaAbierta();
@@ -651,7 +698,8 @@ function vInicio(){
   });
   if(!prox.length && !falta.length) h += `<div class="prox" style="--c:#4ade80"><span class="num">✓</span><div class="cuerpo-p"><div class="texto-p">Todo en equilibrio. ¡Disfruta!</div></div></div>`;
   h += `</div>
-    <button class="btn sec ancho" style="margin-top:14px" onclick="abrirNueva()">＋ Nueva acción</button>`;
+    <button class="btn sec ancho" style="margin-top:14px" onclick="abrirNueva()">＋ Nueva acción</button>
+    ${tiraSalud()}`;
   if(resto.length){
     h += `<details class="otras"><summary class="link">Ver las otras ${resto.length}</summary>${resto.map(x => { const a = areaDe(x.area);
       return `<div class="otra" style="--c:${a.color}"><button class="check" onclick="alternarAccion('${x.id}')">✓</button><span>${ico(a)} ${esc(x.texto)}</span></div>`; }).join('')}</details>`;
@@ -884,6 +932,201 @@ function dictar(btn){
   try{ r.start(); }catch(e){ btn.classList.remove('escuchando'); reconocimiento = null; }
 }
 
+/* ---------- Salud: pasos, agua y movimiento (venido de PC & Body-mind) ---------- */
+const AGUA_PASO = 0.5;   // cada aviso sugiere medio vaso
+const MOV_TIPS = ['Levántate y estira los brazos hacia el techo.', 'Da una vuelta por la casa o la oficina.', 'Haz diez sentadillas suaves.',
+  'Gira los hombros hacia atrás diez veces.', 'Sube y baja unas escaleras un par de minutos.', 'Camina mientras haces una llamada.', 'Ponte de puntillas veinte veces.'];
+const APK = 'https://github.com/GCalabro12/Equilibra-Android/releases/latest/download/Equilibra.apk';
+const S_ = () => D.salud;
+function claveDia(f){ const d = new Date(f); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+const minutosHoy = () => { const d = new Date(); return d.getHours()*60 + d.getMinutes(); };
+const enHorario = () => { const m = minutosHoy(); return m >= 330 && m < 1320; };   // de 5:30 a 22:00
+const fmtN = n => Math.round(n).toLocaleString('es-ES');
+const fmtVasos = n => Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ',');
+function saludHoy(){ const k = claveDia(new Date()); if(!S_().days[k]) S_().days[k] = {agua:0, mov:0}; return S_().days[k]; }
+function pasosHoy(){ return S_().pasos[claveDia(new Date())] || {steps:0, activeMs:0}; }
+function guardarSalud(subir){ S_().mod = ahoraISO(); try{ localStorage.setItem(CLAVE, JSON.stringify(D)); }catch(e){} if(subir) programarSubida(); }
+function hablar(texto){
+  if(!sonidoOn) return;
+  if(esApp){ try{ AndroidEquilibra.speak(texto); }catch(e){} return; }
+  if(!('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(texto); u.lang = 'es-ES';
+  const v = speechSynthesis.getVoices().find(x => x.lang === 'es-ES'); if(v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+function tiraSalud(){
+  const h = saludHoy(), p = pasosHoy(), S = S_();
+  return `<button class="tira-salud" onclick="ir('salud')"><span>👣 <b>${fmtN(p.steps)}</b> pasos</span><span>💧 <b>${fmtVasos(h.agua)}</b>/${S.aguaGoal}</span><span>🤸 <b>${h.mov}</b></span></button>`;
+}
+function anillo(v, meta){
+  const r = 92, c = 2*Math.PI*r, f = Math.min(1, meta ? v/meta : 0);
+  return `<svg viewBox="0 0 220 220" class="anillo" aria-hidden="true"><circle cx="110" cy="110" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="16"/>
+    <circle cx="110" cy="110" r="${r}" fill="none" stroke="url(#gradAnillo)" stroke-width="16" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-f)).toFixed(1)}" transform="rotate(-90 110 110)"/>
+    <defs><linearGradient id="gradAnillo" x1="0" x2="1"><stop offset="0" stop-color="#22a35a"/><stop offset="1" stop-color="#f7c35b"/></linearGradient></defs></svg>`;
+}
+function estadoPasos(){
+  if(!esApp) return `<p class="peq suave" style="text-align:center">Los pasos se cuentan en la <b>app Android de Equilibra</b>, siempre, también con la pantalla apagada. Aquí ves lo último que mandó tu móvil.</p>
+    <a class="btn sec ancho" href="${APK}" target="_blank" rel="noopener">Descargar la app Android</a>`;
+  let ok = true, sensor = true, bat = true;
+  try{ ok = AndroidEquilibra.permissionOk(); sensor = AndroidEquilibra.hasSensor(); bat = AndroidEquilibra.batteryOk(); }catch(e){}
+  if(!ok) return `<p class="peq aviso-p">Falta el permiso de «Actividad física» para contar pasos.</p>
+    <button class="btn prim ancho" onclick="AndroidEquilibra.askPermissions()">Dar permiso</button>
+    <button class="link" onclick="AndroidEquilibra.openAppSettings()">Abrir ajustes → Permisos → Actividad física</button>`;
+  if(!sensor) return `<p class="peq aviso-p">Este teléfono no tiene podómetro: no puede contar pasos con la pantalla apagada.</p>`;
+  return `<p class="peq ok-p">● Contando siempre, también con la pantalla apagada</p>` + (bat ? '' :
+    `<p class="peq suave">Para que Android no pare el contador, quita el ahorro de batería para Equilibra (gasta muy poco).</p>
+    <button class="btn sec ancho" onclick="AndroidEquilibra.openBatterySettings()">Quitar ahorro de batería</button>`);
+}
+function barras7(){
+  const dias = [];
+  for(let i = 6; i >= 0; i--){ const d = new Date(Date.now() - i*864e5), k = claveDia(d); dias.push({k, d, v: (S_().pasos[k] || {}).steps || 0}); }
+  const max = Math.max(S_().meta, ...dias.map(x => x.v));
+  return `<div class="barras">${dias.map(x => `<div class="barra7"><i style="height:${Math.max(3, x.v/max*100)}%" class="${x.v >= S_().meta ? 'meta' : ''}"></i><span>${'DLMXJVS'[x.d.getDay()]}</span></div>`).join('')}</div>`;
+}
+function vSalud(){
+  const S = S_(), h = saludHoy(), p = pasosHoy(), ahora = Date.now();
+  const km = (p.steps * 0.7 / 1000).toFixed(2).replace('.', ','), kcal = Math.round(p.steps * 0.04), mins = Math.round((p.activeMs || 0) / 60000);
+  const bloque = Math.max(100, S.bloque), nb = Math.floor(p.steps / bloque) + 1, enB = p.steps % bloque;
+  const prox = (on, at) => !on ? 'Avisos desactivados' : !enHorario() ? 'Fuera de horario (5:30 – 22:00)' : 'Próximo aviso en ' + Math.max(1, Math.ceil((at - ahora) / 60000)) + ' min';
+  const vasos = Array.from({length: Math.max(S.aguaGoal, Math.ceil(h.agua))}, (_, i) => `<span class="${i + 1 <= h.agua ? 'lleno' : i < h.agua ? 'medio' : ''}"></span>`).join('');
+  return `<h2 style="margin-top:18px">Tu salud de hoy</h2>
+  <section class="tarjeta salud-sec">
+    <h3>👣 Pasos</h3>
+    <div class="anillo-caja">${anillo(p.steps, S.meta)}<div class="anillo-centro"><b>${fmtN(p.steps)}</b><span>de ${fmtN(S.meta)} pasos</span><small>${Math.round(Math.min(1, p.steps / S.meta) * 100)}%</small></div></div>
+    <div class="cifras"><div class="cifra"><b>${km}</b><span>km</span></div><div class="cifra"><b>${kcal}</b><span>kcal</span></div><div class="cifra"><b>${mins}</b><span>min activos</span></div></div>
+    <div class="bloque-fila"><span>Bloque ${nb}</span><span>${fmtN(enB)} / ${fmtN(bloque)}</span></div>
+    <div class="mini-barra"><i style="width:${enB / bloque * 100}%"></i></div>
+    ${barras7()}
+    ${estadoPasos()}
+    <details class="ajustes-salud"><summary>Ajustes de pasos</summary>
+      <label class="fila-aj">Meta diaria <input type="number" min="1000" max="50000" step="500" inputmode="numeric" value="${S.meta}" onchange="ajSalud('meta', this, 1000, 50000)"></label>
+      <label class="fila-aj"><span><input type="checkbox" ${S.bloqueOn ? 'checked' : ''} onchange="ajCheck('bloqueOn', this)"> Avisar al completar cada bloque de</span><input type="number" min="500" max="10000" step="500" inputmode="numeric" value="${S.bloque}" onchange="ajSalud('bloque', this, 500, 10000)"></label>
+      <label class="fila-aj"><span><input type="checkbox" ${S.voz ? 'checked' : ''} onchange="ajCheck('voz', this)"> Decir «llevas … pasos» cada</span><input type="number" min="100" max="5000" step="100" inputmode="numeric" value="${S.cada}" onchange="ajSalud('cada', this, 100, 5000)"></label>
+      <label class="fila-aj"><span><input type="checkbox" ${S.caminarOn ? 'checked' : ''} onchange="ajCheck('caminarOn', this)"> Recordarme caminar si voy atrasado</span></label>
+      <p class="peq suave" style="margin:2px 0 0">A las 11:00 si no llevo 2.000 pasos · 13:00, 4.000 · 16:00, 6.000 · 18:00, 8.000.</p>
+    </details>
+  </section>
+  <section class="tarjeta salud-sec" style="--c:#14a3a3">
+    <h3>💧 Agua</h3>
+    <div class="contador"><button class="cont-btn" onclick="sumarSalud('agua', -AGUA_PASO)" aria-label="Quitar medio vaso">−</button>
+      <div><b>${fmtVasos(h.agua)}</b> / ${S.aguaGoal}<small>vasos hoy</small></div>
+      <button class="cont-btn" onclick="sumarSalud('agua', AGUA_PASO)" aria-label="Añadir medio vaso">+</button></div>
+    <div class="vasos">${vasos}</div>
+    <p class="peq suave" style="text-align:center;margin:8px 0">${prox(S.aguaOn, S.aguaNext)}</p>
+    <label class="fila-aj"><span><input type="checkbox" ${S.aguaOn ? 'checked' : ''} onchange="ajCheck('aguaOn', this, 'aguaNext', 'aguaMin')"> Avisarme para beber agua cada</span><input type="number" min="10" max="240" inputmode="numeric" value="${S.aguaMin}" onchange="ajSalud('aguaMin', this, 10, 240, 'aguaNext')"></label>
+    <label class="fila-aj">Meta (vasos al día) <input type="number" min="1" max="20" inputmode="numeric" value="${S.aguaGoal}" onchange="ajSalud('aguaGoal', this, 1, 20)"></label>
+  </section>
+  <section class="tarjeta salud-sec" style="--c:#22a35a">
+    <h3>🤸 Movimiento</h3>
+    <div class="contador"><button class="cont-btn" onclick="sumarSalud('mov', -1)" aria-label="Quitar una pausa activa">−</button>
+      <div><b>${h.mov}</b><small>pausas activas hoy</small></div>
+      <button class="cont-btn" onclick="sumarSalud('mov', 1)" aria-label="Me he movido">+</button></div>
+    <p class="peq" style="text-align:center;margin:8px 0">💡 ${MOV_TIPS[new Date().getHours() % MOV_TIPS.length]}</p>
+    <p class="peq suave" style="text-align:center;margin:0 0 8px">${prox(S.movOn, S.movNext)}</p>
+    <label class="fila-aj"><span><input type="checkbox" ${S.movOn ? 'checked' : ''} onchange="ajCheck('movOn', this, 'movNext', 'movMin')"> Avisarme para moverme cada</span><input type="number" min="10" max="240" inputmode="numeric" value="${S.movMin}" onchange="ajSalud('movMin', this, 10, 240, 'movNext')"></label>
+  </section>
+  <p class="peq suave" style="text-align:center">Los avisos de agua y movimiento suenan entre las 5:30 y las 22:00, con la app abierta.</p>`;
+}
+function sumarSalud(tipo, n){
+  const h = saludHoy(); h[tipo] = Math.max(0, h[tipo] + n);
+  if(n > 0){ S_()[tipo === 'agua' ? 'aguaNext' : 'movNext'] = Date.now() + S_()[tipo === 'agua' ? 'aguaMin' : 'movMin'] * 60000; sonarHecho(); }
+  guardarSalud(true); enviarResumen();
+  const y = window.scrollY; render(); window.scrollTo(0, y);
+}
+function ajSalud(clave, el, min, max, siguiente){
+  const v = Math.round(Number(el.value));
+  if(!(v >= min && v <= max)){ el.value = S_()[clave]; aviso(`Entre ${min} y ${max}`); return; }
+  S_()[clave] = v;
+  if(siguiente) S_()[siguiente] = Date.now() + v * 60000;
+  guardarSalud(true); configNativa(); render();
+}
+function ajCheck(clave, el, siguiente, minutos){
+  S_()[clave] = el.checked;
+  if(siguiente && el.checked) S_()[siguiente] = Date.now() + S_()[minutos] * 60000;
+  guardarSalud(true); configNativa(); render();
+}
+/* Aviso de agua o movimiento (hoja desde abajo) */
+let avisoSalud = null;
+function lanzarAviso(tipo){
+  avisoSalud = tipo; hojaAbierta = null;
+  const agua = tipo === 'agua', S = S_();
+  const tip = agua ? 'Bebe medio vaso de agua. Tu cuerpo y tu mente lo agradecerán.' : MOV_TIPS[Math.floor(Math.random() * MOV_TIPS.length)];
+  if(agua) S.aguaNext = Date.now() + S.aguaMin * 60000; else S.movNext = Date.now() + S.movMin * 60000;
+  guardarSalud(false);
+  mostrarHoja(`<div class="aviso-salud"><div class="aviso-ico">${agua ? '💧' : '🤸'}</div><h2>${agua ? 'Hora de beber agua' : 'Hora de moverte'}</h2><p>${tip}</p>
+    <button class="btn prim ancho" onclick="responderAviso(true)">✓ Hecho</button>
+    <button class="btn sec ancho" style="margin-top:8px" onclick="responderAviso(false)">Posponer 10 minutos</button></div>`, agua ? '#14a3a3' : '#22a35a');
+  sonarHecho();
+  setTimeout(() => hablar(agua ? 'Es hora de beber medio vaso de agua.' : 'Es hora de moverte. ' + tip), 900);
+  if(navigator.vibrate) navigator.vibrate([200, 100, 200]);
+}
+function responderAviso(hecho){
+  const tipo = avisoSalud; avisoSalud = null; cerrarHoja();
+  if(!tipo) return;
+  if(hecho) saludHoy()[tipo] += tipo === 'agua' ? AGUA_PASO : 1;
+  else S_()[tipo === 'agua' ? 'aguaNext' : 'movNext'] = Date.now() + 10 * 60000;
+  guardarSalud(true); enviarResumen();
+  if(hecho) aviso('¡Bien! 🌱');
+  if(['inicio','salud'].includes(vista)){ const y = window.scrollY; render(); window.scrollTo(0, y); }
+}
+/* Recordatorio para caminar: 2.000 pasos a las 11, 4.000 a las 13, 6.000 a las 16 y 8.000 a las 18 */
+const CAMINAR = [[660, 2000], [780, 4000], [960, 6000], [1080, 8000]];
+function caminarTick(){
+  const S = S_(); if(!S.caminarOn || !esApp) return;
+  const k = claveDia(new Date()), m = minutosHoy();
+  if(!S.caminarHecho || S.caminarHecho.k !== k) S.caminarHecho = {k, n: 0};
+  let idx = -1; CAMINAR.forEach(([t], i) => { if(m >= t) idx = i; });
+  if(idx < 0 || idx + 1 <= S.caminarHecho.n) return;
+  S.caminarHecho.n = idx + 1; guardarSalud(false);
+  const [t, meta] = CAMINAR[idx], pasos = pasosHoy().steps;
+  if(m - t > 60 || pasos >= meta) return;
+  hablar(`Son las ${Math.floor(t/60)} y llevas ${fmtN(pasos)} pasos. Te faltan ${fmtN(meta - pasos)} para los ${fmtN(meta)}. Es buen momento para caminar.`);
+}
+/* Cada medio minuto: avisos de agua y movimiento (solo con la app abierta y en horario) */
+function saludTick(){
+  const S = S_(), ahora = Date.now();
+  // si el próximo aviso no tiene sentido (la app estuvo cerrada mucho rato), se cuenta desde ahora
+  if(!S.aguaNext || ahora - S.aguaNext > 30*60000) S.aguaNext = ahora + S.aguaMin * 60000;
+  if(!S.movNext || ahora - S.movNext > 30*60000) S.movNext = ahora + S.movMin * 60000;
+  caminarTick();
+  if(!avisoSalud && !$('#hoja') && vista !== 'evaluar' && enHorario() && !$('#splash')){
+    if(S.aguaOn && ahora >= S.aguaNext) lanzarAviso('agua');
+    else if(S.movOn && ahora >= S.movNext) lanzarAviso('mov');
+  }
+  if(vista === 'salud' && !$('#hoja')){ const y = window.scrollY; render(); window.scrollTo(0, y); }
+}
+/* Pasos del podómetro del teléfono (solo en la app Android) */
+let pasosUlt = null, configUlt = '';
+function configNativa(){
+  if(!esApp) return;
+  const S = S_(), cfg = JSON.stringify({goal: S.meta, voice: S.voz && sonidoOn, every: S.cada, blockOn: S.bloqueOn && sonidoOn, block: S.bloque, sound: sonidoOn ? 'campana' : 'ninguno'});
+  if(cfg === configUlt) return;
+  configUlt = cfg;
+  try{ AndroidEquilibra.setConfig(cfg); }catch(e){}
+}
+function leerPasos(){
+  if(!esApp) return;
+  let t; try{ t = JSON.parse(AndroidEquilibra.getToday()); }catch(e){ return; }
+  if(typeof t.steps !== 'number') return;
+  S_().pasos[t.date || claveDia(new Date())] = {steps: t.steps, activeMs: t.activeMs || 0};
+  if(t.steps === pasosUlt) return;
+  pasosUlt = t.steps;
+  try{ localStorage.setItem(CLAVE, JSON.stringify(D)); }catch(e){}
+  if((vista === 'salud' || vista === 'inicio') && !$('#hoja') && document.visibilityState === 'visible'){ const y = window.scrollY; render(); window.scrollTo(0, y); }
+}
+function iniciarSalud(){
+  if(esApp){
+    try{ const h = JSON.parse(AndroidEquilibra.getHistory()); Object.keys(h).forEach(k => { S_().pasos[k] = h[k]; }); }catch(e){}
+    configNativa(); leerPasos();
+    setInterval(leerPasos, 2000);
+    setInterval(() => programarSubida(), 10 * 60000);   // los pasos suben a la nube cada 10 minutos
+    window.nativeRefresh = () => { leerPasos(); if(vista === 'salud') render(); };
+  }
+  setInterval(saludTick, 30000);
+  setTimeout(saludTick, 4000);
+  document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible'){ leerPasos(); saludTick(); } });
+}
+
 /* ---------- Historial: acciones hechas por semana y revisiones de la flor ---------- */
 function vHistorial(){
   let h = `<h2 style="margin-top:18px">Historial</h2>
@@ -953,7 +1196,7 @@ async function iniciarNube(){
         if(!u && !saltada && vista === 'inicio'){ cuentaAlInicio = true; cuentaModo = tieneDatos() ? 'entrar' : 'crear'; vista = 'cuenta'; }
       }
       if(u && cuentaAlInicio){ cuentaAlInicio = false; if(vista === 'cuenta') vista = 'inicio'; }
-      if(['inicio','historial','ajustes','cuenta'].includes(vista)) render();
+      if(['inicio','salud','historial','ajustes','cuenta'].includes(vista)) render();
     });
   }catch(e){ console.warn('Equilibra: nube no disponible', e); }
 }
@@ -973,6 +1216,14 @@ function fusionar(local, remoto){
   r.revisiones = unir(local.revisiones, remoto.revisiones, 'fecha').sort((x,y) => x.fecha < y.fecha ? -1 : 1);
   const gana = (remoto.nivelesMod || '') > (local.nivelesMod || '') ? remoto : local;
   r.niveles = {...gana.niveles}; r.detalle = gana.detalle || {}; r.comentarios = gana.comentarios || {}; r.nivelesMod = gana.nivelesMod;
+  // salud: ajustes del lado cambiado más tarde; por día se queda el número más alto
+  const sl = local.salud || nuevaSalud(), sr = remoto.salud || nuevaSalud();
+  r.salud = nuevaSalud((sr.mod || '') > (sl.mod || '') ? sr : sl);
+  r.salud.days = {}; r.salud.pasos = {};
+  [sl, sr].forEach(x => {
+    Object.keys(x.days || {}).forEach(k => { const a = r.salud.days[k] || {agua:0, mov:0}, b = x.days[k]; r.salud.days[k] = {agua: Math.max(a.agua, b.agua || 0), mov: Math.max(a.mov, b.mov || 0)}; });
+    Object.keys(x.pasos || {}).forEach(k => { const a = r.salud.pasos[k], b = x.pasos[k]; if(!a || (b.steps || 0) > a.steps) r.salud.pasos[k] = b; });
+  });
   return r;
 }
 async function traerNube(){
@@ -1183,7 +1434,7 @@ function borrarTodo(){
 }
 
 /* ---------- Deslizar el dedo: pétalo siguiente/anterior, o pestaña siguiente/anterior ---------- */
-const PESTANAS = ['inicio', 'historial', 'ajustes'];
+const PESTANAS = ['inicio', 'salud', 'historial', 'ajustes'];
 let toque = null;
 app.addEventListener('touchstart', e => {
   const t = e.target;
@@ -1238,7 +1489,7 @@ function enviarResumen(){
     if(msg.length > 90) msg = msg.slice(0, 89) + '…';
     r = {estado: (f.length || (ult && diasDesde(ult.fecha) > 35)) ? 'aviso' : 'ok', mensaje: msg, version: VERSION, cifras:[
       {valor: pendientes().length, etiqueta:'acciones pendientes'},
-      {valor: hechasEstaSemana(), etiqueta:'hechas esta semana'},
+      {valor: fmtN(pasosHoy().steps), etiqueta:'pasos hoy'},
       {valor: AREAS.filter(a => nivel(a.id) && nivel(a.id) !== 'bien').length, etiqueta:'áreas que piden acción'}]};
   }
   window.growPanelResumen = r;
@@ -1308,6 +1559,7 @@ addEventListener('growpanel-listo', enviarResumen);
   }, 2600);
 
   iniciarNube();
+  iniciarSalud();
 
   // App instalable (y que funcione sin conexión)
   if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
