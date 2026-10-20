@@ -469,7 +469,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.20';
+const VERSION = 'v2.30';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1154,7 +1154,11 @@ function anillo(v, meta){
     <circle cx="110" cy="110" r="${r}" fill="none" stroke="url(#gradAnillo)" stroke-width="16" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-f)).toFixed(1)}" transform="rotate(-90 110 110)"/>
     <defs><linearGradient id="gradAnillo" x1="0" x2="1"><stop offset="0" stop-color="#22a35a"/><stop offset="1" stop-color="#f7c35b"/></linearGradient></defs></svg>`;
 }
+const pcCuentaPasos = () => { try{ return esApp && AndroidEquilibra.pcInstalada(); }catch(e){ return false; } };
 function estadoPasos(){
+  if(pcCuentaPasos()) return `<p class="peq ok-p">● Tus pasos los cuenta <b>PC & Body-mind</b></p>
+    <p class="peq suave" style="text-align:center;margin:0 0 8px">Como tienes las dos apps en el móvil, PC & Body-mind tiene preferencia para contar pasos y Equilibra no los cuenta. Si la desinstalas, Equilibra los contará.</p>
+    <button class="btn sec ancho" onclick="AndroidEquilibra.abrirPC()">Abrir PC & Body-mind</button>`;
   if(!esApp) return `<p class="peq suave" style="text-align:center">Los pasos se cuentan en la <b>app Android de Equilibra</b>, siempre, también con la pantalla apagada. Aquí ves lo último que mandó tu móvil.</p>
     <a class="btn sec ancho" href="${APK}" target="_blank" rel="noopener">Descargar la app Android</a>`;
   let ok = true, sensor = true, bat = true;
@@ -1295,7 +1299,7 @@ function configNativa(){
   try{ AndroidEquilibra.setConfig(cfg); }catch(e){}
 }
 function leerPasos(){
-  if(!esApp) return;
+  if(!esApp || pcCuentaPasos()) return;
   let t; try{ t = JSON.parse(AndroidEquilibra.getToday()); }catch(e){ return; }
   if(typeof t.steps !== 'number') return;
   S_().pasos[t.date || claveDia(new Date())] = {steps: t.steps, activeMs: t.activeMs || 0};
@@ -1585,6 +1589,15 @@ function vAjustes(){
     <label class="interruptor">🔊 Sonidos de la app<input type="checkbox" ${sonidoOn?'checked':''} onchange="alternarSonido()"></label>
   </section>
   <section class="tarjeta ajustes">
+    <h3>Bloques de PC & Body-mind</h3>
+    <p class="suave">Si usabas los bloques de tiempo en PC & Body-mind, tráelos aquí: son los mismos bloques y las mismas tareas.</p>
+    <div class="bots">
+      <button class="btn sec" onclick="traerBloquesAuto()">⬇️ Traer mis bloques de PC & Body-mind</button>
+      <div class="campo-voz area"><textarea id="pegar-bloques" placeholder="Si estás en la app Android: en PC & Body-mind toca «Copiar mis bloques para Equilibra» y pega aquí el texto"></textarea></div>
+      <button class="btn sec" onclick="traerBloques(valor('pegar-bloques'))">Traer el texto pegado</button>
+    </div>
+  </section>
+  <section class="tarjeta ajustes">
     <h3>Tus datos</h3>
     <p class="suave">${nube.usuario ? 'Se guardan en este dispositivo y en tu cuenta.' : 'Ahora se guardan solo en este dispositivo. Entra con Google para tenerlas también en la nube.'} También puedes guardar una copia en un archivo.</p>
     <div class="bots">
@@ -1596,6 +1609,41 @@ function vAjustes(){
   </section>
   <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
   <div class="sellos">${sellosHTML()}</div>`;
+}
+/* Traer los bloques y tareas de PC & Body-mind (mismos 11 bloques, mismas tareas con su casilla) */
+function leerBloquesPC(){
+  // En el navegador, las dos webs comparten almacenamiento (mismo sitio): se leen directamente
+  try{ const d = JSON.parse(localStorage.getItem('pasos_app_v1')); if(d && d.bloques && d.bloques.days) return d.bloques; }catch(e){}
+  return null;
+}
+function traerBloques(origen){
+  let b = origen;
+  if(typeof b === 'string'){ try{ b = JSON.parse(b); }catch(e){ b = null; } if(b && b.bloques) b = b.bloques; }
+  if(!b || typeof b.days !== 'object'){ aviso('No he encontrado bloques en ese texto'); return; }
+  let nuevas = 0, dias = 0;
+  Object.keys(b.days).forEach(k => {
+    const dia = b.days[k]; let tocado = false;
+    Object.keys(dia).forEach(i => {
+      if(!BLOQUES[i]) return;
+      const destino = actsDe(k, i, true);
+      (dia[i] || []).forEach(a => {
+        const o = typeof a === 'string' ? {t: a, d: false} : a;
+        if(!o || !o.t || destino.some(x => x.t === o.t) || destino.length >= MAX_ACT) return;
+        destino.push({t: o.t, d: !!o.d}); nuevas++; tocado = true;
+      });
+    });
+    if(tocado) dias++;
+  });
+  ['startVoice', 'remindOn', 'remindMin', 'sleepOn'].forEach(c => { if(b[c] !== undefined && !B_().traidos) B_()[c] = b[c]; });
+  B_().traidos = true;
+  guardarBloques();
+  aviso(nuevas ? `${nuevas} ${nuevas === 1 ? 'actividad traída' : 'actividades traídas'} de ${dias} ${dias === 1 ? 'día' : 'días'} ✓` : 'No había nada nuevo que traer');
+  render();
+}
+function traerBloquesAuto(){
+  const b = leerBloquesPC();
+  if(!b){ aviso('No encuentro PC & Body-mind en este navegador: pega el texto de abajo'); return; }
+  traerBloques(b);
 }
 function exportar(){
   const blob = new Blob([JSON.stringify(D, null, 2)], {type:'application/json'});
