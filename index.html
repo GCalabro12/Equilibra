@@ -502,7 +502,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.45';
+const VERSION = 'v2.46';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -800,6 +800,10 @@ const pasosInstalar = `<ol class="peq suave" style="margin:6px 0 10px;padding-le
 function bannerInstalar(){
   let oculto = false; try{ oculto = localStorage.getItem('equilibra.sinBannerApp') === APK_ULTIMA; }catch(e){}
   if(!enAndroidWeb() || oculto) return '';
+  if(miApp() && !miAppVieja()) return '';
+  if(miAppVieja()) return `<section class="tarjeta ajustes banner-app"><h3>⬇️ Hay una app nueva (${APK_ULTIMA})</h3>
+  <p class="suave">En tu móvil tienes la ${esc(miApp())}.</p>${pasosInstalar}
+  <div class="bots"><a class="btn prim" href="${APK}" download="Amable Life.apk">Descargar Amable Life ${APK_ULTIMA}</a></div></section>`;
   return `<section class="tarjeta ajustes banner-app"><h3>📲 Instala la app de Amable Life</h3>
   <p class="suave">Con la app de Android suena la música al abrir y cuenta tus pasos.</p>${pasosInstalar}
   <div class="bots"><a class="btn prim" href="${APK}" download="Amable Life.apk">Descargar Amable Life ${APK_ULTIMA}</a>
@@ -1228,6 +1232,18 @@ const MOV_TIPS = ['Levántate y estira los brazos hacia el techo.', 'Da una vuel
 const APK = esApp ? 'https://raw.githubusercontent.com/GCalabro12/Equilibra/main/Amable-Life.apk' : 'Amable-Life.apk';
 const APK_ULTIMA = '2.34';   // última app Android publicada
 const versionApp = () => { try{ return esApp ? String(AndroidEquilibra.version()) : ''; }catch(e){ return ''; } };
+const vMenor = (a, b) => { const x = String(a || '0').split('.').map(Number), y = String(b || '0').split('.').map(Number);
+  return (x[0]||0) < (y[0]||0) || ((x[0]||0) === (y[0]||0) && (x[1]||0) < (y[1]||0)); };
+// la app Android que tienes en el móvil: dentro de la app, la real; en el navegador, la que la app apuntó en tus datos
+const miApp = () => esApp ? versionApp() : (D.appAndroid && D.appAndroid.version) || '';
+const miAppVieja = () => !!miApp() && vMenor(miApp(), APK_ULTIMA);
+function apuntarApp(){
+  if(!esApp) return;
+  const v = versionApp(); if(!v || v === '?') return;
+  const a = D.appAndroid || {}, hoy = claveDia(new Date());
+  if(a.version === v && a.visto && a.visto.slice(0, 10) === hoy) return;
+  D.appAndroid = {version: v, visto: ahoraISO()}; guardar();
+}
 const appVieja = () => { if(!esApp) return false; const a = versionApp().split('.').map(Number), b = APK_ULTIMA.split('.').map(Number);
   return (a[0]||0) < b[0] || ((a[0]||0) === b[0] && (a[1]||0) < b[1]); };
 function hojaActualizar(motivo){
@@ -1584,6 +1600,8 @@ function fusionar(local, remoto){
   const [bGana, bPierde] = (br.mod || '') > (bl.mod || '') ? [br, bl] : [bl, br];
   r.bloques = nuevosBloques(bGana);
   r.bloques.days = Object.assign({}, bPierde.days || {}, bGana.days || {});
+  const al = local.appAndroid, ar = remoto.appAndroid;
+  if(al || ar) r.appAndroid = (ar && (!al || (ar.visto || '') > (al.visto || ''))) ? ar : al;
   return r;
 }
 async function traerNube(){
@@ -1779,7 +1797,6 @@ function abrirAj(k){
 }
 function vAjustes(){
   const n = D.acciones.filter(a => a.hecha).length, u = nube.usuario;
-  const appNueva = appVieja() || enAndroidWeb();
   const temas = [
     {k: 'cuenta', ico: '👤', t: 'Tu cuenta',
       sub: u ? esc(u.email || u.displayName || 'Con cuenta') : 'Sin cuenta: tus datos solo están en este móvil',
@@ -1790,13 +1807,22 @@ function vAjustes(){
         <p class="peq suave" style="margin:10px 0 0">Para dejar de recibir avisos un rato (los pasos se siguen contando):</p>${botonPausa('todo')}
         <p class="peq suave" style="margin:12px 0 0">O solo una parte:</p>${botonPausa('salud')}${botonPausa('tareas')}`},
     {k: 'versiones', ico: '📲', t: 'Versiones y actualizaciones',
-      sub: appNueva ? `<span class="aj-aviso">${appVieja() ? 'Hay una app nueva: ' + APK_ULTIMA : 'Instala la app de Android'}</span>` : `Web ${VERSION}${esApp ? ' · app ' + esc(versionApp() || '?') : ''}`,
-      html: () => `<div class="ver-fila"><span>Amable Life (web)</span><b>${VERSION}</b></div>
-        ${esApp ? `<div class="ver-fila"><span>App Android</span><b>${esc(versionApp() || '?')}</b></div>` : ''}
-        <p class="peq suave" id="ver-estado" style="margin:8px 0 0">La web se actualiza sola al abrir Amable Life${esApp ? '; la app Android, con el aviso «Hay una app nueva»' : ''}.</p>
-        <div class="bots"><button class="btn sec" onclick="buscarActualizacion(true)">🔄 Buscar actualizaciones</button>
-        ${appVieja() ? `<a class="btn prim" href="${APK}" download="Amable Life.apk">⬇️ Descargar la app ${APK_ULTIMA}</a>` : ''}</div>
-        ${enAndroidWeb() ? `<p class="suave" style="margin-top:12px">Instala la app de Android para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}" download="Amable Life.apk">⬇️ Descargar Amable Life ${APK_ULTIMA}</a></div>` : ''}`},
+      sub: (miAppVieja() ? `<span class="aj-aviso">Hay una app nueva: ${APK_ULTIMA}</span> · ` : !miApp() && enAndroidWeb() ? '<span class="aj-aviso">Instala la app de Android</span> · ' : '')
+        + `Web ${VERSION} · app ${miApp() ? esc(miApp()) : '—'}`,
+      html: () => {
+        const mia = miApp(), vieja = miAppVieja(), visto = !esApp && D.appAndroid && D.appAndroid.visto;
+        const estadoApp = esApp ? (vieja ? `⬇️ Hay una app más nueva (${APK_ULTIMA}): descárgala con el botón de abajo.` : '✓ Tu app del móvil está al día.')
+          : mia ? (vieja ? `⬇️ En tu móvil tienes la ${esc(mia)} y ya está la ${APK_ULTIMA}.` : `✓ Tu app del móvil está al día (vista el ${fecha(visto)}).`)
+          : 'Desde el navegador no puedo ver si tienes la app en el móvil. Si la tienes, ábrela una vez (con tu cuenta) y aquí saldrá su versión.';
+        return `<div class="ver-fila"><span>Amable Life (web)</span><b>${VERSION}</b></div>
+        <div class="ver-fila"><span>App Android en tu móvil</span><b>${mia ? esc(mia) : '—'}</b></div>
+        <div class="ver-fila"><span>App Android más nueva</span><b>${APK_ULTIMA}</b></div>
+        <p class="peq" style="margin:8px 0 0">${estadoApp}</p>
+        <p class="peq suave" id="ver-estado" style="margin:6px 0 0">La web se actualiza sola al abrir Amable Life.</p>
+        <div class="bots"><button class="btn sec" onclick="buscarActualizacion(true)">🔄 Buscar actualizaciones de la web</button>
+        ${vieja ? `<a class="btn prim" href="${APK}" download="Amable Life.apk">⬇️ Descargar la app ${APK_ULTIMA}</a>` : ''}</div>
+        ${!mia && enAndroidWeb() ? `<p class="suave" style="margin-top:12px">Instala la app de Android para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}" download="Amable Life.apk">⬇️ Descargar Amable Life ${APK_ULTIMA}</a></div>` : ''}`;
+      }},
     {k: 'pc', ico: '⏱', t: 'Bloques de Amable PC',
       sub: 'Los mismos bloques y tareas que usabas allí',
       html: () => `<p class="suave">Si usabas los bloques de tiempo en Amable PC, tráelos aquí: son los mismos bloques y las mismas tareas.</p>
@@ -2025,6 +2051,7 @@ addEventListener('growpanel-listo', enviarResumen);
 
   iniciarNube();
   iniciarSalud();
+  setTimeout(apuntarApp, 3000);
 
   // App instalable (y que funcione sin conexión)
   if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
