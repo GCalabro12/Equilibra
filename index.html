@@ -502,7 +502,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.42';
+const VERSION = 'v2.43';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -539,11 +539,11 @@ const NIVELES = {
   una:  {marca:'1',  titulo:'Una acción a la semana', sub:'Necesita un pequeño paso',    n:1, peso:1},
   mas:  {marca:'2+', titulo:'Necesita más acción',    sub:'2 o 3 acciones esta semana',  n:2, peso:2},
 };
-/* Salud (venido de PC & Body-mind): agua, movimiento y pasos */
+/* Salud (venido de PC Amable): agua, movimiento y pasos */
 const SALUD_DEF = {aguaOn:true, aguaMin:45, aguaGoal:8, movOn:true, movMin:60, aguaNext:0, movNext:0, days:{},
   meta:8000, voz:true, cada:500, bloqueOn:true, bloque:2000, caminarOn:true, caminarHecho:null, pasos:{}, mod:null};
 const nuevaSalud = (x = {}) => Object.assign({}, SALUD_DEF, {days:{}, pasos:{}}, x);
-/* Bloques de tiempo (venidos de PC & Body-mind): días → bloque → hasta 3 actividades {t, d, acc} */
+/* Bloques de tiempo (venidos de PC Amable): días → bloque → hasta 3 actividades {t, d, acc} */
 const BLOQUES_DEF = {days:{}, startVoice:true, remindOn:true, remindMin:5, sleepOn:true, sleepDone:'', ultimo:null, mod:null};
 const nuevosBloques = (x = {}) => Object.assign({}, BLOQUES_DEF, {days:{}}, x);
 const vacio = () => ({v:2, niveles:{}, detalle:{}, comentarios:{}, nivelesMod:null, revisiones:[], acciones:[], borradas:[], salud: nuevaSalud(), bloques: nuevosBloques()});
@@ -1066,7 +1066,7 @@ function dictar(btn){
   try{ r.start(); }catch(e){ btn.classList.remove('escuchando'); reconocimiento = null; }
 }
 
-/* ---------- Día: bloques de tiempo de 5:30 a 22:00 (venidos de PC & Body-mind) ---------- */
+/* ---------- Día: bloques de tiempo de 5:30 a 22:00 (venidos de PC Amable) ---------- */
 const BLOQUES = []; for(let m = 330; m < 1320; m += 90) BLOQUES.push({ini: m, fin: m + 90});
 const MAX_ACT = 3;
 const hm = m => Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0');
@@ -1219,7 +1219,7 @@ function bloquesTick(){
   if(vista === 'dia' && !$('#hoja') && !(document.activeElement && document.activeElement.id === 'b-nueva')) rerenderDia();
 }
 
-/* ---------- Salud: pasos, agua y movimiento (venido de PC & Body-mind) ---------- */
+/* ---------- Salud: pasos, agua y movimiento (venido de PC Amable) ---------- */
 const AGUA_PASO = 0.5;   // cada aviso sugiere medio vaso
 const MOV_TIPS = ['Levántate y estira los brazos hacia el techo.', 'Da una vuelta por la casa o la oficina.', 'Haz diez sentadillas suaves.',
   'Gira los hombros hacia atrás diez veces.', 'Sube y baja unas escaleras un par de minutos.', 'Camina mientras haces una llamada.', 'Ponte de puntillas veinte veces.'];
@@ -1246,7 +1246,7 @@ const fmtVasos = n => Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.'
 function saludHoy(){ const k = claveDia(new Date()); if(!S_().days[k]) S_().days[k] = {agua:0, mov:0}; return S_().days[k]; }
 function pasosHoy(){ return S_().pasos[claveDia(new Date())] || {steps:0, activeMs:0}; }
 function guardarSalud(subir){ S_().mod = ahoraISO(); try{ localStorage.setItem(CLAVE, JSON.stringify(D)); }catch(e){} if(subir) programarSubida(); }
-/* Pausa de todos los avisos y voces (como en PC & Body-mind). Los pasos se siguen contando. */
+/* Pausa de todos los avisos y voces (como en PC Amable). Los pasos se siguen contando. */
 let pausa = {salud: false, tareas: false};
 try{ const v = localStorage.getItem('equilibra.pausa'); pausa = v === '1' ? {salud: true, tareas: true} : v && v !== '0' ? Object.assign(pausa, JSON.parse(v)) : pausa; }catch(e){}
 const TXT_PAUSA = {
@@ -1294,9 +1294,9 @@ function anillo(v, meta){
 }
 const pcCuentaPasos = () => { try{ return esApp && AndroidEquilibra.pcInstalada(); }catch(e){ return false; } };
 function estadoPasos(){
-  if(pcCuentaPasos()) return `<p class="peq ok-p">● Tus pasos los cuenta <b>PC & Body-mind</b></p>
-    <p class="peq suave" style="text-align:center;margin:0 0 8px">Como tienes las dos apps en el móvil, PC & Body-mind tiene preferencia para contar pasos y Equilibra no los cuenta. Si la desinstalas, Equilibra los contará.</p>
-    <button class="btn sec ancho" onclick="AndroidEquilibra.abrirPC()">Abrir PC & Body-mind</button>`;
+  if(pcCuentaPasos()) return `<p class="peq ok-p">● Tus pasos los cuenta <b>PC Amable</b></p>
+    <p class="peq suave" style="text-align:center;margin:0 0 8px">Como tienes las dos apps en el móvil, PC Amable tiene preferencia para contar pasos y Equilibra no los cuenta. Si la desinstalas, Equilibra los contará.</p>
+    <button class="btn sec ancho" onclick="AndroidEquilibra.abrirPC()">Abrir PC Amable</button>`;
   if(!esApp) return `<p class="peq suave" style="text-align:center">Los pasos se cuentan en la <b>app Android de Equilibra</b>, siempre, también con la pantalla apagada. Aquí ves lo último que mandó tu móvil.</p>
     <a class="btn sec ancho" href="${APK}" download="Equilibra.apk" target="_blank" rel="noopener">Descargar la app Android</a>`;
   let ok = true, sensor = true, bat = true;
@@ -1323,7 +1323,7 @@ function vSalud(){
   const vasos = Array.from({length: Math.max(S.aguaGoal, Math.ceil(h.agua))}, (_, i) => `<span class="${i + 1 <= h.agua ? 'lleno' : i < h.agua ? 'medio' : ''}"></span>`).join('');
   const meta = p.steps >= S.meta, aguaOk = h.agua >= S.aguaGoal;
   const faltaA = S.aguaGoal - h.agua;
-  const estPasos = !esApp ? 'Se cuentan en la app Android de Equilibra' : pcCuentaPasos() ? 'Los cuenta PC & Body-mind' : meta ? `¡Meta cumplida! Has pasado de ${fmtN(S.meta)} pasos` : `Te faltan ${fmtN(S.meta - p.steps)} pasos para tu meta de ${fmtN(S.meta)}`;
+  const estPasos = !esApp ? 'Se cuentan en la app Android de Equilibra' : pcCuentaPasos() ? 'Los cuenta PC Amable' : meta ? `¡Meta cumplida! Has pasado de ${fmtN(S.meta)} pasos` : `Te faltan ${fmtN(S.meta - p.steps)} pasos para tu meta de ${fmtN(S.meta)}`;
   const subPasos = esApp && !pcCuentaPasos() ? `${km} km · ${mins} min activos` : '';
   const estAgua = aguaOk ? `¡Meta cumplida! Ya llevas ${fmtVasos(h.agua)} vasos` : h.agua === 0 ? 'Aún no has bebido: empieza con medio vaso' : `Te ${faltaA <= 1 ? 'falta' : 'faltan'} ${fmtVasos(faltaA)} ${faltaA <= 1 ? 'vaso' : 'vasos'} para llegar a ${S.aguaGoal}`;
   const estMov = h.mov === 0 ? 'Haz tu primera pausa activa de hoy' : h.mov < 4 ? '¡Bien! Sigue moviéndote cada hora' : '¡Muy activo hoy! Sigue así';
@@ -1797,12 +1797,12 @@ function vAjustes(){
         <div class="bots"><button class="btn sec" onclick="buscarActualizacion(true)">🔄 Buscar actualizaciones</button>
         ${appVieja() ? `<a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar la app ${APK_ULTIMA}</a>` : ''}</div>
         ${enAndroidWeb() ? `<p class="suave" style="margin-top:12px">Instala la app de Android para que suene la música al abrir y cuente tus pasos.</p>${pasosInstalar}<div class="bots"><a class="btn prim" href="${APK}" download="Equilibra.apk">⬇️ Descargar Equilibra ${APK_ULTIMA}</a></div>` : ''}`},
-    {k: 'pc', ico: '⏱', t: 'Bloques de PC & Body-mind',
+    {k: 'pc', ico: '⏱', t: 'Bloques de PC Amable',
       sub: 'Los mismos bloques y tareas que usabas allí',
-      html: () => `<p class="suave">Si usabas los bloques de tiempo en PC & Body-mind, tráelos aquí: son los mismos bloques y las mismas tareas.</p>
+      html: () => `<p class="suave">Si usabas los bloques de tiempo en PC Amable, tráelos aquí: son los mismos bloques y las mismas tareas.</p>
         <div class="bots">
-          <button class="btn sec" onclick="traerBloquesAuto()">⬇️ Traer mis bloques de PC & Body-mind</button>
-          <div class="campo-voz area"><textarea id="pegar-bloques" placeholder="Si estás en la app Android: en PC & Body-mind toca «Copiar mis bloques para Equilibra» y pega aquí el texto"></textarea></div>
+          <button class="btn sec" onclick="traerBloquesAuto()">⬇️ Traer mis bloques de PC Amable</button>
+          <div class="campo-voz area"><textarea id="pegar-bloques" placeholder="Si estás en la app Android: en PC Amable toca «Copiar mis bloques para Equilibra» y pega aquí el texto"></textarea></div>
           <button class="btn sec" onclick="traerBloques(valor('pegar-bloques'))">Traer el texto pegado</button>
         </div>`},
     {k: 'datos', ico: '💾', t: 'Tus datos',
@@ -1827,7 +1827,7 @@ function vAjustes(){
   <p class="peq suave" style="text-align:center;margin-top:18px">Equilibra ${VERSION}${esApp ? ' · app ' + esc(versionApp()) : ''} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
   <div class="sellos">${sellosHTML()}</div>`;
 }
-/* Traer los bloques y tareas de PC & Body-mind (mismos 11 bloques, mismas tareas con su casilla) */
+/* Traer los bloques y tareas de PC Amable (mismos 11 bloques, mismas tareas con su casilla) */
 function leerBloquesPC(){
   // En el navegador, las dos webs comparten almacenamiento (mismo sitio): se leen directamente
   try{ const d = JSON.parse(localStorage.getItem('pasos_app_v1')); if(d && d.bloques && d.bloques.days) return d.bloques; }catch(e){}
@@ -1859,7 +1859,7 @@ function traerBloques(origen){
 }
 function traerBloquesAuto(){
   const b = leerBloquesPC();
-  if(!b){ aviso('No encuentro PC & Body-mind en este navegador: pega el texto de abajo'); return; }
+  if(!b){ aviso('No encuentro PC Amable en este navegador: pega el texto de abajo'); return; }
   traerBloques(b);
 }
 function exportar(){
