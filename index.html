@@ -337,6 +337,18 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .aj-cont .pausa-fila{justify-content:flex-start}
 .ver-fila{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:16px}
 .ver-fila b{font-size:18px;color:var(--oro)}
+.flor-btn{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border:0;border-radius:18px;background:rgba(139,92,246,.16);color:var(--tinta);text-align:left}
+.flor-btn .fb-flor{width:44px;height:44px;flex:none}
+.flor-btn .fb-flor svg{width:100%;height:100%}
+.flor-btn .fb-t{flex:1;display:flex;flex-direction:column;gap:2px}
+.flor-btn .fb-t b{font-size:17px}
+.flor-btn .fb-t small{font-size:13px;color:var(--suave)}
+.flor-btn .fb-fl{font-size:22px;color:var(--suave)}
+.ta-fila{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0}
+.ta-fila>span:first-child{flex:1;min-width:0;font-weight:700;overflow-wrap:anywhere}
+.ta-btn{flex:none;border:0;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:800;background:var(--acento);color:#fff}
+.ta-btn:disabled{opacity:.35}
+.ta-ya{flex:none;font-size:13px;font-weight:700;color:#4ade80}
 .pausa-fila{display:flex;justify-content:center;margin:12px 0 4px}
 .quiet-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;font-size:14px;font-weight:700;border:0;background:rgba(139,92,246,.2);color:#c4b5fd}
 .quiet-btn.on{background:#facc15;color:#1a1530}
@@ -502,7 +514,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.46';
+const VERSION = 'v2.47';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1127,9 +1139,10 @@ function vDia(){
       ${bSel === cur ? `<div class="mini-barra"><i style="width:${(m - b.ini) / 90 * 100}%"></i></div>` : ''}
       ${acts.length ? `<div class="tareas">${acts.map((a, i) => `<div class="fila-acc"><button class="tarea ${hechaAct(a) ? 'ok' : ''}" style="--c:${a.acc && D.acciones.find(x => x.id === a.acc) ? areaDe(D.acciones.find(x => x.id === a.acc).area).color : 'var(--oro)'}" onclick="alternarAct(${i})"><span class="caja">✓</span><span>${esc(a.t)}</span></button><button class="del" aria-label="Quitar" onclick="borrarAct(${i})">✕</button></div>`).join('')}</div>` : `<p class="suave" style="margin:10px 0 0">¿A qué vas a dedicar este bloque?</p>`}
       ${lleno ? `<p class="peq suave" style="margin:8px 0 0">Bloque completo · ${MAX_ACT} actividades</p>` : `
-        ${sugeridas.length ? `<p class="eti" style="margin-top:14px">De tus acciones</p><div class="chips" style="justify-content:flex-start;margin:8px 0">${sugeridas.map(x => { const a = areaDe(x.area); return `<button class="chip" style="--c:${a.color}" onclick="accionABloque('${x.id}')">${ico(a)} ${esc(x.texto)}</button>`; }).join('')}</div>` : ''}
-        <div class="campo-voz"><input type="text" id="b-nueva" maxlength="120" placeholder="Otra actividad, p. ej. preparar la reunión" onkeydown="if(event.key==='Enter')anadirAct()">${botonMic()}</div>
-        <button class="btn prim ancho" style="margin-top:10px" onclick="anadirAct()">Añadir al bloque</button>`}
+        <div class="campo-voz" style="margin-top:10px"><input type="text" id="b-nueva" maxlength="120" placeholder="Escribe o dicta una actividad" onkeydown="if(event.key==='Enter')anadirAct()">${botonMic()}</div>
+        <button class="btn prim ancho" style="margin-top:10px" onclick="anadirAct()">Añadir al bloque</button>
+        ${sugeridas.length ? `<button class="flor-btn" onclick="abrirTareasAreas()"><span class="fb-flor">${logoSVG()}</span>
+          <span class="fb-t"><b>Tareas de tus áreas</b><small>${pendientes().filter(x => !ya.has(x.id)).length} pendientes · toca para elegir</small></span><span class="fb-fl">›</span></button>` : ''}`}
       ${(cur >= 0 && (bDia !== 0 || bSel !== cur)) ? `<button class="link" style="display:block;margin:10px auto 0" onclick="bDia=0; bSel=bloqueAhora(); render(); centrarBloque()">↺ Volver al bloque de ahora</button>` : ''}
     </section>
     <section class="tarjeta">
@@ -1156,6 +1169,21 @@ function anadirAct(){
   const acts = actsDe(claveDia(fechaBloques()), bSel, true);
   if(acts.length >= MAX_ACT){ aviso('Bloque completo'); return; }
   acts.push({t, d:false}); guardarBloques(); sonarHecho(); rerenderDia();
+}
+/* Hoja con todas las acciones pendientes de tus áreas, para ponerlas en el bloque elegido */
+function abrirTareasAreas(){
+  hojaAbierta = () => abrirTareasAreas();
+  const k = claveDia(fechaBloques()), b = BLOQUES[bSel], acts = actsDe(k, bSel);
+  const ya = new Set(acts.map(a => a.acc).filter(Boolean)), lleno = acts.length >= MAX_ACT;
+  const pend = pendientes();
+  const grupos = AREAS.map(a => ({a, lista: pend.filter(x => x.area === a.id)})).filter(g => g.lista.length);
+  mostrarHoja(`<div class="hoja-cab"><div><h2>Tareas de tus áreas</h2></div></div>
+    <p class="suave" style="margin:4px 0 10px">Para el bloque de <b>${hm(b.ini)} a ${hm(b.fin)}</b>${lleno ? ' · ya está completo' : ''}</p>
+    ${grupos.length ? grupos.map(g => `<p class="eti" style="margin:14px 0 6px">${ico(g.a)} ${g.a.nombre}</p>
+      ${g.lista.map(x => `<div class="ta-fila"><span>${esc(x.texto)}</span>${ya.has(x.id) ? '<span class="ta-ya">✓ En este bloque</span>'
+        : `<button class="ta-btn" ${lleno ? 'disabled' : ''} onclick="accionABloque('${x.id}')">＋ Añadir a este bloque</button>`}</div>`).join('')}`).join('')
+      : '<p class="suave">No tienes acciones pendientes en tus áreas.</p>'}
+    <button class="btn sec ancho" style="margin-top:16px" onclick="cerrarHoja()">Listo</button>`, '#8b5cf6');
 }
 function accionABloque(id){
   const x = D.acciones.find(a => a.id === id); if(!x) return;
