@@ -351,7 +351,15 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .ah-ir{font-size:14px}
 .ahora-blk .mini-barra{margin:10px 0 0}
 .ahora-blk .prox-lista{margin:12px -16px 0}
-.cuenta-fila{display:flex;align-items:center;gap:14px;margin-top:12px}
+.cuenta-fila{display:flex;align-items:center;gap:12px;margin-top:10px}
+.ah-tit{font-size:19px;color:var(--oro);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.disco.grande{width:72px;height:72px;display:grid;place-items:center;margin-right:6px}
+.disco.grande b{font-size:15px;font-weight:800;color:#3a2208;background:rgba(255,229,154,.7);border-radius:999px;padding:1px 7px}
+.disco.grande.aro::before{inset:-7px;-webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));mask:radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px))}
+.cuenta-col .tic-btn{align-self:flex-start;margin-top:6px}
+.prox .asa-hueco{width:12px;flex:none}
+.prox.ok .texto-p{text-decoration:line-through;opacity:.55}
+.prox.ok{opacity:.8}
 .reloj-arena{flex:none;width:66px;height:104px}
 .cuenta-col{flex:1;display:flex;flex-direction:column}
 .cuenta-atras{font-size:40px;line-height:1.05;font-weight:800;color:var(--oro);font-variant-numeric:tabular-nums;min-width:74px}
@@ -597,7 +605,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v3.04';
+const VERSION = 'v3.05';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -923,11 +931,12 @@ const ASA = `<span class="asa" aria-label="Mantén y arrastra para ordenar"><svg
 let arrastre = null, finArrastre = 0;
 document.addEventListener('pointerdown', e => {
   const asa = e.target.closest && e.target.closest('.asa'); if(!asa) return;
-  const el = asa.closest('[data-ord],[data-mover]'); if(!el) return;
+  const el = asa.closest('[data-ord],[data-mover],[data-ordb]'); if(!el) return;
   e.preventDefault();
-  const ordena = el.hasAttribute('data-ord');
-  const items = ordena ? [...document.querySelectorAll('[data-ord]')].filter(it => it.getClientRects().length) : [el];
-  arrastre = {el, id: el.dataset.ord || el.dataset.mover, ordena, x0: e.clientX, y0: e.clientY, s0: window.scrollY, items, desde: items.indexOf(el), destino: items.indexOf(el), drop: false};
+  const bloque = el.hasAttribute('data-ordb'), ordena = bloque || el.hasAttribute('data-ord');
+  const sel = bloque ? '[data-ordb]' : '[data-ord]';
+  const items = ordena ? [...document.querySelectorAll(sel)].filter(it => it.getClientRects().length) : [el];
+  arrastre = {el, id: el.dataset.ord || el.dataset.mover || el.dataset.ordb, ordena, bloque, x0: e.clientX, y0: e.clientY, s0: window.scrollY, items, desde: items.indexOf(el), destino: items.indexOf(el), drop: false};
   el.classList.add('arrastrando');
   try{ asa.setPointerCapture(e.pointerId); }catch(_){}
   if(navigator.vibrate) try{ navigator.vibrate(15); }catch(_){}
@@ -941,7 +950,8 @@ document.addEventListener('pointermove', e => {
   const bajo = document.elementFromPoint(e.clientX, e.clientY), dz = bajo && bajo.closest && bajo.closest('[data-drop]');
   document.querySelectorAll('.drop-ok').forEach(z => { if(z !== dz) z.classList.remove('drop-ok'); });
   if(dz) dz.classList.add('drop-ok');
-  A.drop = !!dz;
+  A.drop = !!dz && !A.bloque;
+  if(A.bloque) document.querySelectorAll('.drop-ok').forEach(z => z.classList.remove('drop-ok'));
   if(A.drop || !A.ordena){ A.items.forEach(it => it.classList.remove('marca-antes', 'marca-despues')); A.destino = A.desde; return; }
   const otros = A.items.filter(it => it !== A.el);
   let d = 0; otros.forEach(it => { const r = it.getBoundingClientRect(); if(r.top + r.height / 2 < e.clientY) d++; });
@@ -954,6 +964,11 @@ function soltarArrastre(){
   A.el.classList.remove('arrastrando'); A.el.style.transform = '';
   A.items.forEach(it => it.classList.remove('marca-antes', 'marca-despues'));
   document.querySelectorAll('.drop-ok').forEach(z => z.classList.remove('drop-ok'));
+  if(A.bloque){
+    if(A.destino === A.desde) return;
+    const orden = A.items.map(it => +it.dataset.ordb).filter(i => i !== +A.id);
+    orden.splice(A.destino, 0, +A.id); moverActsAhora(orden); return;
+  }
   if(A.drop){ asignarAhora(A.id); return; }
   if(!A.ordena || A.destino === A.desde) return;
   const ids = A.items.map(it => it.dataset.ord).filter(id => id !== A.id);
@@ -1058,25 +1073,32 @@ function seccionAhora(){
   const b = BLOQUES[c], acts = actsDe(hoyK(), c);
   const fila = (a, i, grande) => {
     const x = a.acc && D.acciones.find(z => z.id === a.acc), ar = x && areaDe(x.area), ok = hechaAct(a);
-    return `<div class="prox ${grande ? 'foco-1' : 'foco-sig'} ${ok ? 'ok' : ''}" style="--c:${ar ? ar.color : '#f7c35b'};animation-delay:${i*70}ms">
-      <button class="check cuadro ${ok ? 'hecho' : ''}" aria-label="${ok ? 'Desmarcar' : 'Marcar como hecha'}" onclick="alternarActAhora(${i})">✓</button>
-      <div class="cuerpo-p">${ar ? `<div class="area-p">${ico(ar)} ${ar.nombre}</div>` : ''}<div class="texto-p">${esc(a.t)}</div></div>
+    return `<div class="prox ${grande ? 'foco-1' : 'foco-sig'} ${ok ? 'ok' : ''}" ${ok ? '' : `data-ordb="${i}"`} style="--c:${ar ? ar.color : '#f7c35b'};animation-delay:${i*70}ms">
+      ${ok ? '<span class="asa-hueco"></span>' : ASA}<button class="check cuadro ${ok ? 'hecho' : ''}" aria-label="${ok ? 'Desmarcar' : 'Marcar como hecha'}" onclick="alternarActAhora(${i})">✓</button>
+      <div class="cuerpo-p">${ar && !ok ? `<div class="area-p">${ico(ar)} ${ar.nombre}</div>` : ''}<div class="texto-p">${esc(a.t)}</div></div>
       <button class="del" aria-label="Quitar del bloque" onclick="quitarActAhora(${i})">✕</button></div>`;
   };
-  // la primera sin hacer va en grande; debajo, las demás del bloque
-  const orden = acts.map((a, i) => ({a, i})), iPrimera = (orden.find(o => !hechaAct(o.a)) || orden[0] || {}).i;
-  const resto = orden.filter(o => o.i !== iPrimera);
+  // arriba solo la tarea en la que estás (la primera sin hacer); debajo las demás pendientes; las hechas al final, tachadas
+  const orden = acts.map((a, i) => ({a, i})), pend = orden.filter(o => !hechaAct(o.a)), hechas = orden.filter(o => hechaAct(o.a));
+  const lista = pend.map((o, k) => fila(o.a, o.i, k === 0)).join('') + hechas.map(o => fila(o.a, o.i, false)).join('');
+  const p = progresoBloque(b.ini, b.fin).toFixed(1);
   return `<section class="ahora-blk" data-drop="ahora">
-    <div class="ah-cab"><span class="disco aro" style="--p:${progresoBloque(b.ini, b.fin).toFixed(1)}" data-ini="${b.ini}" data-fin="${b.fin}" aria-hidden="true"></span>
-      <div><b>Bloque actual · ${hm(b.ini)} – ${hm(b.fin)}</b><small>${acts.length ? `${acts.length} de ${MAX_ACT} tareas` : 'Sin tareas todavía'}</small></div>
-      <button class="link ah-ir" onclick="ir('dia')">Bloques ›</button></div>
+    <div class="ah-cab"><b class="ah-tit">Bloque actual · ${hm(b.ini)} – ${hm(b.fin)}</b></div>
     <div class="cuenta-fila"><canvas class="reloj-arena" data-ini="${b.ini}" data-fin="${b.fin}" width="66" height="104" aria-label="Reloj de arena del bloque"></canvas>
-      <div class="cuenta-col"><span class="cuenta-atras" data-fin="${b.fin}">${fmtCuenta(b.fin)}</span><span class="cuenta-txt">para acabar el bloque</span></div>
-      <button class="tic-btn ${ticOn ? 'on' : ''}" id="btn-tic" onclick="alternarTic()" aria-pressed="${ticOn}">${ticOn ? '🔊' : '🔇'} Tic-tac</button></div>
-    <div class="mini-barra"><i style="width:${(m - b.ini) / 90 * 100}%"></i></div>
-    ${acts.length ? `<div class="prox-lista">${fila(acts[iPrimera], iPrimera, true)}${resto.map(o => fila(o.a, o.i, false)).join('')}</div>`
+      <div class="cuenta-col"><span class="cuenta-atras" data-fin="${b.fin}">${fmtCuenta(b.fin)}</span><span class="cuenta-txt">para acabar el bloque</span>
+        <button class="tic-btn ${ticOn ? 'on' : ''}" id="btn-tic" onclick="alternarTic()" aria-pressed="${ticOn}">${ticOn ? '🔊' : '🔇'} Tic-tac</button></div>
+      <span class="disco aro grande" style="--p:${p}" data-ini="${b.ini}" data-fin="${b.fin}" aria-hidden="true"><b>${acts.filter(hechaAct).length}/${acts.length}</b></span></div>
+    ${acts.length ? `<div class="prox-lista">${lista}</div>`
       : `<p class="ah-vacio">Arrastra aquí una tarea (con los seis puntitos) o toca «→ Ahora».</p>`}
   </section>`;
+}
+/* Reordenar las tareas del bloque de ahora (seis puntitos en Focus) */
+function moverActsAhora(orden){
+  const c = bloqueAhora(); if(c < 0) return;
+  const acts = actsDe(hoyK(), c), nuevos = orden.map(i => acts[i]).filter(Boolean);
+  acts.forEach((a, i) => { if(!orden.includes(i)) nuevos.push(a); });   // las hechas siguen detrás
+  acts.splice(0, acts.length, ...nuevos); guardarBloques();
+  const y = window.scrollY; render(); window.scrollTo(0, y);
 }
 /* Cuenta atrás del bloque (mm:ss) y sonido de segundero opcional */
 function fmtCuenta(fin){
