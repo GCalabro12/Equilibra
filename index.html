@@ -354,7 +354,9 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .prox .del{background:none;border:0;color:var(--suave);font-size:16px;padding:6px;margin-left:-6px}
 .sin-asig{margin-top:14px}
 .sa-lista{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-.sa-fila{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 12px;border-radius:14px;background:color-mix(in srgb,var(--c) 14%,transparent)}
+.sa-fila{display:flex;flex-direction:column;gap:6px;padding:8px 10px 8px 12px;border-radius:14px;background:color-mix(in srgb,var(--c) 14%,transparent)}
+.sa-l1{display:flex;align-items:center;gap:10px;width:100%}
+.sa-l2{display:flex;justify-content:flex-end;width:100%}
 .sa-fila .check{width:34px;height:34px;border-width:2.5px;font-size:16px}
 .sa-fila .asa{margin:0 -4px 0 -6px;padding:6px 4px}
 .sa-t{flex:1;min-width:0;font-weight:700;overflow-wrap:anywhere;display:flex;align-items:center;gap:6px}
@@ -382,8 +384,9 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .flor-btn .fb-t b{font-size:17px}
 .flor-btn .fb-t small{font-size:13px;color:var(--suave)}
 .flor-btn .fb-fl{font-size:22px;color:var(--suave)}
-.ta-fila{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0}
-.ta-fila>span:first-child{flex:1;min-width:0;font-weight:700;overflow-wrap:anywhere}
+.ta-fila{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.ta-t{width:100%;font-weight:700;overflow-wrap:anywhere}
+.sa-con{flex:none;border:0;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:800;background:rgba(74,222,128,.16);color:#4ade80}
 .ta-btn{flex:none;border:0;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:800;background:var(--acento);color:#fff}
 .ta-btn:disabled{opacity:.35}
 .ta-ya{flex:none;font-size:13px;font-weight:700;color:#4ade80}
@@ -563,7 +566,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.49';
+const VERSION = 'v2.50';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -585,7 +588,7 @@ const AREAS = [
    pregunta:'¿Tienes tiempo para disfrutar, jugar y descansar?', ejemplos:['reservar el sábado por la tarde para algo que me guste', 'salir a un sitio nuevo', 'una hora de mi hobby sin pantallas']},
   {id:'proposito', corto:'Propósito',   nombre:'Propósito / Espiritualidad', etiqueta:'Propósito /|Espiritualidad', color:'#14a3a3',
    pregunta:'¿Sientes que tu vida tiene sentido y dirección?', ejemplos:['10 minutos de silencio o meditación cada mañana', 'escribir para qué hago lo que hago', 'ayudar a alguien sin esperar nada']},
-  {id:'hogar', corto:'Hogar',       nombre:'Hogar y entorno', etiqueta:'Hogar y|entorno',         color:'#b0703c',
+  {id:'hogar', corto:'Entorno',     nombre:'Entorno y hogar', etiqueta:'Entorno|y hogar',         color:'#b0703c',
    pregunta:'¿Te sientes a gusto donde y cómo vives?', ejemplos:['ordenar el escritorio y dejarlo despejado', 'tirar o regalar 5 cosas que no uso', 'poner una planta o algo bonito en casa']},
 ];
 
@@ -972,10 +975,19 @@ function listaSinAsignar(){
 /* Fila de tarea arrastrable: con seis puntitos, casilla de hecha y «→ Ahora» */
 function filaTarea(x, hayBloque, ordenable){
   const a = areaDe(x.area);
-  return `<div class="sa-fila" ${ordenable ? `data-ord="${x.id}"` : `data-mover="${x.id}"`} style="--c:${a.color}">${ASA}
-    <button class="check" aria-label="Marcar como hecha" onclick="alternarAccion('${x.id}')">✓</button>
-    <span class="sa-t">${ordenable ? ico(a) + ' ' : ''}${esc(x.texto)}</span>
-    ${hayBloque ? `<button class="sa-ya" onclick="asignarAhora('${x.id}')">${vista === 'dia' ? '→ Al bloque' : '→ Ahora'}</button>` : ''}</div>`;
+  return `<div class="sa-fila" ${ordenable ? `data-ord="${x.id}"` : `data-mover="${x.id}"`} style="--c:${a.color}">
+    <div class="sa-l1">${ASA}<button class="check" aria-label="Marcar como hecha" onclick="alternarAccion('${x.id}')">✓</button>
+      <span class="sa-t">${ordenable ? ico(a) + ' ' : ''}${esc(x.texto)}</span></div>
+    ${hayBloque ? `<div class="sa-l2"><button class="sa-ya" onclick="asignarAhora('${x.id}')">${vista === 'dia' ? '→ Al bloque' : '→ Ahora'}</button></div>` : ''}</div>`;
+}
+/* Quitar una tarea de los bloques de hoy (o del bloque elegido): al volver a tocar «✓ Con bloque» */
+function quitarDeBloques(id, soloElegido){
+  const k = soloElegido ? claveDia(fechaBloques()) : hoyK(), d = B_().days[k] || {};
+  let n = 0;
+  Object.keys(d).forEach(i => { if(soloElegido && Number(i) !== bSel) return; const arr = d[i] || [];
+    for(let j = arr.length - 1; j >= 0; j--) if(arr[j] && arr[j].acc === id){ arr.splice(j, 1); n++; } });
+  if(n){ guardarBloques(); aviso('Quitada del bloque'); }
+  const y = window.scrollY; render(); window.scrollTo(0, y);
 }
 /* Girasol: centro grande = bloque de ahora; pétalos más pequeños alrededor */
 function florGirasol(niveles, bloque, pendientesN){
@@ -986,7 +998,7 @@ function florGirasol(niveles, bloque, pendientesN){
   <pattern id="semillas${n}" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.3" fill="#7a4310" fill-opacity=".35"/></pattern></defs>`;
   AREAS.forEach((a, i) => {
     const nv = niveles && niveles[a.id], sel = panelAbierto === a.id;
-    const op = !nv ? .14 : nv === 'bien' ? .4 : nv === 'una' ? .8 : 1;
+    const op = !nv ? .6 : 1;   // cada pétalo con su color de verdad
     const extra = sel ? 'stroke="#fff" stroke-width="3.5"' : !nv ? `stroke="${a.color}" stroke-width="1.5" stroke-dasharray="4 4"` : (nv === 'mas' ? `filter="url(#brillo${n})" stroke="#fff" stroke-width="2"` : '');
     s += `<g transform="rotate(${i*paso}) translate(0 ${-R0 + 6})"><path d="${petalo(Lp, 30)}" fill="${a.color}" fill-opacity="${sel && !nv ? .5 : op}" ${extra}/></g>`;
   });
@@ -1021,7 +1033,8 @@ function panelArea(){
   return `<section class="panel-area" id="panel-area" style="--c:${a.color}">
     <div class="pa-cab">${ico(a, 'g')}<div><b>${a.nombre}</b><small>${nv ? NIVELES[nv].titulo : 'Sin revisar'} · <button class="link" onclick="abrirPetalo('${a.id}')">cambiar</button></small></div>
       <button class="del" aria-label="Cerrar" onclick="panelAbierto = null; const y = scrollY; render(); scrollTo(0, y)">✕</button></div>
-    ${lista.length ? lista.map(x => enBloque.has(x.id) ? `<div class="sa-fila"><span class="sa-t">${esc(x.texto)}</span><span class="ta-ya">✓ Con bloque</span></div>` : filaTarea(x, c >= 0, false)).join('')
+    ${lista.length ? lista.map(x => enBloque.has(x.id) ? `<div class="sa-fila"><div class="sa-l1"><span class="sa-t">${esc(x.texto)}</span></div>
+      <div class="sa-l2"><button class="sa-con" onclick="quitarDeBloques('${x.id}')" title="Toca para quitarla del bloque">✓ Con bloque · quitar</button></div></div>` : filaTarea(x, c >= 0, false)).join('')
       : '<p class="suave" style="margin:6px 0">Este pétalo no tiene tareas pendientes.</p>'}
     <div class="campo-voz" style="margin-top:10px"><input type="text" id="pa-nueva" maxlength="120" placeholder="Nueva tarea para ${esc(a.corto)}" onkeydown="if(event.key==='Enter')nuevaEnPanel()">${botonMic()}</div>
     <button class="btn sec ancho" style="margin-top:8px" onclick="nuevaEnPanel()">＋ Añadir a ${esc(a.nombre)}</button>
@@ -1353,15 +1366,27 @@ function abrirTareasAreas(){
   hojaAbierta = () => abrirTareasAreas();
   const k = claveDia(fechaBloques()), b = BLOQUES[bSel], acts = actsDe(k, bSel);
   const ya = new Set(acts.map(a => a.acc).filter(Boolean)), lleno = acts.length >= MAX_ACT;
-  const pend = pendientes();
+  const pend = pendientes(), escrito = $('#h-blq-nueva') ? $('#h-blq-nueva').value : '';
   const grupos = AREAS.map(a => ({a, lista: pend.filter(x => x.area === a.id)})).filter(g => g.lista.length);
-  mostrarHoja(`<div class="hoja-cab"><div><h2>Tareas de tus áreas</h2></div></div>
-    <p class="suave" style="margin:4px 0 10px">Para el bloque de <b>${hm(b.ini)} a ${hm(b.fin)}</b>${lleno ? ' · ya está completo' : ''}</p>
-    ${grupos.length ? grupos.map(g => `<p class="eti" style="margin:14px 0 6px">${ico(g.a)} ${g.a.nombre}</p>
-      ${g.lista.map(x => `<div class="ta-fila"><span>${esc(x.texto)}</span>${ya.has(x.id) ? '<span class="ta-ya">✓ En este bloque</span>'
+  mostrarHoja(`<div class="hoja-cab"><div><h2>Bloque de ${hm(b.ini)} a ${hm(b.fin)}</h2></div></div>
+    <p class="suave" style="margin:4px 0 10px">${acts.length} de ${MAX_ACT} tareas${lleno ? ' · ya está completo' : ''}</p>
+    ${lleno ? '' : `<div class="campo-voz"><input type="text" id="h-blq-nueva" maxlength="120" placeholder="Escribe o dicta una tarea" onkeydown="if(event.key==='Enter')anadirEnHoja()">${botonMic()}</div>
+    <button class="btn prim ancho" style="margin-top:8px" onclick="anadirEnHoja()">Añadir al bloque</button>`}
+    <p class="eti" style="margin:18px 0 0">Añadir tareas de tus áreas</p>
+    ${grupos.length ? grupos.map(g => `<p class="eti" style="margin:12px 0 4px">${ico(g.a)} ${g.a.nombre}</p>
+      ${g.lista.map(x => `<div class="ta-fila"><span class="ta-t">${esc(x.texto)}</span>${ya.has(x.id)
+        ? `<button class="sa-con" onclick="quitarDeBloques('${x.id}', true)">✓ En este bloque · quitar</button>`
         : `<button class="ta-btn" ${lleno ? 'disabled' : ''} onclick="accionABloque('${x.id}')">＋ Añadir a este bloque</button>`}</div>`).join('')}`).join('')
       : '<p class="suave">No tienes acciones pendientes en tus áreas.</p>'}
     <button class="btn sec ancho" style="margin-top:16px" onclick="cerrarHoja()">Listo</button>`, '#8b5cf6');
+  if(escrito && $('#h-blq-nueva')) $('#h-blq-nueva').value = escrito;
+}
+function anadirEnHoja(){
+  const t = valor('h-blq-nueva'); if(!t){ aviso('Escribe la tarea'); return; }
+  const acts = actsDe(claveDia(fechaBloques()), bSel, true);
+  if(acts.length >= MAX_ACT){ aviso('Bloque completo'); return; }
+  acts.push({t, d: false}); guardarBloques(); sonarHecho(); aviso('Añadida al bloque 🌱');
+  $('#h-blq-nueva').value = ''; rerenderDia();
 }
 function accionABloque(id){
   const x = D.acciones.find(a => a.id === id); if(!x) return;
