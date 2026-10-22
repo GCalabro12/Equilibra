@@ -348,9 +348,10 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .ah-ir{font-size:14px}
 .ahora-blk .mini-barra{margin:10px 0 0}
 .ahora-blk .prox-lista{margin:12px -16px 0}
-.cuenta-fila{display:flex;align-items:center;gap:8px;margin-top:10px}
-.arena{font-size:22px}
-.cuenta-atras{font-size:26px;font-weight:800;color:var(--oro);font-variant-numeric:tabular-nums;min-width:74px}
+.cuenta-fila{display:flex;align-items:center;gap:14px;margin-top:12px}
+.reloj-arena{flex:none;width:66px;height:104px}
+.cuenta-col{flex:1;display:flex;flex-direction:column}
+.cuenta-atras{font-size:40px;line-height:1.05;font-weight:800;color:var(--oro);font-variant-numeric:tabular-nums;min-width:74px}
 .cuenta-txt{flex:1;font-size:13px;color:var(--suave)}
 .tic-btn{flex:none;border:0;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:800;background:rgba(255,255,255,.08);color:var(--suave)}
 .tic-btn.on{background:rgba(247,195,91,.22);color:var(--oro)}
@@ -590,7 +591,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.55';
+const VERSION = 'v2.56';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -805,12 +806,13 @@ function flor(niveles, opc = {}){
   return s + '</svg>';
 }
 const LEYENDA = `<div class="leyenda-niv"><span><i class="pt2"></i><i class="pt2"></i> Necesita más acción</span><span><i class="pt2"></i> Una acción a la semana</span><span><b>✓</b> Estoy bien</span></div>`;
-/* Logo: flor plena, ligeramente irregular, como la ilustración */
-const LARGOS_LOGO = [10, 9.4, 9.8, 9.2, 10, 9.4, 9.8, 9.2];
+/* Logo: el girasol de la app (centro dorado grande con semillas y su aro de tiempo; pétalos de colores alrededor) */
 function logoInterior(){
-  let s = '<defs><radialGradient id="lc"><stop offset="0" stop-color="#ffe59a"/><stop offset=".6" stop-color="#f7b733"/><stop offset="1" stop-color="#d9831f"/></radialGradient></defs>';
-  AREAS.forEach((a,i) => { s += `<g transform="rotate(${i*45})"><path class="petalo" style="animation-delay:${i*110}ms" d="${petalo(88*LARGOS_LOGO[i]/10, 27)}" fill="${a.color}"/></g>`; });
-  return s + '<g class="centro"><circle r="19" fill="url(#lc)"/></g>';
+  let s = '<defs><radialGradient id="lc"><stop offset="0" stop-color="#ffe59a"/><stop offset=".55" stop-color="#f7b733"/><stop offset="1" stop-color="#c9741a"/></radialGradient>'
+    + '<pattern id="lsem" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.5" fill="#7a4310" fill-opacity=".4"/></pattern></defs>';
+  AREAS.forEach((a,i) => { s += `<g transform="rotate(${i*45}) translate(0 -36)"><path class="petalo" style="animation-delay:${i*110}ms" d="${petalo(60, 26)}" fill="${a.color}"/></g>`; });
+  return s + '<g class="centro"><circle r="44" fill="url(#lc)"/><circle r="44" fill="url(#lsem)"/>'
+    + '<circle r="47" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="66 100" transform="rotate(-90)"/></g>';
 }
 function logoSVG(){ return `<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">${logoInterior()}</svg>`; }
 /* Icono de cada área: un pétalo de su color */
@@ -837,6 +839,61 @@ function render(){
   $('#nav').style.display = conNav ? '' : 'none';
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('act', b.dataset.v === vista || (vista === 'detalle' && b.dataset.v === 'historial')));
   if(hojaAbierta && $('#hoja')) hojaAbierta();
+  if(document.querySelector('canvas.reloj-arena')) iniciarArena();
+}
+/* ---------- Reloj de arena: dura la hora y media del bloque; la arena cae grano a grano ---------- */
+let arenaRAF = null, granos = [], arenaUlt = 0;
+function iniciarArena(){ if(!arenaRAF) arenaRAF = requestAnimationFrame(animarArena); }
+function animarArena(ts){
+  const cv = document.querySelector('canvas.reloj-arena');
+  if(!cv || document.hidden){ arenaRAF = null; return; }
+  const dt = Math.min(50, ts - (arenaUlt || ts)) / 16.7; arenaUlt = ts;
+  dibujarArena(cv, dt || 1);
+  arenaRAF = requestAnimationFrame(animarArena);
+}
+document.addEventListener('visibilitychange', () => { if(!document.hidden && document.querySelector('canvas.reloj-arena')) iniciarArena(); });
+function dibujarArena(cv, dt){
+  const dpr = window.devicePixelRatio || 1, W = 66, H = 104;
+  if(cv.width !== Math.round(W * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.width = W + 'px'; cv.style.height = H + 'px'; }
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  const p = progresoBloque(+cv.dataset.ini, +cv.dataset.fin) / 100;
+  const cx = W / 2, top = 10, neck = H / 2, bot = H - 10, half = 25, nw = 2.4;
+  const vidrio = () => {
+    g.beginPath(); g.moveTo(cx - half, top); g.lineTo(cx + half, top);
+    g.bezierCurveTo(cx + half, top + 24, cx + nw + 3, neck - 11, cx + nw, neck);
+    g.bezierCurveTo(cx + nw + 3, neck + 11, cx + half, bot - 24, cx + half, bot);
+    g.lineTo(cx - half, bot);
+    g.bezierCurveTo(cx - half, bot - 24, cx - nw - 3, neck + 11, cx - nw, neck);
+    g.bezierCurveTo(cx - nw - 3, neck - 11, cx - half, top + 24, cx - half, top); g.closePath();
+  };
+  vidrio(); g.fillStyle = 'rgba(255,255,255,.06)'; g.fill();
+  g.save(); vidrio(); g.clip();
+  const oro = g.createLinearGradient(0, top, 0, bot); oro.addColorStop(0, '#ffe59a'); oro.addColorStop(.5, '#f7b733'); oro.addColorStop(1, '#d9831f');
+  g.fillStyle = oro;
+  // arriba: queda (1 - p); como el bulbo se estrecha, la altura va con la raíz
+  const hMaxA = neck - top - 7, yA = neck - hMaxA * Math.sqrt(Math.max(0, 1 - p)), hueco = p > 0 && p < 1 ? Math.min(7, (neck - yA) * .45) : 0;
+  if(p < 1){ g.beginPath(); g.moveTo(0, yA); g.lineTo(cx - 12, yA); g.quadraticCurveTo(cx, yA + hueco * 2, cx + 12, yA); g.lineTo(W, yA); g.lineTo(W, neck + 1); g.lineTo(0, neck + 1); g.closePath(); g.fill(); }
+  // abajo: el montón crece con p
+  const hMaxB = bot - neck - 9, hB = hMaxB * Math.sqrt(Math.max(0, p)), cima = bot - hB;
+  if(p > 0){ g.beginPath(); g.moveTo(0, bot); g.lineTo(0, bot - hB * .45); g.quadraticCurveTo(cx, cima - hB * .45, W, bot - hB * .45); g.lineTo(W, bot); g.closePath(); g.fill(); }
+  // el chorrito y los granos que caen
+  if(p > 0 && p < 1){
+    const suelo = cima + 1;
+    g.fillStyle = 'rgba(247,183,51,.55)'; g.fillRect(cx - .5, neck, 1, suelo - neck);
+    for(let k = 0; k < 2; k++) granos.push({x: cx + (Math.random() - .5) * 1.8, y: neck + Math.random() * 2, vy: .5 + Math.random() * .6, vx: (Math.random() - .5) * .08});
+    g.fillStyle = '#ffe59a';
+    granos = granos.filter(q => { q.vy += .14 * dt; q.y += q.vy * dt; q.x += q.vx * dt; if(q.y >= suelo + Math.abs(q.x - cx) * .4) return false; g.fillRect(q.x - .6, q.y - .6, 1.3, 1.3); return true; }).slice(-160);
+    // algún grano rebota al llegar al montón
+    if(Math.random() < .25){ g.fillStyle = 'rgba(255,229,154,.8)'; g.fillRect(cx + (Math.random() - .5) * 10, suelo - Math.random() * 3, 1.2, 1.2); }
+  } else granos = [];
+  g.restore();
+  // cristal y brillo
+  vidrio(); g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.4; g.stroke();
+  g.strokeStyle = 'rgba(255,255,255,.22)'; g.lineWidth = 2; g.beginPath(); g.moveTo(cx - half + 6, top + 6); g.quadraticCurveTo(cx - half + 4, top + 22, cx - 7, neck - 9); g.stroke();
+  // tapas de madera dorada
+  const tapa = y => { g.fillStyle = '#b8661a'; g.beginPath(); if(g.roundRect) g.roundRect(cx - half - 5, y - 3.5, (half + 5) * 2, 7, 3.5); else g.rect(cx - half - 5, y - 3.5, (half + 5) * 2, 7); g.fill();
+    g.fillStyle = 'rgba(255,229,154,.35)'; g.fillRect(cx - half - 3, y - 2.5, (half + 3) * 2, 1.2); };
+  tapa(top - 2); tapa(bot + 2);
 }
 
 /* ---------- Inicio: tus próximas acciones (lo principal) ---------- */
@@ -923,7 +980,7 @@ function vInicio(){
   }
   const pend = pendientes(), hs = hechasEstaSemana(), c = bloqueAhora();
   const actsAhora = c >= 0 ? actsDe(hoyK(), c) : [];
-  let h = `${bannerApp()}<h1 class="tit-acc">Tus próximas acciones</h1>
+  let h = `${bannerApp()}<h1 class="tit-acc">Enfócate en</h1>
     <p class="suave peq" style="margin:4px 0 0">${pend.length ? `${pend.length} ${pend.length === 1 ? 'pendiente' : 'pendientes'}` : 'Nada pendiente'}${hs ? ` · ${hs} ${hs === 1 ? 'hecha' : 'hechas'} esta semana` : ''}</p>
     ${seccionAhora()}
     ${listaSinAsignar()}
@@ -999,7 +1056,8 @@ function seccionAhora(){
     <div class="ah-cab"><span class="disco aro" style="--p:${progresoBloque(b.ini, b.fin).toFixed(1)}" data-ini="${b.ini}" data-fin="${b.fin}" aria-hidden="true"></span>
       <div><b>Bloque actual · ${hm(b.ini)} – ${hm(b.fin)}</b><small>${acts.length ? `${acts.length} de ${MAX_ACT} tareas` : 'Sin tareas todavía'}</small></div>
       <button class="link ah-ir" onclick="ir('dia')">Bloques ›</button></div>
-    <div class="cuenta-fila"><span class="arena" aria-hidden="true">⏳</span><span class="cuenta-atras" data-fin="${b.fin}">${fmtCuenta(b.fin)}</span><span class="cuenta-txt">para acabar el bloque</span>
+    <div class="cuenta-fila"><canvas class="reloj-arena" data-ini="${b.ini}" data-fin="${b.fin}" width="66" height="104" aria-label="Reloj de arena del bloque"></canvas>
+      <div class="cuenta-col"><span class="cuenta-atras" data-fin="${b.fin}">${fmtCuenta(b.fin)}</span><span class="cuenta-txt">para acabar el bloque</span></div>
       <button class="tic-btn ${ticOn ? 'on' : ''}" id="btn-tic" onclick="alternarTic()" aria-pressed="${ticOn}">${ticOn ? '🔊' : '🔇'} Tic-tac</button></div>
     <div class="mini-barra"><i style="width:${(m - b.ini) / 90 * 100}%"></i></div>
     ${acts.length ? `<div class="prox-lista">${fila(acts[iPrimera], iPrimera, true)}${resto.map(o => fila(o.a, o.i, false)).join('')}</div>`
@@ -1414,10 +1472,11 @@ function vDia(){
       ${bSel === cur ? `<div class="mini-barra"><i style="width:${(m - b.ini) / 90 * 100}%"></i></div>` : ''}
       ${acts.length ? `<div class="tareas">${acts.map((a, i) => `<div class="fila-acc"><button class="tarea ${hechaAct(a) ? 'ok' : ''}" style="--c:${a.acc && D.acciones.find(x => x.id === a.acc) ? areaDe(D.acciones.find(x => x.id === a.acc).area).color : 'var(--oro)'}" onclick="alternarAct(${i})"><span class="caja">✓</span><span>${esc(a.t)}</span></button><button class="del" aria-label="Quitar" onclick="borrarAct(${i})">✕</button></div>`).join('')}</div>` : `<p class="suave" style="margin:10px 0 0">¿A qué vas a dedicar este bloque?</p>`}
       ${lleno ? `<p class="peq suave" style="margin:8px 0 0">Bloque completo · ${MAX_ACT} actividades</p>` : `
-        <div class="campo-voz" style="margin-top:10px"><input type="text" id="b-nueva" maxlength="120" placeholder="Escribe o dicta una actividad" onkeydown="if(event.key==='Enter')anadirAct()">${botonMic()}</div>
+        <p class="eti" style="margin:14px 0 0">Añadir nueva tarea</p>
+        <div class="campo-voz" style="margin-top:8px"><input type="text" id="b-nueva" maxlength="120" placeholder="Escribe o dicta una actividad" onkeydown="if(event.key==='Enter')anadirAct()">${botonMic()}</div>
         <button class="btn prim ancho" style="margin-top:10px" onclick="anadirAct()">Añadir al bloque</button>
         ${sugeridas.length ? `<button class="flor-btn" onclick="abrirTareasAreas()"><span class="fb-flor">${logoSVG()}</span>
-          <span class="fb-t"><b>Tareas de tus áreas</b><small>${pendientes().filter(x => !ya.has(x.id)).length} pendientes · toca para elegir</small></span><span class="fb-fl">›</span></button>` : ''}`}
+          <span class="fb-t"><b>Añadir tarea de tus áreas</b><small>${pendientes().filter(x => !ya.has(x.id)).length} pendientes · toca para elegir</small></span><span class="fb-fl">›</span></button>` : ''}`}
       ${(cur >= 0 && (bDia !== 0 || bSel !== cur)) ? `<button class="link" style="display:block;margin:10px auto 0" onclick="bDia=0; bSel=bloqueAhora(); render(); centrarBloque()">↺ Volver al bloque de ahora</button>` : ''}
     </section>
     <section class="tarjeta">
