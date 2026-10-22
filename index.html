@@ -594,7 +594,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v3.00';
+const VERSION = 'v3.01';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -879,11 +879,11 @@ function dibujarArena(cv, dt){
   g.save(); vidrio(); g.clip();
   const oro = g.createLinearGradient(0, top, 0, bot); oro.addColorStop(0, '#ffe59a'); oro.addColorStop(.5, '#f7b733'); oro.addColorStop(1, '#d9831f');
   g.fillStyle = oro;
-  // arriba: queda (1 - p); como el bulbo se estrecha, la altura va con la raíz
-  const hMaxA = neck - top - 7, yA = neck - hMaxA * Math.sqrt(Math.max(0, 1 - p)), hueco = p > 0 && p < 1 ? Math.min(7, (neck - yA) * .45) : 0;
+  // arriba baja y abajo sube al mismo ritmo, para que se vea bien cómo pasa el tiempo
+  const hMaxA = neck - top - 7, yA = neck - hMaxA * Math.max(0, 1 - p), hueco = p > 0 && p < 1 ? Math.min(7, (neck - yA) * .45) : 0;
   if(p < 1){ g.beginPath(); g.moveTo(0, yA); g.lineTo(cx - 12, yA); g.quadraticCurveTo(cx, yA + hueco * 2, cx + 12, yA); g.lineTo(W, yA); g.lineTo(W, neck + 1); g.lineTo(0, neck + 1); g.closePath(); g.fill(); }
   // abajo: el montón crece con p
-  const hMaxB = bot - neck - 9, hB = hMaxB * Math.sqrt(Math.max(0, p)), cima = bot - hB;
+  const hMaxB = bot - neck - 9, hB = hMaxB * Math.max(0, p), cima = bot - hB;
   if(p > 0){ g.beginPath(); g.moveTo(0, bot); g.lineTo(0, bot - hB * .45); g.quadraticCurveTo(cx, cima - hB * .45, W, bot - hB * .45); g.lineTo(W, bot); g.closePath(); g.fill(); }
   // el chorrito y los granos que caen
   if(p > 0 && p < 1){
