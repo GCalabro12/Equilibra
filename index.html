@@ -375,12 +375,13 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .sa-ya{flex:none;border:0;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:800;background:rgba(247,195,91,.2);color:var(--oro)}
 .sa-falta{border:0;border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.05);color:var(--suave);font-weight:700;text-align:left;display:flex;align-items:center;gap:6px}
 .arrastrando{pointer-events:none}
-.flor.girasol{width:100%;max-width:400px;margin:10px auto 4px;overflow:visible}
+.flor.girasol{width:calc(100% + 32px);max-width:480px;margin-left:-16px!important;margin-right:-16px!important;margin:10px auto 4px;overflow:visible}
 .girasol .g-hora{font-size:30px;font-weight:800;fill:#3a2208}
 .girasol .g-sub{font-size:10px;font-weight:800;fill:#5a3810}
 .girasol .g-ahora{font-size:9px;font-weight:800;fill:#5a3810;letter-spacing:1.5px}
 .girasol .g-nom{font-size:12.5px;font-weight:800;fill:#fff;paint-order:stroke;stroke:rgba(20,12,40,.55);stroke-width:3px;stroke-linejoin:round}
-.girasol .g-cuenta{font-size:17px;font-weight:800;fill:#fff;paint-order:stroke;stroke:rgba(20,12,40,.5);stroke-width:3px}
+.girasol .g-nom.largo{font-size:11px}
+.girasol .g-cuenta{font-size:15px;font-weight:800;fill:#fff;paint-order:stroke;stroke:rgba(20,12,40,.5);stroke-width:3px}
 .girasol .g-rango{font-size:19px;font-weight:800;fill:#3a2208}
 .girasol .g-tarea{font-size:11px;font-weight:800;fill:#4a2c0c}
 .girasol .g-mas{font-size:13px;font-weight:800;fill:#3a2208}
@@ -530,6 +531,7 @@ nav.abajo button{font-size:11px}
 .disco{flex:none;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 50% 50%,rgba(122,67,16,.3) 1px,transparent 1.4px) 0 0/6px 6px,radial-gradient(circle,#ffe59a 0,#f7b733 55%,#c9741a 100%)}
 .flor-nav{position:relative;margin-top:4px}
 .flor-nav .flor.girasol{margin:0 auto}
+.flor-sec .flor.girasol:not(.mini),.flor-nav .flor.girasol{width:calc(100% + 32px);max-width:480px}
 .fn-fila{display:flex;align-items:center;gap:8px}
 .fn-fila p{flex:1;text-align:center;margin:0}
 .fn-flecha{flex:none;width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:var(--tinta);font-size:24px}
@@ -588,7 +590,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.53';
+const VERSION = 'v2.54';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1059,7 +1061,7 @@ function quitarDeBloques(id, soloElegido){
 /* Girasol: centro grande = bloque de ahora; pétalos más pequeños alrededor */
 function florGirasol(niveles, bloque, pendientesN){
   // pétalos más grandes, con el nombre y el nº de tareas dentro
-  const paso = 360/AREAS.length, R0 = 68, Lp = 92, vb = 168, n = ++idFlor;
+  const paso = 360/AREAS.length, R0 = 68, Lp = 92, vb = 158, n = ++idFlor;
   const corta = (t, k) => t.length > k ? t.slice(0, k - 1).trimEnd() + '…' : t;
   let s = `<svg viewBox="${-vb} ${-vb} ${vb*2} ${vb*2}" class="flor girasol" role="img" aria-label="Tu flor">
   <defs><filter id="brillo${n}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -1072,8 +1074,8 @@ function florGirasol(niveles, bloque, pendientesN){
     s += `<g transform="rotate(${i*paso}) translate(0 ${-R0 + 8})"><path d="${petalo(Lp, 38)}" fill="${a.color}" fill-opacity="${sel && !nv ? .5 : op}" ${extra}/></g>`;
   });
   s += `<circle r="${R0}" fill="url(#centro${n})"/><circle r="${R0}" fill="url(#semillas${n})"/>`;
-  if(bloque && bloque.actual) s += `<circle r="${R0 + 5}" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="6"/>
-    <circle class="aro-tiempo" data-ini="${bloque.ini}" data-fin="${bloque.fin}" r="${R0 + 5}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="${progresoBloque(bloque.ini, bloque.fin).toFixed(2)} 100" transform="rotate(-90)"/>`;
+  if(bloque && bloque.actual) s += `<circle r="${R0 + 3}" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="6"/>
+    <circle class="aro-tiempo" data-ini="${bloque.ini}" data-fin="${bloque.fin}" r="${R0 + 3}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="${progresoBloque(bloque.ini, bloque.fin).toFixed(2)} 100" transform="rotate(-90)"/>`;
   if(bloque){
     // BLOQUE · 16:00 – 17:30 (en una línea) · primera tarea · +N con el icono de tarea
     const tareas = bloque.tareas || [], resto = tareas.length - 1;
@@ -1084,13 +1086,16 @@ function florGirasol(niveles, bloque, pendientesN){
       <g transform="translate(-1 -8)"><rect x="1.5" y="1.5" width="13" height="13" rx="3" fill="none" stroke="#3a2208" stroke-width="1.8"/><path d="M4.5 8.3l2.3 2.3 4.5-4.6" fill="none" stroke="#3a2208" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></g>`;
   }
   else s += `<text class="g-hora" y="-6" text-anchor="middle" dominant-baseline="central">${pendientesN}</text><text class="g-sub" y="18" text-anchor="middle" dominant-baseline="central">pendientes</text>`;
+  const conBloque = idsEnBloquesHoy();
   AREAS.forEach((a, i) => {
     const ang = i*paso - 90, giro = (ang > 90 || ang < -90) ? ang + 180 : ang;
-    const nTar = D.acciones.filter(x => x.area === a.id && !x.hecha).length;
-    // nombre en la mitad del pétalo y, hacia la punta, el número de tareas (dentro del pétalo)
-    const [xm, ym] = pt(R0 + Lp*.38, ang), [xn, yn] = pt(R0 + Lp*.74, ang);
-    s += `<text class="g-nom" x="${xm.toFixed(1)}" y="${ym.toFixed(1)}" transform="rotate(${giro} ${xm.toFixed(1)} ${ym.toFixed(1)})" text-anchor="middle" dominant-baseline="central">${a.corto}</text>`;
-    if(nTar) s += `<text class="g-cuenta" x="${xn.toFixed(1)}" y="${yn.toFixed(1)}" text-anchor="middle" dominant-baseline="central">${nTar}</text>`;
+    // nº de tareas de esa área que aún no tienen bloque hoy
+    const nTar = D.acciones.filter(x => x.area === a.id && !x.hecha && !conBloque.has(x.id)).length;
+    // en el centro del pétalo: el nombre y, debajo, el número
+    const [xm, ym] = pt(R0 - 8 + Lp*.52, ang), largo = a.corto.length > 8 ? ' largo' : '';
+    s += `<g transform="translate(${xm.toFixed(1)} ${ym.toFixed(1)}) rotate(${giro})">
+      <text class="g-nom${largo}" y="${nTar ? -7 : 0}" text-anchor="middle" dominant-baseline="central">${a.corto}</text>
+      ${nTar ? `<text class="g-cuenta" y="10" text-anchor="middle" dominant-baseline="central">${nTar}</text>` : ''}</g>`;
   });
   // zonas para tocar: pétalos (ver sus tareas) y centro (soltar tareas en el bloque)
   AREAS.forEach((a, i) => { s += `<path class="pet-hit" d="${petalo(Lp + 10, 52)}" transform="rotate(${i*paso}) translate(0 ${-R0 + 4})" fill="transparent" style="cursor:pointer" onclick="abrirPanelArea('${a.id}')" onmouseenter="if(matchMedia('(hover: hover)').matches) abrirPanelArea('${a.id}', true)"/>`; });
