@@ -367,8 +367,11 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .tic-btn{flex:none;border:0;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:800;background:rgba(255,255,255,.08);color:var(--suave)}
 .tic-btn.on{background:rgba(247,195,91,.22);color:var(--oro)}
 .check.cuadro{border-radius:12px}
-.prox.foco-1 .texto-p{font-size:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ff5a6a}
-.prox.foco-1.ok .texto-p{color:inherit}
+.prox.foco-1 .texto-p{font-size:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.prox.foco-1:not(.ok){background:linear-gradient(100deg,#d8283f,#a3172c 85%)}
+.prox.foco-1:not(.ok) .area-p{color:rgba(255,255,255,.85)}
+.prox.foco-1:not(.ok) .check.cuadro{border-color:#fff}
+.prox.foco-1:not(.ok) .asa,.prox.foco-1:not(.ok) .del{color:rgba(255,255,255,.75)}
 .prox.foco-1 .check.cuadro{width:54px;height:54px}
 .prox.foco-sig{padding:12px 16px}
 .prox.foco-sig .texto-p{font-size:17px}
@@ -605,7 +608,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v3.05';
+const VERSION = 'v3.06';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
