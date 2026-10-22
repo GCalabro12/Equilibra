@@ -348,6 +348,18 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .ah-ir{font-size:14px}
 .ahora-blk .mini-barra{margin:10px 0 0}
 .ahora-blk .prox-lista{margin:12px -16px 0}
+.cuenta-fila{display:flex;align-items:center;gap:8px;margin-top:10px}
+.arena{font-size:22px}
+.cuenta-atras{font-size:26px;font-weight:800;color:var(--oro);font-variant-numeric:tabular-nums;min-width:74px}
+.cuenta-txt{flex:1;font-size:13px;color:var(--suave)}
+.tic-btn{flex:none;border:0;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:800;background:rgba(255,255,255,.08);color:var(--suave)}
+.tic-btn.on{background:rgba(247,195,91,.22);color:var(--oro)}
+.check.cuadro{border-radius:12px}
+.prox.foco-1 .texto-p{font-size:26px}
+.prox.foco-1 .check.cuadro{width:54px;height:54px}
+.prox.foco-sig{padding:12px 16px}
+.prox.foco-sig .texto-p{font-size:17px}
+.prox.foco-sig .check.cuadro{width:38px;height:38px;border-width:2.5px;font-size:17px}
 .ah-vacio{margin:12px 0 0;padding:16px;border-radius:16px;background:rgba(255,255,255,.05);color:var(--suave);text-align:center}
 .prox.ok .texto-p{text-decoration:line-through;opacity:.6}
 .check.hecho{background:var(--c);color:#fff}
@@ -564,7 +576,7 @@ nav.abajo button{font-size:11px}
 
 <nav class="abajo" id="nav">
   <div class="in">
-    <button data-v="inicio" onclick="ir('inicio')"><span>🏠</span>Inicio</button>
+    <button data-v="inicio" onclick="ir('inicio')"><span>🎯</span>Focus</button>
     <button data-v="dia" onclick="ir('dia')"><span>⏱</span>Tareas</button>
     <button data-v="salud" onclick="ir('salud')"><span>👣</span>Salud</button>
     <button data-v="historial" onclick="ir('historial')"><span>📅</span>Historial</button>
@@ -576,7 +588,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.52';
+const VERSION = 'v2.53';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -971,19 +983,51 @@ function seccionAhora(){
   if(c < 0) return `<section class="ahora-blk fuera"><div class="ah-cab"><span class="ah-reloj">${m >= 1320 ? '🌙' : '🌅'}</span><div><b>${m >= 1320 ? 'Hora de descansar' : 'Tu día empieza a las 5:30'}</b><small>Los bloques van de 5:30 a 22:00</small></div></div>
     <button class="link" onclick="ir('dia')">Planificar los bloques →</button></section>`;
   const b = BLOQUES[c], acts = actsDe(hoyK(), c);
-  const filas = acts.map((a, i) => {
+  const fila = (a, i, grande) => {
     const x = a.acc && D.acciones.find(z => z.id === a.acc), ar = x && areaDe(x.area), ok = hechaAct(a);
-    return `<div class="prox ${ok ? 'ok' : ''}" style="--c:${ar ? ar.color : '#f7c35b'};animation-delay:${i*70}ms"><span class="num">${i+1}</span>
-      <div class="cuerpo-p">${ar ? `<div class="area-p">${ico(ar)} ${ar.nombre}</div>` : ''}<div class="texto-p">${ICO_TAREA}${esc(a.t)}</div></div>
-      <button class="check ${ok ? 'hecho' : ''}" aria-label="${ok ? 'Desmarcar' : 'Marcar como hecha'}" onclick="alternarActAhora(${i})">✓</button>
+    return `<div class="prox ${grande ? 'foco-1' : 'foco-sig'} ${ok ? 'ok' : ''}" style="--c:${ar ? ar.color : '#f7c35b'};animation-delay:${i*70}ms">
+      <button class="check cuadro ${ok ? 'hecho' : ''}" aria-label="${ok ? 'Desmarcar' : 'Marcar como hecha'}" onclick="alternarActAhora(${i})">✓</button>
+      <div class="cuerpo-p">${ar ? `<div class="area-p">${ico(ar)} ${ar.nombre}</div>` : ''}<div class="texto-p">${esc(a.t)}</div></div>
       <button class="del" aria-label="Quitar del bloque" onclick="quitarActAhora(${i})">✕</button></div>`;
-  }).join('');
+  };
+  // la primera sin hacer va en grande; debajo, las demás del bloque
+  const orden = acts.map((a, i) => ({a, i})), iPrimera = (orden.find(o => !hechaAct(o.a)) || orden[0] || {}).i;
+  const resto = orden.filter(o => o.i !== iPrimera);
   return `<section class="ahora-blk" data-drop="ahora">
-    <div class="ah-cab"><span class="disco aro" style="--p:${progresoBloque(b.ini, b.fin).toFixed(1)}" data-ini="${b.ini}" data-fin="${b.fin}" aria-hidden="true"></span><div><b>Ahora · ${hm(b.ini)} – ${hm(b.fin)}</b><small>quedan ${b.fin - m} min${acts.length ? ` · ${acts.length} de ${MAX_ACT} tareas` : ''}</small></div>
+    <div class="ah-cab"><span class="disco aro" style="--p:${progresoBloque(b.ini, b.fin).toFixed(1)}" data-ini="${b.ini}" data-fin="${b.fin}" aria-hidden="true"></span>
+      <div><b>Bloque actual · ${hm(b.ini)} – ${hm(b.fin)}</b><small>${acts.length ? `${acts.length} de ${MAX_ACT} tareas` : 'Sin tareas todavía'}</small></div>
       <button class="link ah-ir" onclick="ir('dia')">Bloques ›</button></div>
+    <div class="cuenta-fila"><span class="arena" aria-hidden="true">⏳</span><span class="cuenta-atras" data-fin="${b.fin}">${fmtCuenta(b.fin)}</span><span class="cuenta-txt">para acabar el bloque</span>
+      <button class="tic-btn ${ticOn ? 'on' : ''}" id="btn-tic" onclick="alternarTic()" aria-pressed="${ticOn}">${ticOn ? '🔊' : '🔇'} Tic-tac</button></div>
     <div class="mini-barra"><i style="width:${(m - b.ini) / 90 * 100}%"></i></div>
-    ${acts.length ? `<div class="prox-lista">${filas}</div>` : `<p class="ah-vacio">Arrastra aquí una tarea (con los seis puntitos) o toca «→ Ahora».</p>`}
+    ${acts.length ? `<div class="prox-lista">${fila(acts[iPrimera], iPrimera, true)}${resto.map(o => fila(o.a, o.i, false)).join('')}</div>`
+      : `<p class="ah-vacio">Arrastra aquí una tarea (con los seis puntitos) o toca «→ Ahora».</p>`}
   </section>`;
+}
+/* Cuenta atrás del bloque (mm:ss) y sonido de segundero opcional */
+function fmtCuenta(fin){
+  const d = new Date(), q = Math.max(0, fin * 60 - (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()));
+  return Math.floor(q / 60) + ':' + String(q % 60).padStart(2, '0');
+}
+let ticOn = false; try{ ticOn = localStorage.getItem('equilibra.tictac') === '1'; }catch(e){}
+let ticCtx = null, ticPar = false;
+function ticPreparar(){ try{ ticCtx = ticCtx || new (window.AudioContext || window.webkitAudioContext)(); if(ticCtx.state !== 'running') ticCtx.resume(); }catch(e){} }
+function alternarTic(){
+  ticOn = !ticOn; try{ localStorage.setItem('equilibra.tictac', ticOn ? '1' : '0'); }catch(e){}
+  if(ticOn) ticPreparar();
+  const bt = $('#btn-tic'); if(bt){ bt.classList.toggle('on', ticOn); bt.setAttribute('aria-pressed', ticOn); bt.textContent = (ticOn ? '🔊' : '🔇') + ' Tic-tac'; }
+}
+function sonarTic(){
+  if(!ticCtx || ticCtx.state !== 'running') return;
+  const t = ticCtx.currentTime, o = ticCtx.createOscillator(), g = ticCtx.createGain();
+  o.type = 'square'; o.frequency.value = (ticPar = !ticPar) ? 1900 : 1500;
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12, t + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+  o.connect(g).connect(ticCtx.destination); o.start(t); o.stop(t + 0.05);
+}
+function segundero(){
+  const els = document.querySelectorAll('.cuenta-atras');
+  els.forEach(e => { e.textContent = fmtCuenta(+e.dataset.fin); });
+  if(ticOn && vista === 'inicio' && els.length && !document.hidden && !pausa.tareas) sonarTic();
 }
 /* Debajo: desplegable con las tareas pendientes que aún no tienen bloque hoy */
 let sinAsigAbierto = true;
@@ -1761,6 +1805,9 @@ function iniciarSalud(){
   setInterval(saludTick, 30000);
   setInterval(bloquesTick, 30000); setTimeout(bloquesTick, 3000);
   setInterval(avanzarAros, 20000);
+  setInterval(segundero, 1000);
+  // el sonido del segundero necesita un primer toque en la pantalla (norma de los navegadores)
+  ['click', 'touchend'].forEach(ev => document.addEventListener(ev, () => { if(ticOn) ticPreparar(); }, {passive: true}));
   setTimeout(saludTick, 4000);
   document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible'){ leerPasos(); saludTick(); } });
 }
