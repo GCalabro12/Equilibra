@@ -594,7 +594,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v3.02';
+const VERSION = 'v3.03';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -974,7 +974,10 @@ function bannerInstalar(){
   <button class="link" onclick="try{localStorage.setItem('equilibra.sinBannerApp',APK_ULTIMA)}catch(e){};render()">Ahora no</button></div></section>`;
 }
 const bannerApp = () => enAndroidWeb() ? bannerInstalar() : appVieja() ? `<section class="tarjeta ajustes banner-app"><h3>⬇️ Hay una app nueva (${APK_ULTIMA})</h3>
-  <p class="suave">Tienes la ${esc(versionApp() || 'antigua')}. Toca el botón: se descarga en tu navegador; cuando termine, toca «Abrir» o la notificación y luego «Instalar». No pierdes tus datos.</p>
+  <p class="suave">Tienes la ${esc(versionApp() || 'antigua')}. No pierdes tus datos.</p>
+  ${vMenor(versionApp(), '2.36') ? `<ol class="peq suave" style="margin:6px 0 10px;padding-left:20px"><li>Toca el botón y espera unos segundos a que acabe la descarga.</li>
+    <li>Abre tu <b>gestor de archivos → Descargas</b> y toca el <b>«Amable Life.apk»</b> más reciente.</li><li>Toca <b>«Actualizar»</b>. Desde la 2.36, el instalador se abre solo.</li></ol>`
+    : '<p class="peq suave">Toca el botón: al acabar la descarga se abre el instalador; toca «Actualizar».</p>'}
   <div class="bots"><a class="btn prim" href="${APK}" download="Amable Life.apk">Descargar Amable Life ${APK_ULTIMA}</a></div></section>` : '';
 function vInicio(){
   if(!tieneDatos()){
