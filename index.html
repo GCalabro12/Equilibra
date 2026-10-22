@@ -181,6 +181,8 @@ nav.abajo button{background:none;border:0;padding:9px 0 10px;display:flex;flex-d
 nav.abajo button span{font-size:20px;line-height:1.1;filter:grayscale(1);opacity:.6}
 nav.abajo button.act{color:var(--oro)}
 nav.abajo button.act span{filter:none;opacity:1}
+nav.abajo .nav-flor{width:24px;height:24px;margin-bottom:1px;color:var(--suave);opacity:.85}
+nav.abajo button.act .nav-flor{color:var(--oro);opacity:1}
 
 /* Sellos de Práctica Integral (Grow Panel\SELLO.md, colores adaptados al tema nocturno) */
 .sellos{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:26px 0 6px}
@@ -357,7 +359,8 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .tic-btn{flex:none;border:0;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:800;background:rgba(255,255,255,.08);color:var(--suave)}
 .tic-btn.on{background:rgba(247,195,91,.22);color:var(--oro)}
 .check.cuadro{border-radius:12px}
-.prox.foco-1 .texto-p{font-size:26px}
+.prox.foco-1 .texto-p{font-size:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ff5a6a}
+.prox.foco-1.ok .texto-p{color:inherit}
 .prox.foco-1 .check.cuadro{width:54px;height:54px}
 .prox.foco-sig{padding:12px 16px}
 .prox.foco-sig .texto-p{font-size:17px}
@@ -583,7 +586,7 @@ nav.abajo button{font-size:11px}
 <nav class="abajo" id="nav">
   <div class="in">
     <button data-v="inicio" onclick="ir('inicio')"><span>🎯</span>Focus</button>
-    <button data-v="dia" onclick="ir('dia')"><span>⏱</span>Tareas</button>
+    <button data-v="dia" onclick="ir('dia')"><svg class="nav-flor" viewBox="-12 -12 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path transform="rotate(0) translate(0 -3.6)" d="M0 0C2.90 -2.13 2.67 -5.93 0 -7.60C-2.67 -5.93 -2.90 -2.13 0 0Z"/><path transform="rotate(45) translate(0 -3.6)" d="M0 0C2.90 -2.13 2.67 -5.93 0 -7.60C-2.67 -5.93 -2.90 -2.13 0 0Z"/><path transform="rotate(90) translate(0 -3.6)" d="M0 0C2.90 -2.13 2.67 -5.93 0 -7.60C-2.67 -5.93 -2.90 -2.13 0 0Z"/><path transform="rotate(135) translate(0 -3.6)" d="M0 0C2.90 -2.13 2.67 -5.93 0 -7.60C-2.67 -5.93 -2.90 -2.13 0 0Z"/><path transform="rotate(180) translate(0 -3.6)" d="M0 0C2.90 -2.13 2.67 -5.93 0 -7.60C-2.67 -5.93 -2.90 -2.13 0 0Z"/><path transform="rotate(225) translate(0 -3.6)" d="M0 0C2.90 -2.13 2.67 -5.93 0 -7.60C-2.67 -5.93 -2.90 -2.13 0 0Z"/><path transform="rotate(270) translate(0 -3.6)" d="M0 0C2.90 -2.13 2.67 -5.93 0 -7.60C-2.67 -5.93 -2.90 -2.13 0 0Z"/><path transform="rotate(315) translate(0 -3.6)" d="M0 0C2.90 -2.13 2.67 -5.93 0 -7.60C-2.67 -5.93 -2.90 -2.13 0 0Z"/><circle r="3.6"/></svg>Tareas</button>
     <button data-v="salud" onclick="ir('salud')"><span>👣</span>Salud</button>
     <button data-v="historial" onclick="ir('historial')"><span>📅</span>Historial</button>
     <button data-v="ajustes" onclick="ir('ajustes')"><span>⚙️</span>Ajustes</button>
@@ -594,7 +597,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v3.03';
+const VERSION = 'v3.04';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -843,7 +846,16 @@ function render(){
   if(hojaAbierta && $('#hoja')) hojaAbierta();
   if(document.querySelector('canvas.reloj-arena')) iniciarArena();
   ponerVersiones();
+  ajustarFoco();
 }
+/* La tarea en la que te enfocas, siempre en un solo renglón: se achica la letra hasta que quepa */
+function ajustarFoco(){
+  document.querySelectorAll('.prox.foco-1 .texto-p').forEach(el => {
+    let fs = 26; el.style.fontSize = fs + 'px';
+    while(el.scrollWidth > el.clientWidth + 1 && fs > 15){ fs--; el.style.fontSize = fs + 'px'; }
+  });
+}
+addEventListener('resize', () => ajustarFoco());
 /* Arriba, junto al nombre: las dos versiones (web 3.x · app 2.x) */
 function ponerVersiones(){
   const el = $('#ver'); if(!el) return;
@@ -998,17 +1010,7 @@ function vInicio(){
     ${listaSinAsignar()}
     <button class="btn sec ancho" style="margin-top:14px" onclick="abrirNueva()">＋ Nueva acción</button>
     ${tiraSalud()}`;
-  // la flor (girasol): el centro grande es el bloque de ahora; tocar un pétalo muestra sus tareas
-  const ult = ultimaRevision(), dias = ult ? diasDesde(ult.fecha) : null;
-  h += `<section class="tarjeta flor-sec">
-    <h2>Tu flor</h2>
-    <p class="peq suave" style="margin:2px 0 0">${c >= 0 ? 'El centro es tu bloque de ahora. Toca un pétalo para ver sus tareas y arrástralas al centro.' : 'Toca un pétalo para ver sus tareas.'}${dias != null ? ` · revisada ${dias === 0 ? 'hoy' : dias === 1 ? 'ayer' : 'hace ' + dias + ' días'}` : ''}</p>
-    ${florGirasol(D.niveles, c >= 0 ? {actual: true, ini: BLOQUES[c].ini, fin: BLOQUES[c].fin, tareas: actsAhora.map(a => a.t), hora: hm(BLOQUES[c].ini), txt: `a ${hm(BLOQUES[c].fin)} · ${actsAhora.length} ${actsAhora.length === 1 ? 'tarea' : 'tareas'}`} : null, pend.length)}
-    ${panelArea()}
-    ${LEYENDA}
-    ${dias != null && dias >= 30 ? `<p class="peq" style="text-align:center;margin:12px 0 0">Hace más de un mes que no la revisas.</p>` : ''}
-    <button class="btn sec ancho" style="margin-top:12px" onclick="empezar()">Revisar toda la flor</button>
-  </section>
+  h += `
   <div class="sellos">${sellosHTML()}</div>`;
   return h;
 }
@@ -1475,7 +1477,7 @@ function vDia(){
     <div class="flor-nav">
       ${florGirasol(D.niveles, {actual: bSel === cur, ini: b.ini, fin: b.fin, tareas: acts.map(a => a.t), hora: hm(b.ini), txt: `a ${hm(b.fin)} · ${acts.length} ${acts.length === 1 ? 'tarea' : 'tareas'}`, clic: 'abrirTareasAreas()'}, 0)}</div>
     <div class="fn-fila"><button class="fn-flecha" onclick="moverBloque(-1)" aria-label="Bloque anterior">‹</button>
-      <p class="peq suave">Desliza el centro para pasar de bloque · toca un pétalo para ver sus tareas</p>
+      <p class="peq suave">Desliza el centro para pasar de bloque · toca un pétalo para ver sus tareas · <button class="link" onclick="empezar()">revisar toda la flor</button></p>
       <button class="fn-flecha" onclick="moverBloque(1)" aria-label="Bloque siguiente">›</button></div>
     ${panelArea()}
     <div class="tira-blk" id="tiraBlk">${tira}</div>
