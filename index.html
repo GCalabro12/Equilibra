@@ -594,7 +594,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v3.01';
+const VERSION = 'v3.02';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1143,7 +1143,7 @@ function florGirasol(niveles, bloque, pendientesN){
   AREAS.forEach((a, i) => {
     const nv = niveles && niveles[a.id], sel = panelAbierto === a.id;
     const op = !nv ? .6 : 1;   // cada pétalo con su color de verdad
-    const extra = sel ? 'stroke="#fff" stroke-width="3.5"' : !nv ? `stroke="${a.color}" stroke-width="1.5" stroke-dasharray="4 4"` : (nv === 'mas' ? `filter="url(#brillo${n})" stroke="#fff" stroke-width="2"` : '');
+    const extra = sel ? 'stroke="#fff" stroke-width="3.5"' : !nv ? `stroke="${a.color}" stroke-width="1.5" stroke-dasharray="4 4"` : '';
     s += `<g transform="rotate(${i*paso}) translate(0 ${-R0 + 8})"><path d="${petalo(Lp, 38)}" fill="${a.color}" fill-opacity="${sel && !nv ? .5 : op}" ${extra}/></g>`;
   });
   s += `<circle r="${R0}" fill="url(#centro${n})"/><circle r="${R0}" fill="url(#semillas${n})"/>`;
