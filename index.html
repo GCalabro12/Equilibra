@@ -591,7 +591,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.56';
+const VERSION = 'v2.57';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -806,13 +806,12 @@ function flor(niveles, opc = {}){
   return s + '</svg>';
 }
 const LEYENDA = `<div class="leyenda-niv"><span><i class="pt2"></i><i class="pt2"></i> Necesita más acción</span><span><i class="pt2"></i> Una acción a la semana</span><span><b>✓</b> Estoy bien</span></div>`;
-/* Logo: el girasol de la app (centro dorado grande con semillas y su aro de tiempo; pétalos de colores alrededor) */
+/* Logo: el girasol de la app (centro dorado grande con semillas; pétalos de colores alrededor; sin aro) */
 function logoInterior(){
   let s = '<defs><radialGradient id="lc"><stop offset="0" stop-color="#ffe59a"/><stop offset=".55" stop-color="#f7b733"/><stop offset="1" stop-color="#c9741a"/></radialGradient>'
     + '<pattern id="lsem" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="1.5" fill="#7a4310" fill-opacity=".4"/></pattern></defs>';
   AREAS.forEach((a,i) => { s += `<g transform="rotate(${i*45}) translate(0 -36)"><path class="petalo" style="animation-delay:${i*110}ms" d="${petalo(60, 26)}" fill="${a.color}"/></g>`; });
-  return s + '<g class="centro"><circle r="44" fill="url(#lc)"/><circle r="44" fill="url(#lsem)"/>'
-    + '<circle r="47" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="66 100" transform="rotate(-90)"/></g>';
+  return s + '<g class="centro"><circle r="44" fill="url(#lc)"/><circle r="44" fill="url(#lsem)"/></g>';
 }
 function logoSVG(){ return `<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">${logoInterior()}</svg>`; }
 /* Icono de cada área: un pétalo de su color */
