@@ -386,6 +386,7 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .flor-btn .fb-fl{font-size:22px;color:var(--suave)}
 .ta-fila{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
 .ta-t{width:100%;font-weight:700;overflow-wrap:anywhere}
+.ico-tarea{width:1.05em;height:1.05em;flex:none;vertical-align:-.15em;margin-right:.35em;color:color-mix(in srgb,var(--c,#f7c35b) 55%,#fff);opacity:.9}
 .sa-con{flex:none;border:0;border-radius:999px;padding:7px 11px;font-size:13px;font-weight:800;background:rgba(74,222,128,.16);color:#4ade80}
 .ta-btn{flex:none;border:0;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:800;background:var(--acento);color:#fff}
 .ta-btn:disabled{opacity:.35}
@@ -566,7 +567,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.50';
+const VERSION = 'v2.51';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -920,6 +921,8 @@ function vInicio(){
   return h;
 }
 const hoyK = () => claveDia(new Date());
+/* Icono de «tarea»: casilla con check (lo eligió Gustavo) */
+const ICO_TAREA = '<svg class="ico-tarea" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 12.2l2.8 2.8L16.2 9.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 /* Acciones que ya tienen bloque hoy */
 function idsEnBloquesHoy(){
   const r = new Set(), d = B_().days[hoyK()] || {};
@@ -951,7 +954,7 @@ function seccionAhora(){
   const filas = acts.map((a, i) => {
     const x = a.acc && D.acciones.find(z => z.id === a.acc), ar = x && areaDe(x.area), ok = hechaAct(a);
     return `<div class="prox ${ok ? 'ok' : ''}" style="--c:${ar ? ar.color : '#f7c35b'};animation-delay:${i*70}ms"><span class="num">${i+1}</span>
-      <div class="cuerpo-p">${ar ? `<div class="area-p">${ico(ar)} ${ar.nombre}</div>` : ''}<div class="texto-p">${esc(a.t)}</div></div>
+      <div class="cuerpo-p">${ar ? `<div class="area-p">${ico(ar)} ${ar.nombre}</div>` : ''}<div class="texto-p">${ICO_TAREA}${esc(a.t)}</div></div>
       <button class="check ${ok ? 'hecho' : ''}" aria-label="${ok ? 'Desmarcar' : 'Marcar como hecha'}" onclick="alternarActAhora(${i})">✓</button>
       <button class="del" aria-label="Quitar del bloque" onclick="quitarActAhora(${i})">✕</button></div>`;
   }).join('');
@@ -977,7 +980,7 @@ function filaTarea(x, hayBloque, ordenable){
   const a = areaDe(x.area);
   return `<div class="sa-fila" ${ordenable ? `data-ord="${x.id}"` : `data-mover="${x.id}"`} style="--c:${a.color}">
     <div class="sa-l1">${ASA}<button class="check" aria-label="Marcar como hecha" onclick="alternarAccion('${x.id}')">✓</button>
-      <span class="sa-t">${ordenable ? ico(a) + ' ' : ''}${esc(x.texto)}</span></div>
+      <span class="sa-t">${ICO_TAREA}${esc(x.texto)}</span></div>
     ${hayBloque ? `<div class="sa-l2"><button class="sa-ya" onclick="asignarAhora('${x.id}')">${vista === 'dia' ? '→ Al bloque' : '→ Ahora'}</button></div>` : ''}</div>`;
 }
 /* Quitar una tarea de los bloques de hoy (o del bloque elegido): al volver a tocar «✓ Con bloque» */
@@ -1033,7 +1036,7 @@ function panelArea(){
   return `<section class="panel-area" id="panel-area" style="--c:${a.color}">
     <div class="pa-cab">${ico(a, 'g')}<div><b>${a.nombre}</b><small>${nv ? NIVELES[nv].titulo : 'Sin revisar'} · <button class="link" onclick="abrirPetalo('${a.id}')">cambiar</button></small></div>
       <button class="del" aria-label="Cerrar" onclick="panelAbierto = null; const y = scrollY; render(); scrollTo(0, y)">✕</button></div>
-    ${lista.length ? lista.map(x => enBloque.has(x.id) ? `<div class="sa-fila"><div class="sa-l1"><span class="sa-t">${esc(x.texto)}</span></div>
+    ${lista.length ? lista.map(x => enBloque.has(x.id) ? `<div class="sa-fila"><div class="sa-l1"><span class="sa-t">${ICO_TAREA}${esc(x.texto)}</span></div>
       <div class="sa-l2"><button class="sa-con" onclick="quitarDeBloques('${x.id}')" title="Toca para quitarla del bloque">✓ Con bloque · quitar</button></div></div>` : filaTarea(x, c >= 0, false)).join('')
       : '<p class="suave" style="margin:6px 0">Este pétalo no tiene tareas pendientes.</p>'}
     <div class="campo-voz" style="margin-top:10px"><input type="text" id="pa-nueva" maxlength="120" placeholder="Nueva tarea para ${esc(a.corto)}" onkeydown="if(event.key==='Enter')nuevaEnPanel()">${botonMic()}</div>
@@ -1374,7 +1377,7 @@ function abrirTareasAreas(){
     <button class="btn prim ancho" style="margin-top:8px" onclick="anadirEnHoja()">Añadir al bloque</button>`}
     <p class="eti" style="margin:18px 0 0">Añadir tareas de tus áreas</p>
     ${grupos.length ? grupos.map(g => `<p class="eti" style="margin:12px 0 4px">${ico(g.a)} ${g.a.nombre}</p>
-      ${g.lista.map(x => `<div class="ta-fila"><span class="ta-t">${esc(x.texto)}</span>${ya.has(x.id)
+      ${g.lista.map(x => `<div class="ta-fila"><span class="ta-t">${ICO_TAREA}${esc(x.texto)}</span>${ya.has(x.id)
         ? `<button class="sa-con" onclick="quitarDeBloques('${x.id}', true)">✓ En este bloque · quitar</button>`
         : `<button class="ta-btn" ${lleno ? 'disabled' : ''} onclick="accionABloque('${x.id}')">＋ Añadir a este bloque</button>`}</div>`).join('')}`).join('')
       : '<p class="suave">No tienes acciones pendientes en tus áreas.</p>'}
