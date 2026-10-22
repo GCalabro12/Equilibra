@@ -498,17 +498,28 @@ nav.abajo button{font-size:11px}
 .dia-flecha{width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.08);font-size:24px;color:var(--tinta);padding:0}
 .tira-blk{display:flex;gap:8px;overflow-x:auto;margin:14px -16px 0;padding:4px 16px 8px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .tira-blk::-webkit-scrollbar{display:none}
-.blk{flex:none;width:118px;min-height:118px;border:0;border-radius:16px;padding:10px;background:rgba(255,255,255,.06);color:var(--tinta);text-align:left;display:flex;flex-direction:column;gap:2px;scroll-snap-align:center}
-.blk-h{font-size:18px;font-weight:800}
-.blk-f{font-size:11px;color:var(--suave)}
+.blk{flex:none;width:96px;height:96px;border:0;border-radius:50%;padding:6px;color:#3a2208;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;scroll-snap-align:center;
+  background:radial-gradient(circle at 50% 50%,rgba(122,67,16,.28) 1.2px,transparent 1.6px) 0 0/8px 8px,radial-gradient(circle,#ffe59a 0,#f7b733 55%,#c9741a 100%)}
+.blk-ya{font-size:9px;font-weight:800;letter-spacing:1px;color:#5a3810}
+.blk-n{font-size:11px;font-weight:800;color:#5a3810;margin-top:2px}
+.disco{flex:none;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 50% 50%,rgba(122,67,16,.3) 1px,transparent 1.4px) 0 0/6px 6px,radial-gradient(circle,#ffe59a 0,#f7b733 55%,#c9741a 100%)}
+.flor-nav{position:relative;margin-top:4px}
+.flor-nav .flor.girasol{margin:0 auto}
+.fn-fila{display:flex;align-items:center;gap:8px}
+.fn-fila p{flex:1;text-align:center;margin:0}
+.fn-flecha{flex:none;width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:var(--tinta);font-size:24px}
+.girasol .g-pasa{animation:gpasa .35s ease-out}
+@keyframes gpasa{from{opacity:0}}
+.bloque-sel.drop-ok{box-shadow:inset 0 0 0 3px var(--oro)}
+.blk-h{font-size:20px;font-weight:800;line-height:1.1}
+.blk-f{font-size:11px;color:#5a3810;font-weight:700}
 .blk-acts{display:flex;flex-direction:column;gap:2px;font-size:12px;margin-top:6px;overflow:hidden}
 .blk-acts span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .blk-acts .hecha{text-decoration:line-through;color:var(--suave)}
 .blk-vacio{font-size:12px;color:var(--suave);margin-top:6px}
-.blk.pasado{opacity:.5}
-.blk.ahora{background:linear-gradient(160deg,rgba(247,195,91,.35),rgba(247,195,91,.08))}
-.blk.ahora .blk-h::after{content:" · AHORA";font-size:10px;color:var(--oro);letter-spacing:.5px}
-.blk.sel{box-shadow:inset 0 0 0 2px var(--oro)}
+.blk.pasado{opacity:.45;filter:saturate(.5)}
+.blk.ahora{box-shadow:0 0 0 3px rgba(247,195,91,.45)}
+.blk.sel{box-shadow:0 0 0 3px #fff}
 .bloque-sel{margin-top:6px}
 .bs-cab{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .bs-cab b{font-size:22px}
@@ -552,7 +563,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.48';
+const VERSION = 'v2.49';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -912,14 +923,18 @@ function idsEnBloquesHoy(){
   Object.keys(d).forEach(i => (d[i] || []).forEach(a => { if(a && a.acc) r.add(a.acc); }));
   return r;
 }
+function destinoBloque(){
+  if(vista === 'dia' && bSel != null) return {k: claveDia(fechaBloques()), i: bSel};
+  const c = bloqueAhora(); return c < 0 ? null : {k: hoyK(), i: c};
+}
 function asignarAhora(id){
-  const c = bloqueAhora(); if(c < 0){ aviso('Ahora no hay bloque (van de 5:30 a 22:00)'); return; }
+  const dst = destinoBloque(); if(!dst){ aviso('Ahora no hay bloque (van de 5:30 a 22:00)'); return; }
   const x = D.acciones.find(a => a.id === id); if(!x) return;
-  const acts = actsDe(hoyK(), c, true);
-  if(acts.some(a => a.acc === id)){ aviso('Ya está en el bloque de ahora'); return; }
-  if(acts.length >= MAX_ACT){ aviso(`El bloque de ahora ya tiene ${MAX_ACT} tareas`); return; }
+  const acts = actsDe(dst.k, dst.i, true);
+  if(acts.some(a => a.acc === id)){ aviso('Ya está en ese bloque'); return; }
+  if(acts.length >= MAX_ACT){ aviso(`Ese bloque ya tiene ${MAX_ACT} tareas`); return; }
   acts.push({t: x.texto, d: false, acc: id}); guardarBloques(); sonarHecho();
-  aviso(`Al bloque de ${hm(BLOQUES[c].ini)} 🌱`);
+  aviso(`Al bloque de ${hm(BLOQUES[dst.i].ini)} 🌱`);
   const y = window.scrollY; render(); window.scrollTo(0, y);
 }
 function alternarActAhora(i){ bDia = 0; bSel = bloqueAhora(); if(bSel >= 0) alternarAct(i); }
@@ -938,7 +953,7 @@ function seccionAhora(){
       <button class="del" aria-label="Quitar del bloque" onclick="quitarActAhora(${i})">✕</button></div>`;
   }).join('');
   return `<section class="ahora-blk" data-drop="ahora">
-    <div class="ah-cab"><span class="ah-reloj">⏱</span><div><b>Ahora · ${hm(b.ini)} – ${hm(b.fin)}</b><small>quedan ${b.fin - m} min${acts.length ? ` · ${acts.length} de ${MAX_ACT} tareas` : ''}</small></div>
+    <div class="ah-cab"><span class="disco" aria-hidden="true"></span><div><b>Ahora · ${hm(b.ini)} – ${hm(b.fin)}</b><small>quedan ${b.fin - m} min${acts.length ? ` · ${acts.length} de ${MAX_ACT} tareas` : ''}</small></div>
       <button class="link ah-ir" onclick="ir('dia')">Bloques ›</button></div>
     <div class="mini-barra"><i style="width:${(m - b.ini) / 90 * 100}%"></i></div>
     ${acts.length ? `<div class="prox-lista">${filas}</div>` : `<p class="ah-vacio">Arrastra aquí una tarea (con los seis puntitos) o toca «→ Ahora».</p>`}
@@ -960,7 +975,7 @@ function filaTarea(x, hayBloque, ordenable){
   return `<div class="sa-fila" ${ordenable ? `data-ord="${x.id}"` : `data-mover="${x.id}"`} style="--c:${a.color}">${ASA}
     <button class="check" aria-label="Marcar como hecha" onclick="alternarAccion('${x.id}')">✓</button>
     <span class="sa-t">${ordenable ? ico(a) + ' ' : ''}${esc(x.texto)}</span>
-    ${hayBloque ? `<button class="sa-ya" onclick="asignarAhora('${x.id}')">→ Ahora</button>` : ''}</div>`;
+    ${hayBloque ? `<button class="sa-ya" onclick="asignarAhora('${x.id}')">${vista === 'dia' ? '→ Al bloque' : '→ Ahora'}</button>` : ''}</div>`;
 }
 /* Girasol: centro grande = bloque de ahora; pétalos más pequeños alrededor */
 function florGirasol(niveles, bloque, pendientesN){
@@ -976,7 +991,7 @@ function florGirasol(niveles, bloque, pendientesN){
     s += `<g transform="rotate(${i*paso}) translate(0 ${-R0 + 6})"><path d="${petalo(Lp, 30)}" fill="${a.color}" fill-opacity="${sel && !nv ? .5 : op}" ${extra}/></g>`;
   });
   s += `<circle r="${R0}" fill="url(#centro${n})"/><circle r="${R0}" fill="url(#semillas${n})"/>`;
-  if(bloque) s += `<text class="g-hora" y="-10" text-anchor="middle" dominant-baseline="central">${bloque.hora}</text><text class="g-sub" y="16" text-anchor="middle" dominant-baseline="central">${bloque.txt}</text><text class="g-ahora" y="-38" text-anchor="middle" dominant-baseline="central">AHORA</text>`;
+  if(bloque) s += `<text class="g-hora" y="-10" text-anchor="middle" dominant-baseline="central">${bloque.hora}</text><text class="g-sub" y="16" text-anchor="middle" dominant-baseline="central">${bloque.txt}</text><text class="g-ahora" y="-38" text-anchor="middle" dominant-baseline="central">${bloque.etq || 'AHORA'}</text>`;
   else s += `<text class="g-hora" y="-6" text-anchor="middle" dominant-baseline="central">${pendientesN}</text><text class="g-sub" y="18" text-anchor="middle" dominant-baseline="central">pendientes</text>`;
   AREAS.forEach((a, i) => {
     const nv = niveles && niveles[a.id], ang = i*paso - 90, rm = R0 + Lp*.5;
@@ -988,7 +1003,7 @@ function florGirasol(niveles, bloque, pendientesN){
   });
   // zonas para tocar: pétalos (ver sus tareas) y centro (soltar tareas en el bloque de ahora)
   AREAS.forEach((a, i) => { s += `<path class="pet-hit" d="${petalo(Lp + 16, 46)}" transform="rotate(${i*paso}) translate(0 ${-R0 + 2})" fill="transparent" style="cursor:pointer" onclick="abrirPanelArea('${a.id}')" onmouseenter="if(matchMedia('(hover: hover)').matches) abrirPanelArea('${a.id}', true)"/>`; });
-  s += `<circle class="g-centro" r="${R0}" fill="transparent" ${bloque ? 'data-drop="ahora"' : ''} style="cursor:pointer" onclick="ir('dia')"/>`;
+  s += `<circle class="g-centro" r="${R0}" fill="transparent" ${bloque ? 'data-drop="ahora"' : ''} style="cursor:pointer" onclick="${bloque && bloque.clic ? bloque.clic : "ir('dia')"}"/>`;
   return s + '</svg>';
 }
 /* Al tocar (o pasar el ratón por) un pétalo: sus tareas, para arrastrarlas al centro o crear nuevas */
@@ -1001,7 +1016,7 @@ function abrirPanelArea(id, hover){
 }
 function panelArea(){
   if(!panelAbierto) return '';
-  const a = areaDe(panelAbierto), c = bloqueAhora(), nv = nivel(a.id);
+  const a = areaDe(panelAbierto), c = destinoBloque() ? 0 : -1, nv = nivel(a.id);
   const lista = pendientes().filter(x => x.area === a.id), enBloque = idsEnBloquesHoy();
   return `<section class="panel-area" id="panel-area" style="--c:${a.color}">
     <div class="pa-cab">${ico(a, 'g')}<div><b>${a.nombre}</b><small>${nv ? NIVELES[nv].titulo : 'Sin revisar'} · <button class="link" onclick="abrirPetalo('${a.id}')">cambiar</button></small></div>
@@ -1267,8 +1282,8 @@ function vDia(){
   const tira = BLOQUES.map((b, i) => {
     const acts = actsDe(k, i), pasado = bDia < 0 || (hoy && b.fin <= m);
     return `<button class="blk ${i === cur ? 'ahora' : ''} ${pasado ? 'pasado' : ''} ${i === bSel ? 'sel' : ''}" data-i="${i}" onclick="elegirBloque(${i})">
-      <span class="blk-h">${hm(b.ini)}</span><span class="blk-f">a ${hm(b.fin)}</span>
-      ${acts.length ? `<span class="blk-acts">${acts.map(a => `<span class="${hechaAct(a) ? 'hecha' : ''}">• ${esc(a.t)}</span>`).join('')}</span>` : '<span class="blk-vacio">Sin planificar</span>'}</button>`;
+      ${i === cur ? '<span class="blk-ya">AHORA</span>' : ''}<span class="blk-h">${hm(b.ini)}</span><span class="blk-f">a ${hm(b.fin)}</span>
+      <span class="blk-n">${acts.length ? `${acts.filter(hechaAct).length}/${acts.length} ✓` : '—'}</span></button>`;
   }).join('');
   const b = BLOQUES[bSel], acts = actsDe(k, bSel);
   let estado = '';
@@ -1283,8 +1298,14 @@ function vDia(){
     <div class="dia-cab"><button class="dia-flecha" onclick="moverDia(-1)" aria-label="Día anterior">‹</button>
       <div><h2>${bDia === 0 ? 'Hoy' : bDia === 1 ? 'Mañana' : bDia === -1 ? 'Ayer' : DIAS_SEM[d.getDay()]}</h2><span>${DIAS_SEM[d.getDay()]} ${d.getDate()} ${d.toLocaleDateString('es-ES', {month:'short'})}</span></div>
       <button class="dia-flecha" onclick="moverDia(1)" aria-label="Día siguiente">›</button></div>
+    <div class="flor-nav">
+      ${florGirasol(D.niveles, {etq: bSel === cur ? 'AHORA' : 'BLOQUE', hora: hm(b.ini), txt: `a ${hm(b.fin)} · ${acts.length} ${acts.length === 1 ? 'tarea' : 'tareas'}`, clic: 'abrirTareasAreas()'}, 0)}</div>
+    <div class="fn-fila"><button class="fn-flecha" onclick="moverBloque(-1)" aria-label="Bloque anterior">‹</button>
+      <p class="peq suave">Desliza el centro para pasar de bloque · toca un pétalo para ver sus tareas</p>
+      <button class="fn-flecha" onclick="moverBloque(1)" aria-label="Bloque siguiente">›</button></div>
+    ${panelArea()}
     <div class="tira-blk" id="tiraBlk">${tira}</div>
-    <section class="tarjeta bloque-sel">
+    <section class="tarjeta bloque-sel" data-drop="bloque">
       <div class="bs-cab"><b>${hm(b.ini)} – ${hm(b.fin)}</b><span>${estado}</span></div>
       ${bSel === cur ? `<div class="mini-barra"><i style="width:${(m - b.ini) / 90 * 100}%"></i></div>` : ''}
       ${acts.length ? `<div class="tareas">${acts.map((a, i) => `<div class="fila-acc"><button class="tarea ${hechaAct(a) ? 'ok' : ''}" style="--c:${a.acc && D.acciones.find(x => x.id === a.acc) ? areaDe(D.acciones.find(x => x.id === a.acc).area).color : 'var(--oro)'}" onclick="alternarAct(${i})"><span class="caja">✓</span><span>${esc(a.t)}</span></button><button class="del" aria-label="Quitar" onclick="borrarAct(${i})">✕</button></div>`).join('')}</div>` : `<p class="suave" style="margin:10px 0 0">¿A qué vas a dedicar este bloque?</p>`}
@@ -1303,6 +1324,13 @@ function vDia(){
         <p class="peq suave" style="margin:6px 0 0">Las actividades sin terminar pasan solas al bloque siguiente. Los avisos suenan con la app abierta.</p>
       </details>
     </section>`;
+}
+function moverBloque(dir){
+  let i = (bSel == null ? 0 : bSel) + dir;
+  if(i >= BLOQUES.length){ bDia++; i = 0; } else if(i < 0){ bDia--; i = BLOQUES.length - 1; }
+  bSel = i;
+  const y = window.scrollY; render(); window.scrollTo(0, y); centrarBloque(true);
+  const c = document.querySelector('.girasol .g-hora'); if(c){ c.classList.remove('g-pasa'); void c.getBBox(); c.classList.add('g-pasa'); }
 }
 function centrarBloque(suave){
   requestAnimationFrame(() => {
@@ -2104,13 +2132,18 @@ let toque = null;
 app.addEventListener('touchstart', e => {
   const t = e.target;
   if(e.touches.length !== 1 || t.closest('input, textarea, button.mic, .hoja, .asa')) { toque = null; return; }
-  toque = {x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now()};
+  toque = {x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now(), flor: !!t.closest('.girasol')};
 }, {passive: true});
 app.addEventListener('touchend', e => {
   if(!toque) return;
   const dx = e.changedTouches[0].clientX - toque.x, dy = e.changedTouches[0].clientY - toque.y, dt = Date.now() - toque.t;
-  toque = null;
+  const enFlor = toque.flor; toque = null;
   if(arrastre || Date.now() - finArrastre < 400) return;
+  if(enFlor && vista === 'dia'){   // deslizar el centro del girasol: siguiente / anterior bloque
+    if(Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy) * 1.2 && dt <= 800) moverBloque(dx < 0 ? 1 : -1);
+    return;
+  }
+  if(enFlor) return;
   if(Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6 || dt > 800) return;
   deslizar(dx < 0 ? 1 : -1);
 }, {passive: true});
