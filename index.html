@@ -401,6 +401,8 @@ input.pin::placeholder{letter-spacing:normal;font-size:15px}
 .flor-btn .fb-t b{font-size:17px}
 .flor-btn .fb-t small{font-size:13px;color:var(--suave)}
 .flor-btn .fb-fl{font-size:22px;color:var(--suave)}
+.hoja-caja{margin-top:14px;padding:14px;border-radius:18px;background:rgba(255,255,255,.06)}
+.hoja-caja h3{font-size:21px;font-weight:800;margin:0 0 10px}
 .ta-fila{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
 .ta-t{width:100%;font-weight:700;overflow-wrap:anywhere}
 .ico-tarea{width:1.05em;height:1.05em;flex:none;vertical-align:-.15em;margin-right:.35em;color:color-mix(in srgb,var(--c,#f7c35b) 55%,#fff);opacity:.9}
@@ -591,7 +593,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.57';
+const VERSION = 'v2.58';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1519,14 +1521,15 @@ function abrirTareasAreas(){
   const grupos = AREAS.map(a => ({a, lista: pend.filter(x => x.area === a.id)})).filter(g => g.lista.length);
   mostrarHoja(`<div class="hoja-cab"><div><h2>Bloque de ${hm(b.ini)} a ${hm(b.fin)}</h2></div></div>
     <p class="suave" style="margin:4px 0 10px">${acts.length} de ${MAX_ACT} tareas${lleno ? ' · ya está completo' : ''}</p>
-    ${lleno ? '' : `<div class="campo-voz"><input type="text" id="h-blq-nueva" maxlength="120" placeholder="Escribe o dicta una tarea" onkeydown="if(event.key==='Enter')anadirEnHoja()">${botonMic()}</div>
-    <button class="btn prim ancho" style="margin-top:8px" onclick="anadirEnHoja()">Añadir al bloque</button>`}
-    <p class="eti" style="margin:18px 0 0">Añadir tareas de tus áreas</p>
+    <section class="hoja-caja"><h3>Añadir nueva tarea</h3>
+    ${lleno ? '<p class="suave" style="margin:0">El bloque ya tiene 3 tareas.</p>' : `<div class="campo-voz"><input type="text" id="h-blq-nueva" maxlength="120" placeholder="Escribe o dicta una tarea" onkeydown="if(event.key==='Enter')anadirEnHoja()">${botonMic()}</div>
+    <button class="btn prim ancho" style="margin-top:8px" onclick="anadirEnHoja()">Añadir al bloque</button>`}</section>
+    <section class="hoja-caja"><h3>Añadir tareas de tus áreas</h3>
     ${grupos.length ? grupos.map(g => `<p class="eti" style="margin:12px 0 4px">${ico(g.a)} ${g.a.nombre}</p>
       ${g.lista.map(x => `<div class="ta-fila"><span class="ta-t">${ICO_TAREA}${esc(x.texto)}</span>${ya.has(x.id)
         ? `<button class="sa-con" onclick="quitarDeBloques('${x.id}', true)">✓ En este bloque · quitar</button>`
         : `<button class="ta-btn" ${lleno ? 'disabled' : ''} onclick="accionABloque('${x.id}')">＋ Añadir a este bloque</button>`}</div>`).join('')}`).join('')
-      : '<p class="suave">No tienes acciones pendientes en tus áreas.</p>'}
+      : '<p class="suave">No tienes acciones pendientes en tus áreas.</p>'}</section>
     <button class="btn sec ancho" style="margin-top:16px" onclick="cerrarHoja()">Listo</button>`, '#8b5cf6');
   if(escrito && $('#h-blq-nueva')) $('#h-blq-nueva').value = escrito;
 }
