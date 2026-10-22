@@ -594,7 +594,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.59';
+const VERSION = 'v3.00';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -842,6 +842,13 @@ function render(){
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('act', b.dataset.v === vista || (vista === 'detalle' && b.dataset.v === 'historial')));
   if(hojaAbierta && $('#hoja')) hojaAbierta();
   if(document.querySelector('canvas.reloj-arena')) iniciarArena();
+  ponerVersiones();
+}
+/* Arriba, junto al nombre: las dos versiones (web 3.x · app 2.x) */
+function ponerVersiones(){
+  const el = $('#ver'); if(!el) return;
+  let app = ''; try{ app = esApp ? versionApp() : (D && D.appAndroid && D.appAndroid.version) || ''; }catch(e){}
+  el.textContent = 'web ' + VERSION.replace(/^v/, '') + (app && app !== '?' ? ' · app ' + app : '');
 }
 /* ---------- Reloj de arena: dura la hora y media del bloque; la arena cae grano a grano ---------- */
 let arenaRAF = null, granos = [], arenaUlt = 0;
@@ -1614,7 +1621,7 @@ const MOV_TIPS = ['Levántate y estira los brazos hacia el techo.', 'Da una vuel
 // En el navegador, el APK se baja de esta misma web (desde GitHub, la pestaña de descarga se quedaba trabada al 100 %).
 // Dentro de la app, el enlace de GitHub se abre en el navegador del móvil. Subir Amable-Life.apk a la web con cada APK nueva.
 const APK = esApp ? 'https://raw.githubusercontent.com/GCalabro12/Equilibra/main/Amable-Life.apk' : 'Amable-Life.apk';
-const APK_ULTIMA = '2.35';   // última app Android publicada
+const APK_ULTIMA = '2.36';   // última app Android publicada
 const versionApp = () => { try{ return esApp ? String(AndroidEquilibra.version()) : ''; }catch(e){ return ''; } };
 const vMenor = (a, b) => { const x = String(a || '0').split('.').map(Number), y = String(b || '0').split('.').map(Number);
   return (x[0]||0) < (y[0]||0) || ((x[0]||0) === (y[0]||0) && (x[1]||0) < (y[1]||0)); };
@@ -2196,15 +2203,15 @@ function vAjustes(){
         <p class="peq suave" style="margin:12px 0 0">O solo una parte:</p>${botonPausa('salud')}${botonPausa('tareas')}`},
     {k: 'versiones', ico: '📲', t: 'Versiones y actualizaciones',
       sub: (miAppVieja() ? `<span class="aj-aviso">Hay una app nueva: ${APK_ULTIMA}</span> · ` : !miApp() && enAndroidWeb() ? '<span class="aj-aviso">Instala la app de Android</span> · ' : '')
-        + `Web ${VERSION} · app ${miApp() ? esc(miApp()) : '—'}`,
+        + `web ${VERSION.replace(/^v/, '')} · app ${miApp() ? esc(miApp()) : '—'}`,
       html: () => {
         const mia = miApp(), vieja = miAppVieja(), visto = !esApp && D.appAndroid && D.appAndroid.visto;
         const estadoApp = esApp ? (vieja ? `⬇️ Hay una app más nueva (${APK_ULTIMA}): descárgala con el botón de abajo.` : '✓ Tu app del móvil está al día.')
           : mia ? (vieja ? `⬇️ En tu móvil tienes la ${esc(mia)} y ya está la ${APK_ULTIMA}.` : `✓ Tu app del móvil está al día (vista el ${fecha(visto)}).`)
           : 'Desde el navegador no puedo ver si tienes la app en el móvil. Si la tienes, ábrela una vez (con tu cuenta) y aquí saldrá su versión.';
-        return `<div class="ver-fila"><span>Amable Life (web)</span><b>${VERSION}</b></div>
-        <div class="ver-fila"><span>App Android en tu móvil</span><b>${mia ? esc(mia) : '—'}</b></div>
-        <div class="ver-fila"><span>App Android más nueva</span><b>${APK_ULTIMA}</b></div>
+        return `<div class="ver-fila"><span>Amable Life (web)</span><b>web ${VERSION.replace(/^v/, '')}</b></div>
+        <div class="ver-fila"><span>App Android en tu móvil</span><b>${mia ? 'app ' + esc(mia) : '—'}</b></div>
+        <div class="ver-fila"><span>App Android más nueva</span><b>app ${APK_ULTIMA}</b></div>
         <p class="peq" style="margin:8px 0 0">${estadoApp}</p>
         <p class="peq suave" id="ver-estado" style="margin:6px 0 0">La web se actualiza sola al abrir Amable Life.</p>
         <div class="bots"><button class="btn sec" onclick="buscarActualizacion(true)">🔄 Buscar actualizaciones de la web</button>
@@ -2238,7 +2245,7 @@ function vAjustes(){
       <span class="aj-ico">${T.ico}</span><span class="aj-t"><b>${T.t}</b><small>${T.sub}</small></span><span class="s-flecha">${ajAbierto === T.k ? '⌃' : '⌄'}</span></button>
     ${ajAbierto === T.k ? `<section class="aj-cont ajustes" id="aj-${T.k}">${T.html()}</section>` : ''}`).join('')}
   </div>
-  <p class="peq suave" style="text-align:center;margin-top:18px">Amable Life ${VERSION}${esApp ? ' · app ' + esc(versionApp()) : ''} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
+  <p class="peq suave" style="text-align:center;margin-top:18px">Amable Life · web ${VERSION.replace(/^v/, '')}${miApp() ? ' · app ' + esc(miApp()) : ''} · ${n} ${n===1?'acción hecha':'acciones hechas'}</p>
   <div class="sellos">${sellosHTML()}</div>`;
 }
 /* Traer los bloques y tareas de Amable PC (mismos 11 bloques, mismas tareas con su casilla) */
@@ -2383,7 +2390,7 @@ addEventListener('growpanel-listo', enviarResumen);
   const interior = logoInterior();
   ['#logo-splash','#logo-cab'].forEach(s => { const el = $(s); el.setAttribute('viewBox','-100 -100 200 200'); el.innerHTML = interior; });
   $('#favicon').href = 'data:image/svg+xml,' + encodeURIComponent(logoSVG().replace(/ class="[^"]*"| style="[^"]*"/g, ''));
-  $('#ver').textContent = VERSION;
+  ponerVersiones();
   // Al abrir, siempre arriba del todo (el navegador recordaba la posición y el aviso de arriba quedaba oculto)
   try{ if('scrollRestoration' in history) history.scrollRestoration = 'manual'; }catch(e){}
   window.scrollTo(0, 0); addEventListener('load', () => window.scrollTo(0, 0));
