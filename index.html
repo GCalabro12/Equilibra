@@ -88,7 +88,8 @@ a.btn{text-decoration:none;box-sizing:border-box}
 
 /* Bienvenida */
 .bienvenida{text-align:center;padding:0;overflow:hidden}
-.bienvenida .hero{position:relative;height:300px;background:url(img/flor.jpg) center 28%/cover}
+.bienvenida .hero{position:relative;height:300px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 50%,rgba(247,183,51,.22),transparent 62%)}
+.bienvenida .hero svg{width:min(78%,340px);height:auto;filter:drop-shadow(0 10px 30px rgba(247,183,51,.25))}
 .bienvenida .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 45%,var(--tarjeta))}
 .bienvenida .txt{padding:0 20px 22px;margin-top:-30px;position:relative}
 .bienvenida h1{font-size:26px;font-weight:800}
@@ -593,7 +594,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.58';
+const VERSION = 'v2.59';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -970,7 +971,7 @@ const bannerApp = () => enAndroidWeb() ? bannerInstalar() : appVieja() ? `<secti
   <div class="bots"><a class="btn prim" href="${APK}" download="Amable Life.apk">Descargar Amable Life ${APK_ULTIMA}</a></div></section>` : '';
 function vInicio(){
   if(!tieneDatos()){
-    return `${bannerApp()}<section class="tarjeta bienvenida"><div class="hero"></div><div class="txt">
+    return `${bannerApp()}<section class="tarjeta bienvenida"><div class="hero">${logoSVG()}</div><div class="txt">
       <h1>Bienvenido a Amable Life</h1>
       <p>Amable Life te ayuda a tener <b>muy claras tus próximas acciones</b> para vivir en equilibrio.</p>
       <p class="suave">Primero miras tu flor: en cada una de las 8 áreas de tu vida eliges si estás bien o si necesita acción. Después, Amable Life te muestra en grande lo siguiente que vas a hacer.</p>
@@ -1187,7 +1188,7 @@ function panelArea(){
       <div class="sa-l2"><button class="sa-con" onclick="quitarDeBloques('${x.id}')" title="Toca para quitarla del bloque">✓ Con bloque · quitar</button></div></div>` : filaTarea(x, c >= 0, false)).join('')
       : '<p class="suave" style="margin:6px 0">Este pétalo no tiene tareas pendientes.</p>'}
     <div class="campo-voz" style="margin-top:10px"><input type="text" id="pa-nueva" maxlength="120" placeholder="Nueva tarea para ${esc(a.corto)}" onkeydown="if(event.key==='Enter')nuevaEnPanel()">${botonMic()}</div>
-    <button class="btn sec ancho" style="margin-top:8px" onclick="nuevaEnPanel()">＋ Añadir a ${esc(a.nombre)}</button>
+    <button class="btn sec ancho" style="margin-top:8px" onclick="nuevaEnPanel()">＋ Añadir al área de ${esc(a.nombre)}</button>
   </section>`;
 }
 function nuevaEnPanel(){
@@ -1613,7 +1614,7 @@ const MOV_TIPS = ['Levántate y estira los brazos hacia el techo.', 'Da una vuel
 // En el navegador, el APK se baja de esta misma web (desde GitHub, la pestaña de descarga se quedaba trabada al 100 %).
 // Dentro de la app, el enlace de GitHub se abre en el navegador del móvil. Subir Amable-Life.apk a la web con cada APK nueva.
 const APK = esApp ? 'https://raw.githubusercontent.com/GCalabro12/Equilibra/main/Amable-Life.apk' : 'Amable-Life.apk';
-const APK_ULTIMA = '2.34';   // última app Android publicada
+const APK_ULTIMA = '2.35';   // última app Android publicada
 const versionApp = () => { try{ return esApp ? String(AndroidEquilibra.version()) : ''; }catch(e){ return ''; } };
 const vMenor = (a, b) => { const x = String(a || '0').split('.').map(Number), y = String(b || '0').split('.').map(Number);
   return (x[0]||0) < (y[0]||0) || ((x[0]||0) === (y[0]||0) && (x[1]||0) < (y[1]||0)); };
