@@ -590,7 +590,7 @@ nav.abajo button{font-size:11px}
 
 <script>
 'use strict';
-const VERSION = 'v2.54';
+const VERSION = 'v2.55';
 const CLAVE = 'equilibra.datos';
 const CLAVE_SONIDO = 'equilibra.sonido';
 
@@ -1063,6 +1063,12 @@ function florGirasol(niveles, bloque, pendientesN){
   // pétalos más grandes, con el nombre y el nº de tareas dentro
   const paso = 360/AREAS.length, R0 = 68, Lp = 92, vb = 158, n = ++idFlor;
   const corta = (t, k) => t.length > k ? t.slice(0, k - 1).trimEnd() + '…' : t;
+  // el nombre de la tarea en dos renglones (cortando por palabras)
+  const dosRenglones = (t, k) => {
+    if(t.length <= k) return [t];
+    let i = t.lastIndexOf(' ', k); if(i < 4) i = k;
+    return [t.slice(0, i).trim(), corta(t.slice(i).trim(), k)];
+  };
   let s = `<svg viewBox="${-vb} ${-vb} ${vb*2} ${vb*2}" class="flor girasol" role="img" aria-label="Tu flor">
   <defs><filter id="brillo${n}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   <radialGradient id="centro${n}"><stop offset="0" stop-color="#ffe59a"/><stop offset=".55" stop-color="#f7b733"/><stop offset="1" stop-color="#c9741a"/></radialGradient>
@@ -1079,10 +1085,11 @@ function florGirasol(niveles, bloque, pendientesN){
   if(bloque){
     // BLOQUE · 16:00 – 17:30 (en una línea) · primera tarea · +N con el icono de tarea
     const tareas = bloque.tareas || [], resto = tareas.length - 1;
-    s += `<text class="g-ahora" y="-40" text-anchor="middle" dominant-baseline="central">BLOQUE</text>
-      <text class="g-rango" y="-19" text-anchor="middle" dominant-baseline="central">${hm(bloque.ini)} – ${hm(bloque.fin)}</text>
-      <text class="g-tarea" y="5" text-anchor="middle" dominant-baseline="central">${tareas.length ? esc(corta(tareas[0], 19)) : 'Sin tareas'}</text>`;
-    if(resto > 0) s += `<g transform="translate(0 29)"><text class="g-mas" x="-4" text-anchor="end" dominant-baseline="central">+${resto}</text>
+    s += `<text class="g-ahora" y="-44" text-anchor="middle" dominant-baseline="central">BLOQUE</text>
+      <text class="g-rango" y="-23" text-anchor="middle" dominant-baseline="central">${hm(bloque.ini)} – ${hm(bloque.fin)}</text>
+      ${tareas.length ? dosRenglones(tareas[0], 18).map((l, k, arr) => `<text class="g-tarea" y="${arr.length === 1 ? 6 : k ? 17 : 3}" text-anchor="middle" dominant-baseline="central">${esc(l)}</text>`).join('')
+        : '<text class="g-tarea" y="6" text-anchor="middle" dominant-baseline="central">Sin tareas</text>'}`;
+    if(resto > 0) s += `<g transform="translate(0 38)"><text class="g-mas" x="-4" text-anchor="end" dominant-baseline="central">+${resto}</text>
       <g transform="translate(-1 -8)"><rect x="1.5" y="1.5" width="13" height="13" rx="3" fill="none" stroke="#3a2208" stroke-width="1.8"/><path d="M4.5 8.3l2.3 2.3 4.5-4.6" fill="none" stroke="#3a2208" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></g></g>`;
   }
   else s += `<text class="g-hora" y="-6" text-anchor="middle" dominant-baseline="central">${pendientesN}</text><text class="g-sub" y="18" text-anchor="middle" dominant-baseline="central">pendientes</text>`;
